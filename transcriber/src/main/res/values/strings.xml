@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="audio_capture_notification_channel">Audio Capture</string>
+    <string name="audio_capture_notification_title">Audio Capture Active</string>
+    <string name="audio_capture_notification_idle">Awaiting capture</string>
+    <string name="audio_capture_notification_active">Capturing microphone input\u2026</string>
+</resources>
+

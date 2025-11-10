@@ -30,6 +30,8 @@ dependencies {
     implementation(project(":core"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.hilt.android)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
     kapt(libs.hilt.compiler)
 }
 

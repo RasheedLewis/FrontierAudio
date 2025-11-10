@@ -1,0 +1,174 @@
+package com.example.frontieraudio.transcriber.audio
+
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.media.AudioRecord
+import android.media.MediaRecorder
+import android.os.Binder
+import android.os.Build
+import android.os.IBinder
+import androidx.annotation.RequiresPermission
+import androidx.core.app.NotificationCompat
+import com.example.frontieraudio.transcriber.R
+import java.util.concurrent.CopyOnWriteArraySet
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+
+class AudioCaptureService : Service() {
+
+    private val binder = AudioCaptureBinder()
+    private val listeners = CopyOnWriteArraySet<AudioChunkListener>()
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    private var audioRecord: AudioRecord? = null
+    private var captureJob: Job? = null
+    private var currentConfig: AudioCaptureConfig = AudioCaptureConfig()
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
+        val initialNotification = buildNotification(getString(R.string.audio_capture_notification_idle))
+        startForeground(NOTIFICATION_ID, initialNotification)
+    }
+
+    override fun onBind(intent: Intent?): IBinder = binder
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopCapture()
+        serviceScope.cancel()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+    }
+
+    fun registerListener(listener: AudioChunkListener) {
+        listeners += listener
+    }
+
+    fun unregisterListener(listener: AudioChunkListener) {
+        listeners -= listener
+    }
+
+    fun isCapturing(): Boolean = captureJob?.isActive == true
+
+    @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
+    @Synchronized
+    fun startCapture(config: AudioCaptureConfig = AudioCaptureConfig()) {
+        if (isCapturing()) return
+
+        val resolvedConfig = config
+        val audioRecord = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            resolvedConfig.sampleRateInHz,
+            resolvedConfig.channelConfig,
+            resolvedConfig.audioFormat,
+            resolvedConfig.bufferSizeInBytes
+        )
+
+        if (audioRecord.state != AudioRecord.STATE_INITIALIZED) {
+            audioRecord.release()
+            throw IllegalStateException("Failed to initialize AudioRecord for capture.")
+        }
+
+        audioRecord.startRecording()
+        this.audioRecord = audioRecord
+        this.currentConfig = resolvedConfig
+        updateNotification(getString(R.string.audio_capture_notification_active))
+
+        captureJob = serviceScope.launch {
+            val buffer = ShortArray(resolvedConfig.bufferSizeInShorts)
+            while (isActive && audioRecord.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
+                val read = audioRecord.read(buffer, 0, buffer.size, AudioRecord.READ_BLOCKING)
+                if (read > 0) {
+                    val chunk = buffer.copyOf(read)
+                    val timestamp = System.currentTimeMillis()
+                    listeners.forEach { listener ->
+                        listener.onAudioChunk(chunk, read, timestamp)
+                    }
+                }
+            }
+        }
+    }
+
+    @Synchronized
+    fun stopCapture() {
+        captureJob?.cancel()
+        captureJob = null
+
+        audioRecord?.let { record ->
+            try {
+                record.stop()
+            } catch (_: IllegalStateException) {
+                // ignored
+            } finally {
+                record.release()
+            }
+        }
+        audioRecord = null
+
+        updateNotification(getString(R.string.audio_capture_notification_idle))
+    }
+
+    inner class AudioCaptureBinder : Binder() {
+        val service: AudioCaptureService
+            get() = this@AudioCaptureService
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                getString(R.string.audio_capture_notification_channel),
+                NotificationManager.IMPORTANCE_LOW
+            )
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun buildNotification(contentText: String): Notification {
+        val launchIntent = packageManager?.getLaunchIntentForPackage(packageName)
+        val pendingIntent = if (launchIntent != null) {
+            PendingIntent.getActivity(
+                this,
+                0,
+                launchIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        } else {
+            null
+        }
+
+        return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setContentTitle(getString(R.string.audio_capture_notification_title))
+            .setContentText(contentText)
+            .setSmallIcon(R.drawable.ic_audio_capture)
+            .setOngoing(true)
+            .setContentIntent(pendingIntent)
+            .build()
+    }
+
+    private fun updateNotification(contentText: String) {
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(NOTIFICATION_ID, buildNotification(contentText))
+    }
+
+    companion object {
+        private const val NOTIFICATION_CHANNEL_ID = "frontier_audio_capture"
+        private const val NOTIFICATION_ID = 9001
+    }
+}
+

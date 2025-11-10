@@ -1,3 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.example.frontieraudio.transcriber" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.frontieraudio.transcriber">
+
+    <application>
+        <service
+            android:name=".audio.AudioCaptureService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+    </application>
+
+</manifest>
 
