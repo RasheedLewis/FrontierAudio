@@ -14,6 +14,7 @@ import com.example.frontieraudio.transcriber.TranscriberModule
 fun ControlCenterStatus(
     jarvisModule: JarvisModule,
     transcriberModule: TranscriberModule,
+    isFirstLaunch: Boolean,
     permissionSnapshot: PermissionSnapshot,
     modifier: Modifier = Modifier
 ) {
@@ -30,9 +31,14 @@ fun ControlCenterStatus(
         val missing = permissionSnapshot.missingPermissions.joinToString()
         "Missing: $missing"
     }
+    val firstLaunchStatus = if (isFirstLaunch) {
+        "First Launch"
+    } else {
+        "Returning User"
+    }
 
     Text(
-        text = "Frontier Control Center: $systemStatus | $permissionsStatus",
+        text = "Frontier Control Center: $systemStatus | $permissionsStatus | $firstLaunchStatus",
         modifier = modifier
     )
 }

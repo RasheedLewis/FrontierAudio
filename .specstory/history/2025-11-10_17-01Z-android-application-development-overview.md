@@ -3444,3 +3444,3381 @@ fun ControlCenterStatus(
 
 ---
 
+_**User (2025-11-10 17:01Z)**_
+
+Complete 5. Implement shared data storage layer (Room or DataStore). Use DataStore
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Outlining DataStore integration plan**
+
+I’m planning to implement a shared data storage layer using DataStore in the core module. This involves updating libs.versions for DataStore and coroutine dependencies, creating a Hilt module to provide a DataStore instance, and building a manager class to handle preferences like first-run state. I’m also considering basic UI integration to reflect stored preferences. This is shaping up as a multi-step task with clear milestones.</details></think>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="todo_write">
+<details><summary>Tool use: **todo_write** • Todo List</summary>
+
+- [-] Add DataStore and coroutines dependencies to Gradle configuration
+- [ ] Provide DataStore instance via Hilt module in core layer
+- [ ] Implement shared DataStore manager and integrate with startup logic/UI
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating dependencies and modules**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/gradle/libs.versions.toml&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;22c11b4b-b4e3-4297-9899-37baa52a2095&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  composeBom = \&quot;2024.04.01\&quot;\n  hilt = \&quot;2.52\&quot;\n+ datastore = \&quot;1.1.1\&quot;\n+ coroutines = \&quot;1.8.1\&quot;\n  \n  [libraries]&quot;,
+        &quot;oldStart&quot;: 10,
+        &quot;newStart&quot;: 10,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 6,
+        &quot;linesAdded&quot;: 2
+      },
+      {
+        &quot;diffString&quot;: &quot;  hilt-android = { group = \&quot;com.google.dagger\&quot;, name = \&quot;hilt-android\&quot;, version.ref = \&quot;hilt\&quot; }\n  hilt-compiler = { group = \&quot;com.google.dagger\&quot;, name = \&quot;hilt-android-compiler\&quot;, version.ref = \&quot;hilt\&quot; }\n+ androidx-datastore-preferences = { group = \&quot;androidx.datastore\&quot;, name = \&quot;datastore-preferences\&quot;, version.ref = \&quot;datastore\&quot; }\n+ kotlinx-coroutines-core = { group = \&quot;org.jetbrains.kotlinx\&quot;, name = \&quot;kotlinx-coroutines-core\&quot;, version.ref = \&quot;coroutines\&quot; }\n+ kotlinx-coroutines-android = { group = \&quot;org.jetbrains.kotlinx\&quot;, name = \&quot;kotlinx-coroutines-android\&quot;, version.ref = \&quot;coroutines\&quot; }\n  \n  [plugins]&quot;,
+        &quot;oldStart&quot;: 28,
+        &quot;newStart&quot;: 30,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 7,
+        &quot;linesAdded&quot;: 3
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/gradle/libs.versions.toml&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;[versions]\nagp = \&quot;8.8.1\&quot;\nkotlin = \&quot;2.0.0\&quot;\ncoreKtx = \&quot;1.10.1\&quot;\njunit = \&quot;4.13.2\&quot;\njunitVersion = \&quot;1.1.5\&quot;\nespressoCore = \&quot;3.5.1\&quot;\nlifecycleRuntimeKtx = \&quot;2.6.1\&quot;\nactivityCompose = \&quot;1.8.0\&quot;\ncomposeBom = \&quot;2024.04.01\&quot;\nhilt = \&quot;2.52\&quot;\ndatastore = \&quot;1.1.1\&quot;\ncoroutines = \&quot;1.8.1\&quot;\n\n[libraries]\nandroidx-core-ktx = { group = \&quot;androidx.core\&quot;, name = \&quot;core-ktx\&quot;, version.ref = \&quot;coreKtx\&quot; }\njunit = { group = \&quot;junit\&quot;, name = \&quot;junit\&quot;, version.ref = \&quot;junit\&quot; }\nandroidx-junit = { group = \&quot;androidx.test.ext\&quot;, name = \&quot;junit\&quot;, version.ref = \&quot;junitVersion\&quot; }\nandroidx-espresso-core = { group = \&quot;androidx.test.espresso\&quot;, name = \&quot;espresso-core\&quot;, version.ref = \&quot;espressoCore\&quot; }\nandroidx-lifecycle-runtime-ktx = { group = \&quot;androidx.lifecycle\&quot;, name = \&quot;lifecycle-runtime-ktx\&quot;, version.ref = \&quot;lifecycleRuntimeKtx\&quot; }\nandroidx-activity-compose = { group = \&quot;androidx.activity\&quot;, name = \&quot;activity-compose\&quot;, version.ref = \&quot;activityCompose\&quot; }\nandroidx-compose-bom = { group = \&quot;androidx.compose\&quot;, name = \&quot;compose-bom\&quot;, version.ref = \&quot;composeBom\&quot; }\nandroidx-ui = { group = \&quot;androidx.compose.ui\&quot;, name = \&quot;ui\&quot; }\nandroidx-ui-graphics = { group = \&quot;androidx.compose.ui\&quot;, name = \&quot;ui-graphics\&quot; }\nandroidx-ui-tooling = { group = \&quot;androidx.compose.ui\&quot;, name = \&quot;ui-tooling\&quot; }\nandroidx-ui-tooling-preview = { group = \&quot;androidx.compose.ui\&quot;, name = \&quot;ui-tooling-preview\&quot; }\nandroidx-ui-test-manifest = { group = \&quot;androidx.compose.ui\&quot;, name = \&quot;ui-test-manifest\&quot; }\nandroidx-ui-test-junit4 = { group = \&quot;androidx.compose.ui\&quot;, name = \&quot;ui-test-junit4\&quot; }\nandroidx-material3 = { group = \&quot;androidx.compose.material3\&quot;, name = \&quot;material3\&quot; }\nhilt-android = { group = \&quot;com.google.dagger\&quot;, name = \&quot;hilt-android\&quot;, version.ref = \&quot;hilt\&quot; }\nhilt-compiler = { group = \&quot;com.google.dagger\&quot;, name = \&quot;hilt-android-compiler\&quot;, version.ref = \&quot;hilt\&quot; }\nandroidx-datastore-preferences = { group = \&quot;androidx.datastore\&quot;, name = \&quot;datastore-preferences\&quot;, version.ref = \&quot;datastore\&quot; }\nkotlinx-coroutines-core = { group = \&quot;org.jetbrains.kotlinx\&quot;, name = \&quot;kotlinx-coroutines-core\&quot;, version.ref = \&quot;coroutines\&quot; }\nkotlinx-coroutines-android = { group = \&quot;org.jetbrains.kotlinx\&quot;, name = \&quot;kotlinx-coroutines-android\&quot;, version.ref = \&quot;coroutines\&quot; }\n\n[plugins]\nandroid-application = { id = \&quot;com.android.application\&quot;, version.ref = \&quot;agp\&quot; }\nandroid-library = { id = \&quot;com.android.library\&quot;, version.ref = \&quot;agp\&quot; }\nkotlin-android = { id = \&quot;org.jetbrains.kotlin.android\&quot;, version.ref = \&quot;kotlin\&quot; }\nkotlin-compose = { id = \&quot;org.jetbrains.kotlin.plugin.compose\&quot;, version.ref = \&quot;kotlin\&quot; }\nhilt = { id = \&quot;com.google.dagger.hilt.android\&quot;, version.ref = \&quot;hilt\&quot; }\nkotlin-kapt = { id = \&quot;org.jetbrains.kotlin.kapt\&quot;, version.ref = \&quot;kotlin\&quot; }\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Adding dependencies to build.gradle**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/build.gradle.kts&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;80c69f4d-fa30-4f4b-a2ac-64fd41a93f29&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;      implementation(libs.androidx.core.ktx)\n      implementation(libs.hilt.android)\n+     implementation(libs.androidx.datastore.preferences)\n+     implementation(libs.kotlinx.coroutines.core)\n+     implementation(libs.kotlinx.coroutines.android)\n      kapt(libs.hilt.compiler)\n  }&quot;,
+        &quot;oldStart&quot;: 30,
+        &quot;newStart&quot;: 30,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 7,
+        &quot;linesAdded&quot;: 3
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/build.gradle.kts&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;plugins {\n    alias(libs.plugins.android.library)\n    alias(libs.plugins.kotlin.android)\n    alias(libs.plugins.hilt)\n    alias(libs.plugins.kotlin.kapt)\n}\n\nandroid {\n    namespace = \&quot;com.example.frontieraudio.core\&quot;\n    compileSdk = 35\n\n    defaultConfig {\n        minSdk = 24\n    }\n\n    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_11\n        targetCompatibility = JavaVersion.VERSION_11\n    }\n    kotlinOptions {\n        jvmTarget = \&quot;11\&quot;\n    }\n}\n\nkapt {\n    correctErrorTypes = true\n}\n\ndependencies {\n    implementation(libs.androidx.core.ktx)\n    implementation(libs.hilt.android)\n    implementation(libs.androidx.datastore.preferences)\n    implementation(libs.kotlinx.coroutines.core)\n    implementation(libs.kotlinx.coroutines.android)\n    kapt(libs.hilt.compiler)\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Considering coroutine and Flow usage**</details></think>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="todo_write">
+<details><summary>Tool use: **todo_write** • Todo List</summary>
+
+- [x] Add DataStore and coroutines dependencies to Gradle configuration
+- [-] Provide DataStore instance via Hilt module in core layer
+- [ ] Implement shared DataStore manager and integrate with startup logic/UI
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Creating Hilt DataStore module**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/storage/datastore/DataStoreModule.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;711bd859-b676-4635-bb2b-3777fbf8d8eb&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;- \n+ package com.example.frontieraudio.core.storage.datastore\n+ \n+ import android.content.Context\n+ import androidx.datastore.core.DataStore\n+ import androidx.datastore.preferences.core.Preferences\n+ import androidx.datastore.preferences.core.PreferenceDataStoreFactory\n+ import androidx.datastore.preferences.preferencesDataStoreFile\n+ import dagger.Module\n+ import dagger.Provides\n+ import dagger.hilt.InstallIn\n+ import dagger.hilt.android.qualifiers.ApplicationContext\n+ import dagger.hilt.components.SingletonComponent\n+ import kotlinx.coroutines.CoroutineScope\n+ import kotlinx.coroutines.Dispatchers\n+ import kotlinx.coroutines.SupervisorJob\n+ import javax.inject.Singleton\n+ \n+ private const val DATASTORE_FILE_NAME = \&quot;frontier_prefs.preferences_pb\&quot;\n+ \n+ @Module\n+ @InstallIn(SingletonComponent::class)\n+ object DataStoreModule {\n+ \n+     @Provides\n+     @Singleton\n+     fun providePreferenceDataStore(\n+         @ApplicationContext context: Context\n+     ): DataStore&lt;Preferences&gt; {\n+         return PreferenceDataStoreFactory.create(\n+             scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),\n+             produceFile = { context.preferencesDataStoreFile(DATASTORE_FILE_NAME) }\n+         )\n+     }\n+ }\n+ &quot;,
+        &quot;oldStart&quot;: 1,
+        &quot;newStart&quot;: 1,
+        &quot;oldLines&quot;: 1,
+        &quot;newLines&quot;: 35,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 35
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/storage/datastore/DataStoreModule.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio.core.storage.datastore\n\nimport android.content.Context\nimport androidx.datastore.core.DataStore\nimport androidx.datastore.preferences.core.Preferences\nimport androidx.datastore.preferences.core.PreferenceDataStoreFactory\nimport androidx.datastore.preferences.preferencesDataStoreFile\nimport dagger.Module\nimport dagger.Provides\nimport dagger.hilt.InstallIn\nimport dagger.hilt.android.qualifiers.ApplicationContext\nimport dagger.hilt.components.SingletonComponent\nimport kotlinx.coroutines.CoroutineScope\nimport kotlinx.coroutines.Dispatchers\nimport kotlinx.coroutines.SupervisorJob\nimport javax.inject.Singleton\n\nprivate const val DATASTORE_FILE_NAME = \&quot;frontier_prefs.preferences_pb\&quot;\n\n@Module\n@InstallIn(SingletonComponent::class)\nobject DataStoreModule {\n\n    @Provides\n    @Singleton\n    fun providePreferenceDataStore(\n        @ApplicationContext context: Context\n    ): DataStore&lt;Preferences&gt; {\n        return PreferenceDataStoreFactory.create(\n            scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),\n            produceFile = { context.preferencesDataStoreFile(DATASTORE_FILE_NAME) }\n        )\n    }\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Marking task completion**</details></think>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="todo_write">
+<details><summary>Tool use: **todo_write** • Todo List</summary>
+
+- [x] Add DataStore and coroutines dependencies to Gradle configuration
+- [x] Provide DataStore instance via Hilt module in core layer
+- [-] Implement shared DataStore manager and integrate with startup logic/UI
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Implementing DataStore preferences with coroutine scope**
+
+I'm building a `FrontierPreferenceStore` to manage a first-launch flag using DataStore and Kotlin Flow, ensuring safe asynchronous updates. To mark the app as launched, I'll add coroutine scope handling in `FrontierStartupCoordinator`, injecting the store and launching a coroutine for `markAppLaunched()`. I'll also update the UI, particularly `MainActivity` and `ControlCenterStatus`, to observe and display the first-launch state via Compose’s `collectAsState`, while ensuring necessary dependencies and proper injection across modules.</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/storage/datastore/FrontierPreferenceStore.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;e46ddc24-2b23-4e97-b0fc-cd53e0977dce&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;- \n+ package com.example.frontieraudio.core.storage.datastore\n+ \n+ import androidx.datastore.core.DataStore\n+ import androidx.datastore.preferences.core.Preferences\n+ import androidx.datastore.preferences.core.booleanPreferencesKey\n+ import androidx.datastore.preferences.core.edit\n+ import kotlinx.coroutines.flow.Flow\n+ import kotlinx.coroutines.flow.catch\n+ import kotlinx.coroutines.flow.distinctUntilChanged\n+ import kotlinx.coroutines.flow.map\n+ import java.io.IOException\n+ import javax.inject.Inject\n+ import javax.inject.Singleton\n+ \n+ @Singleton\n+ class FrontierPreferenceStore @Inject constructor(\n+     private val dataStore: DataStore&lt;Preferences&gt;\n+ ) {\n+ \n+     val isFirstLaunch: Flow&lt;Boolean&gt; = dataStore.data\n+         .catch { throwable -&gt;\n+             if (throwable is IOException) {\n+                 emit(emptyPreferences())\n+             } else {\n+                 throw throwable\n+             }\n+         }\n+         .map { preferences -&gt;\n+             val hasCompletedFirstLaunch = preferences[Keys.HAS_COMPLETED_FIRST_LAUNCH] ?: false\n+             !hasCompletedFirstLaunch\n+         }\n+         .distinctUntilChanged()\n+ \n+     suspend fun markAppLaunched() {\n+         dataStore.edit { preferences -&gt;\n+             preferences[Keys.HAS_COMPLETED_FIRST_LAUNCH] = true\n+         }\n+     }\n+ \n+     private object Keys {\n+         val HAS_COMPLETED_FIRST_LAUNCH = booleanPreferencesKey(\&quot;has_completed_first_launch\&quot;)\n+     }\n+ }\n+ &quot;,
+        &quot;oldStart&quot;: 1,
+        &quot;newStart&quot;: 1,
+        &quot;oldLines&quot;: 1,
+        &quot;newLines&quot;: 44,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 44
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/storage/datastore/FrontierPreferenceStore.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio.core.storage.datastore\n\nimport androidx.datastore.core.DataStore\nimport androidx.datastore.preferences.core.Preferences\nimport androidx.datastore.preferences.core.booleanPreferencesKey\nimport androidx.datastore.preferences.core.edit\nimport kotlinx.coroutines.flow.Flow\nimport kotlinx.coroutines.flow.catch\nimport kotlinx.coroutines.flow.distinctUntilChanged\nimport kotlinx.coroutines.flow.map\nimport java.io.IOException\nimport javax.inject.Inject\nimport javax.inject.Singleton\n\n@Singleton\nclass FrontierPreferenceStore @Inject constructor(\n    private val dataStore: DataStore&lt;Preferences&gt;\n) {\n\n    val isFirstLaunch: Flow&lt;Boolean&gt; = dataStore.data\n        .catch { throwable -&gt;\n            if (throwable is IOException) {\n                emit(emptyPreferences())\n            } else {\n                throw throwable\n            }\n        }\n        .map { preferences -&gt;\n            val hasCompletedFirstLaunch = preferences[Keys.HAS_COMPLETED_FIRST_LAUNCH] ?: false\n            !hasCompletedFirstLaunch\n        }\n        .distinctUntilChanged()\n\n    suspend fun markAppLaunched() {\n        dataStore.edit { preferences -&gt;\n            preferences[Keys.HAS_COMPLETED_FIRST_LAUNCH] = true\n        }\n    }\n\n    private object Keys {\n        val HAS_COMPLETED_FIRST_LAUNCH = booleanPreferencesKey(\&quot;has_completed_first_launch\&quot;)\n    }\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Adding missing import for emptyPreferences**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/storage/datastore/FrontierPreferenceStore.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;1c97387b-e4f7-4490-b583-83be55c51da3&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  import androidx.datastore.preferences.core.booleanPreferencesKey\n  import androidx.datastore.preferences.core.edit\n+ import androidx.datastore.preferences.core.emptyPreferences\n  import kotlinx.coroutines.flow.Flow\n  import kotlinx.coroutines.flow.catch&quot;,
+        &quot;oldStart&quot;: 5,
+        &quot;newStart&quot;: 5,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/storage/datastore/FrontierPreferenceStore.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio.core.storage.datastore\n\nimport androidx.datastore.core.DataStore\nimport androidx.datastore.preferences.core.Preferences\nimport androidx.datastore.preferences.core.booleanPreferencesKey\nimport androidx.datastore.preferences.core.edit\nimport androidx.datastore.preferences.core.emptyPreferences\nimport kotlinx.coroutines.flow.Flow\nimport kotlinx.coroutines.flow.catch\nimport kotlinx.coroutines.flow.distinctUntilChanged\nimport kotlinx.coroutines.flow.map\nimport java.io.IOException\nimport javax.inject.Inject\nimport javax.inject.Singleton\n\n@Singleton\nclass FrontierPreferenceStore @Inject constructor(\n    private val dataStore: DataStore&lt;Preferences&gt;\n) {\n\n    val isFirstLaunch: Flow&lt;Boolean&gt; = dataStore.data\n        .catch { throwable -&gt;\n            if (throwable is IOException) {\n                emit(emptyPreferences())\n            } else {\n                throw throwable\n            }\n        }\n        .map { preferences -&gt;\n            val hasCompletedFirstLaunch = preferences[Keys.HAS_COMPLETED_FIRST_LAUNCH] ?: false\n            !hasCompletedFirstLaunch\n        }\n        .distinctUntilChanged()\n\n    suspend fun markAppLaunched() {\n        dataStore.edit { preferences -&gt;\n            preferences[Keys.HAS_COMPLETED_FIRST_LAUNCH] = true\n        }\n    }\n\n    private object Keys {\n        val HAS_COMPLETED_FIRST_LAUNCH = booleanPreferencesKey(\&quot;has_completed_first_launch\&quot;)\n    }\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating FrontierStartupCoordinator**</details></think>
+
+---
+
+The model made no changes to the file.
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Reading file**</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/startup/FrontierStartupCoordinator.kt</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Rewriting patch formatting**</details></think>
+
+---
+
+The model made no changes to the file.
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Examining indentation and patch strategy**</details></think>
+
+---
+
+The model made no changes to the file.
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Deciding how to use edit_file fallback**</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/startup/FrontierStartupCoordinator.kt</summary>
+
+**Chunk 1**
+Lines added: 13, lines removed: 6
+
+```diff
+@@ -3,17 +3,24 @@
+  import android.util.Log
+  import com.example.frontieraudio.core.FrontierCore
++ import com.example.frontieraudio.core.storage.datastore.FrontierPreferenceStore
+  import com.example.frontieraudio.jarvis.JarvisModule
+  import com.example.frontieraudio.transcriber.TranscriberModule
+  import javax.inject.Inject
+  import javax.inject.Singleton
++ import kotlinx.coroutines.CoroutineScope
++ import kotlinx.coroutines.Dispatchers
++ import kotlinx.coroutines.SupervisorJob
++ import kotlinx.coroutines.flow.first
++ import kotlinx.coroutines.launch
+  
+  @Singleton
+- class FrontierStartupCoordinator
+- @Inject
+- constructor(
+-         private val frontierCore: FrontierCore,
+-         private val jarvisModule: JarvisModule,
+-         private val transcriberModule: TranscriberModule
++ class FrontierStartupCoordinator @Inject constructor(
++     private val frontierCore: FrontierCore,
++     private val jarvisModule: JarvisModule,
++     private val transcriberModule: TranscriberModule,
++     private val preferenceStore: FrontierPreferenceStore
+  ) {
++ 
++     private val startupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+  
+      fun initialize() {
+```
+
+**Chunk 2**
+Lines added: 8, lines removed: undefined
+
+```diff
+@@ -31,4 +38,12 @@
+              Log.i(TAG, &quot;All Frontier modules initialized successfully.&quot;)
+          }
++ 
++         startupScope.launch {
++             val firstLaunch = preferenceStore.isFirstLaunch.first()
++             if (firstLaunch) {
++                 Log.i(TAG, &quot;Detected first app launch. Marking as completed.&quot;)
++                 preferenceStore.markAppLaunched()
++             }
++         }
+      }
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating MainActivity for preference injection**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/MainActivity.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;3d5331f8-597b-4cc5-9c16-5683220421e5&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  import androidx.compose.runtime.DisposableEffect\n  import androidx.compose.runtime.LaunchedEffect\n+ import androidx.compose.runtime.collectAsState\n+ import androidx.compose.runtime.getValue\n  import androidx.compose.runtime.mutableStateOf\n  import androidx.compose.runtime.remember&quot;,
+        &quot;oldStart&quot;: 12,
+        &quot;newStart&quot;: 12,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 6,
+        &quot;linesAdded&quot;: 2
+      },
+      {
+        &quot;diffString&quot;: &quot;  import com.example.frontieraudio.ui.theme.FrontierAudioTheme\n  import com.example.frontieraudio.ui.ControlCenterStatus\n+ import com.example.frontieraudio.core.storage.datastore.FrontierPreferenceStore\n  import com.example.frontieraudio.core.permissions.PermissionManager\n  import com.example.frontieraudio.core.permissions.PermissionSnapshot&quot;,
+        &quot;oldStart&quot;: 19,
+        &quot;newStart&quot;: 21,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      },
+      {
+        &quot;diffString&quot;: &quot;      @Inject lateinit var transcriberModule: TranscriberModule\n      @Inject lateinit var permissionManager: PermissionManager\n+     @Inject lateinit var preferenceStore: FrontierPreferenceStore\n  \n      private lateinit var permissionLauncher: ActivityResultLauncher&lt;Array&lt;String&gt;&gt;&quot;,
+        &quot;oldStart&quot;: 30,
+        &quot;newStart&quot;: 33,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      },
+      {
+        &quot;diffString&quot;: &quot;                      mutableStateOf(permissionManager.snapshot())\n                  }\n+                 val isFirstLaunch by preferenceStore.isFirstLaunch.collectAsState(initial = true)\n                  LaunchedEffect(Unit) {\n                      permissionStateHolder = permissionSnapshotState&quot;,
+        &quot;oldStart&quot;: 57,
+        &quot;newStart&quot;: 61,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      },
+      {
+        &quot;diffString&quot;: &quot;                          jarvisModule = jarvisModule,\n                          transcriberModule = transcriberModule,\n+                         isFirstLaunch = isFirstLaunch,\n                          permissionSnapshot = permissionSnapshotState.value,\n                          modifier = Modifier.padding(innerPadding)&quot;,
+        &quot;oldStart&quot;: 71,
+        &quot;newStart&quot;: 76,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/MainActivity.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio\n\nimport android.os.Bundle\nimport androidx.activity.ComponentActivity\nimport androidx.activity.compose.setContent\nimport androidx.activity.enableEdgeToEdge\nimport androidx.activity.result.ActivityResultLauncher\nimport androidx.activity.result.contract.ActivityResultContracts\nimport androidx.compose.foundation.layout.fillMaxSize\nimport androidx.compose.foundation.layout.padding\nimport androidx.compose.material3.Scaffold\nimport androidx.compose.runtime.DisposableEffect\nimport androidx.compose.runtime.LaunchedEffect\nimport androidx.compose.runtime.collectAsState\nimport androidx.compose.runtime.getValue\nimport androidx.compose.runtime.mutableStateOf\nimport androidx.compose.runtime.remember\nimport androidx.compose.ui.Modifier\nimport com.example.frontieraudio.jarvis.JarvisModule\nimport com.example.frontieraudio.transcriber.TranscriberModule\nimport com.example.frontieraudio.ui.theme.FrontierAudioTheme\nimport com.example.frontieraudio.ui.ControlCenterStatus\nimport com.example.frontieraudio.core.storage.datastore.FrontierPreferenceStore\nimport com.example.frontieraudio.core.permissions.PermissionManager\nimport com.example.frontieraudio.core.permissions.PermissionSnapshot\nimport dagger.hilt.android.AndroidEntryPoint\nimport javax.inject.Inject\n\n@AndroidEntryPoint\nclass MainActivity : ComponentActivity() {\n\n    @Inject lateinit var jarvisModule: JarvisModule\n    @Inject lateinit var transcriberModule: TranscriberModule\n    @Inject lateinit var permissionManager: PermissionManager\n    @Inject lateinit var preferenceStore: FrontierPreferenceStore\n\n    private lateinit var permissionLauncher: ActivityResultLauncher&lt;Array&lt;String&gt;&gt;\n    private var permissionStateHolder: androidx.compose.runtime.MutableState&lt;PermissionSnapshot&gt;? = null\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        enableEdgeToEdge()\n\n        permissionLauncher = registerForActivityResult(\n            ActivityResultContracts.RequestMultiplePermissions()\n        ) { result -&gt;\n            permissionManager.handlePermissionResult(result)\n            permissionStateHolder?.value = permissionManager.snapshot()\n        }\n\n        if (permissionManager.shouldRequestCriticalPermissions()) {\n            val permissions = permissionManager.missingCriticalPermissions().toTypedArray()\n            if (permissions.isNotEmpty()) {\n                permissionLauncher.launch(permissions)\n            }\n        }\n\n        setContent {\n            FrontierAudioTheme {\n                val permissionSnapshotState = remember {\n                    mutableStateOf(permissionManager.snapshot())\n                }\n                val isFirstLaunch by preferenceStore.isFirstLaunch.collectAsState(initial = true)\n                LaunchedEffect(Unit) {\n                    permissionStateHolder = permissionSnapshotState\n                }\n                DisposableEffect(Unit) {\n                    onDispose {\n                        if (permissionStateHolder === permissionSnapshotState) {\n                            permissionStateHolder = null\n                        }\n                    }\n                }\n                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding -&gt;\n                    ControlCenterStatus(\n                        jarvisModule = jarvisModule,\n                        transcriberModule = transcriberModule,\n                        isFirstLaunch = isFirstLaunch,\n                        permissionSnapshot = permissionSnapshotState.value,\n                        modifier = Modifier.padding(innerPadding)\n                    )\n                }\n            }\n        }\n    }\n}&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating ControlCenterStatus with first launch parameter**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;380ac1cf-199f-41b1-9120-4c1e6abd25e4&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;      jarvisModule: JarvisModule,\n      transcriberModule: TranscriberModule,\n+     isFirstLaunch: Boolean,\n      permissionSnapshot: PermissionSnapshot,\n      modifier: Modifier = Modifier&quot;,
+        &quot;oldStart&quot;: 15,
+        &quot;newStart&quot;: 15,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      },
+      {
+        &quot;diffString&quot;: &quot;          \&quot;Missing: $missing\&quot;\n      }\n+     val firstLaunchStatus = if (isFirstLaunch) {\n+         \&quot;First Launch\&quot;\n+     } else {\n+         \&quot;Returning User\&quot;\n+     }\n  \n      Text(\n-         text = \&quot;Frontier Control Center: $systemStatus | $permissionsStatus\&quot;,\n+         text = \&quot;Frontier Control Center: $systemStatus | $permissionsStatus | $firstLaunchStatus\&quot;,\n          modifier = modifier\n      )&quot;,
+        &quot;oldStart&quot;: 31,
+        &quot;newStart&quot;: 32,
+        &quot;oldLines&quot;: 7,
+        &quot;newLines&quot;: 12,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 6
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio.ui\n\nimport androidx.compose.material3.Text\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Modifier\nimport com.example.frontieraudio.core.permissions.PermissionSnapshot\nimport com.example.frontieraudio.jarvis.JarvisModule\nimport com.example.frontieraudio.transcriber.TranscriberModule\n\n/**\n * Simple status surface to prove cross-module wiring.\n */\n@Composable\nfun ControlCenterStatus(\n    jarvisModule: JarvisModule,\n    transcriberModule: TranscriberModule,\n    isFirstLaunch: Boolean,\n    permissionSnapshot: PermissionSnapshot,\n    modifier: Modifier = Modifier\n) {\n    val jarvisReady = jarvisModule.isEnabled()\n    val transcriberReady = transcriberModule.isListening()\n    val systemStatus = if (jarvisReady &amp;&amp; transcriberReady) {\n        \&quot;Core Ready\&quot;\n    } else {\n        \&quot;Modules Pending\&quot;\n    }\n    val permissionsStatus = if (permissionSnapshot.allCriticalGranted) {\n        \&quot;Permissions OK\&quot;\n    } else {\n        val missing = permissionSnapshot.missingPermissions.joinToString()\n        \&quot;Missing: $missing\&quot;\n    }\n    val firstLaunchStatus = if (isFirstLaunch) {\n        \&quot;First Launch\&quot;\n    } else {\n        \&quot;Returning User\&quot;\n    }\n\n    Text(\n        text = \&quot;Frontier Control Center: $systemStatus | $permissionsStatus | $firstLaunchStatus\&quot;,\n        modifier = modifier\n    )\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Verifying dependencies for coroutine support**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/build.gradle.kts&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;5e9f6c60-15a8-4ed6-9d05-8266d387df05&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;      implementation(libs.androidx.ui.tooling.preview)\n      implementation(libs.androidx.material3)\n+     implementation(libs.kotlinx.coroutines.android)\n      testImplementation(libs.junit)\n      androidTestImplementation(libs.androidx.junit)&quot;,
+        &quot;oldStart&quot;: 59,
+        &quot;newStart&quot;: 59,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/build.gradle.kts&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;plugins {\n    alias(libs.plugins.android.application)\n    alias(libs.plugins.kotlin.android)\n    alias(libs.plugins.kotlin.compose)\n    alias(libs.plugins.hilt)\n    alias(libs.plugins.kotlin.kapt)\n}\n\nandroid {\n    namespace = \&quot;com.example.frontieraudio\&quot;\n    compileSdk = 35\n\n    defaultConfig {\n        applicationId = \&quot;com.example.frontieraudio\&quot;\n        minSdk = 24\n        targetSdk = 35\n        versionCode = 1\n        versionName = \&quot;1.0\&quot;\n\n        testInstrumentationRunner = \&quot;androidx.test.runner.AndroidJUnitRunner\&quot;\n    }\n\n    buildTypes {\n        release {\n            isMinifyEnabled = false\n            proguardFiles(\n                getDefaultProguardFile(\&quot;proguard-android-optimize.txt\&quot;),\n                \&quot;proguard-rules.pro\&quot;\n            )\n        }\n    }\n    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_11\n        targetCompatibility = JavaVersion.VERSION_11\n    }\n    kotlinOptions {\n        jvmTarget = \&quot;11\&quot;\n    }\n    buildFeatures {\n        compose = true\n    }\n}\n\nkapt {\n    correctErrorTypes = true\n}\n\ndependencies {\n    implementation(project(\&quot;:core\&quot;))\n    implementation(project(\&quot;:jarvis\&quot;))\n    implementation(project(\&quot;:transcriber\&quot;))\n    implementation(project(\&quot;:ui\&quot;))\n    implementation(libs.androidx.core.ktx)\n    implementation(libs.androidx.lifecycle.runtime.ktx)\n    implementation(libs.androidx.activity.compose)\n    implementation(platform(libs.androidx.compose.bom))\n    implementation(libs.androidx.ui)\n    implementation(libs.androidx.ui.graphics)\n    implementation(libs.androidx.ui.tooling.preview)\n    implementation(libs.androidx.material3)\n    implementation(libs.kotlinx.coroutines.android)\n    testImplementation(libs.junit)\n    androidTestImplementation(libs.androidx.junit)\n    androidTestImplementation(libs.androidx.espresso.core)\n    androidTestImplementation(platform(libs.androidx.compose.bom))\n    androidTestImplementation(libs.androidx.ui.test.junit4)\n    debugImplementation(libs.androidx.ui.tooling)\n    debugImplementation(libs.androidx.ui.test.manifest)\n    implementation(libs.hilt.android)\n    kapt(libs.hilt.compiler)\n}&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Verifying dependencies and marking task complete**</details></think>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="todo_write">
+<details><summary>Tool use: **todo_write** • Todo List</summary>
+
+- [x] Add DataStore and coroutines dependencies to Gradle configuration
+- [x] Provide DataStore instance via Hilt module in core layer
+- [x] Implement shared DataStore manager and integrate with startup logic/UI
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Running lints on modified files**</details></think>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 7 files</summary>
+      
+Lint paths:
+
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/storage/datastore/FrontierPreferenceStore.kt`
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/storage/datastore/DataStoreModule.kt`
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/startup/FrontierStartupCoordinator.kt`
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/MainActivity.kt`
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt`
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/build.gradle.kts`
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/build.gradle.kts`
+
+Lint results
+
+Lint errors for `core/build.gradle.kts`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The build file has been changed and may need reload to make it effective. | 1:1-1:1 | DIAGNOSTIC_SEVERITY_INFORMATION |
+
+
+Lint errors for `app/build.gradle.kts`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| The build file has been changed and may need reload to make it effective. | 1:1-1:1 | DIAGNOSTIC_SEVERITY_INFORMATION |
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing final response**
+
+I'll summarize the key changes like the DataStore addition and update references to relevant files such as the gradle configs and key Kotlin modules. I'll include minimal code snippets showing the modifications and mention testing hasn't been run yet. I'll also highlight how Compose collects the first launch state and suggest optional next steps like running gradle or tests in a clear, bullet-point format.</details></think>
+
+---
+
+- Added DataStore and coroutine coordinates to the build so shared storage can run in the core layer and be consumed by app code.  
+```1:37:gradle/libs.versions.toml
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+```
+```1:35:core/build.gradle.kts
+implementation(libs.androidx.datastore.preferences)
+implementation(libs.kotlinx.coroutines.core)
+implementation(libs.kotlinx.coroutines.android)
+```
+```48:70:app/build.gradle.kts
+implementation(libs.kotlinx.coroutines.android)
+```
+
+- Provisioned a singleton `DataStore<Preferences>` via Hilt, wrapped it in `FrontierPreferenceStore`, and wired the startup coordinator to mark the first launch asynchronously.  
+```1:27:core/src/main/java/com/example/frontieraudio/core/storage/datastore/DataStoreModule.kt
+return PreferenceDataStoreFactory.create(
+    scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
+    produceFile = { context.preferencesDataStoreFile(DATASTORE_FILE_NAME) }
+)
+```
+```1:39:core/src/main/java/com/example/frontieraudio/core/storage/datastore/FrontierPreferenceStore.kt
+val isFirstLaunch: Flow<Boolean> = dataStore.data
+    .catch { throwable -> … emit(emptyPreferences()) }
+    .map { preferences -> … }
+```
+```1:44:app/src/main/java/com/example/frontieraudio/startup/FrontierStartupCoordinator.kt
+startupScope.launch {
+    val firstLaunch = preferenceStore.isFirstLaunch.first()
+    if (firstLaunch) {
+        Log.i(TAG, "Detected first app launch. Marking as completed.")
+        preferenceStore.markAppLaunched()
+    }
+}
+```
+
+- Surfaced DataStore state in the UI by injecting the preference store into `MainActivity` and displaying the first-launch status alongside module and permission health.  
+```1:80:app/src/main/java/com/example/frontieraudio/MainActivity.kt
+val isFirstLaunch by preferenceStore.isFirstLaunch.collectAsState(initial = true)
+ControlCenterStatus(
+    jarvisModule = jarvisModule,
+    transcriberModule = transcriberModule,
+    isFirstLaunch = isFirstLaunch,
+    permissionSnapshot = permissionSnapshotState.value,
+    modifier = Modifier.padding(innerPadding)
+)
+```
+```1:31:ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+val firstLaunchStatus = if (isFirstLaunch) {
+    "First Launch"
+} else {
+    "Returning User"
+}
+```
+
+## Testing
+- Not run (please execute `./gradlew :app:assembleDebug` locally to validate the new DataStore wiring).
+
+---
+
+_**User (2025-11-10 17:01Z)**_
+
+Should .transforms/ changes be added to git?
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Evaluating if .transforms should be gitignored**</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/.gitignore</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Evaluating build and .transforms ignore rules**
+
+I'm analyzing whether the current ignore patterns like `/build` exclude module-level build folders properly, especially for the app module. I'm checking where `.transforms` directories live—whether at root or inside module folders—and thinking about suggesting adding `**/build/` or `**/.transforms` to .gitignore to catch generated artifacts consistently.</details></think>
+
+---
+
+No—`.transforms/` is generated by the Android Gradle build (it lives under a module’s `build/` directory alongside other intermediates). It should stay out of version control. Make sure your ignore rules cover it—e.g. add `**/build/` or `**/.transforms/` in `.gitignore` if you haven’t already—so those files don’t keep showing up as untracked.
+
+---
+
+_**User (2025-11-10 17:01Z)**_
+
+Add it to the .gitignore
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+The model made no changes to the file.
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/.gitignore&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;9aa68554-f403-497c-b194-c583c09de649&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  .externalNativeBuild\n  .cxx\n+ .transforms/\n  local.properties\n  &quot;,
+        &quot;oldStart&quot;: 13,
+        &quot;newStart&quot;: 13,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/.gitignore&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;*.iml\n.gradle\n/local.properties\n/.idea/caches\n/.idea/libraries\n/.idea/modules.xml\n/.idea/workspace.xml\n/.idea/navEditor.xml\n/.idea/assetWizardSettings.xml\n.DS_Store\n/build\n/captures\n.externalNativeBuild\n.cxx\n.transforms/\nlocal.properties\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/.gitignore</summary>
+
+</details>
+</tool-use>
+
+---
+
+Added `.transforms/` to `.gitignore`, so those build artifacts stay out of version control. No further action needed.
+
+---
+
+_**User (2025-11-10 17:01Z)**_
+
+@zsh (788-1006) I'm seeing a lot more build files that shouldn't be in tracked by git as well
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Providing instructions to clean tracked build files**
+
+I’ll explain that although the .gitignore already excludes /build and **/build/** paths, some build directories might remain tracked if committed earlier. I’ll guide the user to remove tracked build artifacts using commands like `git rm -r --cached` on relevant build folders such as core/build and others, and suggest ensuring .gitignore patterns like `**/.transforms/` are comprehensive. I'll also mention cleaning files like `*.kotlin_module` and explain that removing cached builds will keep the repo clean and consistent.</details></think>
+
+---
+
+Those entries under `core/build`, `jarvis/build`, `transcriber/build`, `ui/build`, etc. are Gradle outputs. Because they were committed (or staged) at some point, Git still tracks them even though `.gitignore` now covers them (`/build`, `**/build/`, `.externalNativeBuild`, `.cxx`, `.transforms/`). To clean things up:
+
+1. Remove the tracked build artifacts from Git’s index (they’ll remain on disk):
+   ```
+   git rm -r --cached app/build core/build jarvis/build transcriber/build ui/build
+   ```
+   Add any other build directories that appear.
+
+2. Run `git status` to confirm only source files remain.
+
+3. Commit the `.gitignore` tweak plus the “delete” (really un-track) changes.
+
+After that, future Gradle outputs will stay ignored.
+
+---
+
+_**User (2025-11-10 17:01Z)**_
+
+@zsh (1002-1003) 
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<tool-use data-tool-type="grep" data-tool-name="grep">
+<details>
+<summary>Tool use: **grep** • Grep for "build" in "." • 18 matches</summary>
+
+Output mode: files_with_matches
+
+
+| File |
+|------|
+| `./ui/build/intermediates/incremental/packageDebugAssets/merger.xml` |
+| `./transcriber/build/intermediates/incremental/packageDebugAssets/merger.xml` |
+| `./jarvis/build/intermediates/incremental/packageDebugAssets/merger.xml` |
+| `./core/build/intermediates/incremental/packageDebugAssets/merger.xml` |
+| `./ui/build/intermediates/incremental/debug/packageDebugResources/merger.xml` |
+| `./transcriber/build/intermediates/incremental/debug/packageDebugResources/merger.xml` |
+| `./jarvis/build/intermediates/incremental/debug/packageDebugResources/merger.xml` |
+| `./core/build/intermediates/incremental/debug/packageDebugResources/merger.xml` |
+| `./app/build.gradle.kts` |
+| `./core/src/main/java/com/example/frontieraudio/core/permissions/PermissionManager.kt` |
+| `./build.gradle.kts` |
+| `./ui/build.gradle.kts` |
+| `./docs/THEME.md` |
+| `./docs/ROADMAP.md` |
+| `./docs/PRD.md` |
+| `./app/proguard-rules.pro` |
+| `./gradle.properties` |
+| `./gradlew` |
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking tracked build directories**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short
+```
+
+```
+ M .gitignore
+ M .specstory/history/2025-11-10_17-01Z-android-application-development-overview.md
+ M app/build.gradle.kts
+ M app/src/main/java/com/example/frontieraudio/MainActivity.kt
+ M app/src/main/java/com/example/frontieraudio/startup/FrontierStartupCoordinator.kt
+ M core/build.gradle.kts
+ M core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/core_debug.kotlin_module
+ M core/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+ M core/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+ M core/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/core_debug.kotlin_module
+ M core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/core_debug.kotlin_module
+ M core/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+ M core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+ M core/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+ M core/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+ M core/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+ M core/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin
+ M core/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+ M core/build/tmp/kapt3/incApCache/debug/apt-cache.bin
+ M core/build/tmp/kapt3/incApCache/debug/classpath-entries.bin
+ M core/build/tmp/kapt3/incApCache/debug/classpath-structure.bin
+ M core/build/tmp/kapt3/incApCache/debug/java-cache.bin
+ M core/build/tmp/kapt3/incrementalData/debug/META-INF/core_debug.kotlin_module
+ M core/build/tmp/kotlin-classes/debug/META-INF/core_debug.kotlin_module
+ M gradle/libs.versions.toml
+ M jarvis/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+ M jarvis/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+ M jarvis/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+ M jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin
+ M jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin
+ M jarvis/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+ M jarvis/build/tmp/kapt3/incApCache/debug/apt-cache.bin
+ M jarvis/build/tmp/kapt3/incApCache/debug/classpath-entries.bin
+ M jarvis/build/tmp/kapt3/incApCache/debug/classpath-structure.bin
+ M jarvis/build/tmp/kapt3/incApCache/debug/java-cache.bin
+ M transcriber/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+ M transcriber/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+ M transcriber/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+ M transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin
+ M transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin
+ M transcriber/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+ M transcriber/build/tmp/kapt3/incApCache/debug/apt-cache.bin
+ M transcriber/build/tmp/kapt3/incApCache/debug/classpath-entries.bin
+ M transcriber/build/tmp/kapt3/incApCache/debug/classpath-structure.bin
+ M transcriber/build/tmp/kapt3/incApCache/debug/java-cache.bin
+ M ui/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+ M ui/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+ M ui/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.class
+ M ui/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.values.at
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+ D ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+ M ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+ M ui/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+ M ui/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+ M ui/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+ M ui/build/tmp/kotlin-classes/debug/com/example/frontieraudio/ui/ControlCenterStatusKt.class
+ M ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+?? core/build/generated/source/kapt/debug/com/example/frontieraudio/core/storage/
+?? core/build/generated/source/kapt/debug/hilt_aggregated_deps/
+?? core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/storage/
+?? core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/hilt_aggregated_deps/
+?? core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/storage/
+?? core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/hilt_aggregated_deps/
+?? core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/storage/
+?? core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/hilt_aggregated_deps/
+?? core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab
+?? core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream
+?? core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream.len
+?? core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.len
+?? core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.values.at
+?? core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i
+?? core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i.len
+?? core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab
+?? core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream
+?? core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream.len
+?? core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.len
+?? core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.values.at
+?? core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i
+?? core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i.len
+?? core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/storage/
+?? core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/storage/
+?? core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/storage/
+?? core/src/main/java/com/example/frontieraudio/core/storage/
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Removing tracked build directories**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git rm -r --cached core/build jarvis/build transcriber/build ui/build</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git rm -r --cached core/build jarvis/build transcriber/build ui/build
+```
+
+```
+rm &#39;core/build/.transforms/f92480c2d30241b3eff2f8c362aa4fb3/results.bin&#39;
+rm &#39;core/build/.transforms/f92480c2d30241b3eff2f8c362aa4fb3/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore.dex&#39;
+rm &#39;core/build/.transforms/f92480c2d30241b3eff2f8c362aa4fb3/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin&#39;
+rm &#39;core/build/.transforms/fd3050b561715127904e0500d61d2872/results.bin&#39;
+rm &#39;core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore.dex&#39;
+rm &#39;core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.dex&#39;
+rm &#39;core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory.dex&#39;
+rm &#39;core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.dex&#39;
+rm &#39;core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager.dex&#39;
+rm &#39;core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager_Factory.dex&#39;
+rm &#39;core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionSnapshot.dex&#39;
+rm &#39;core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin&#39;
+rm &#39;core/build/generated/source/kapt/debug/com/example/frontieraudio/core/FrontierCore_Factory.java&#39;
+rm &#39;core/build/generated/source/kapt/debug/com/example/frontieraudio/core/permissions/PermissionManager_Factory.java&#39;
+rm &#39;core/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml&#39;
+rm &#39;core/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json&#39;
+rm &#39;core/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties&#39;
+rm &#39;core/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json&#39;
+rm &#39;core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/core_debug.kotlin_module&#39;
+rm &#39;core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/FrontierCore.class&#39;
+rm &#39;core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.class&#39;
+rm &#39;core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/FrontierCore_Factory.class&#39;
+rm &#39;core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class&#39;
+rm &#39;core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionManager.class&#39;
+rm &#39;core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionManager_Factory.class&#39;
+rm &#39;core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionSnapshot.class&#39;
+rm &#39;core/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar&#39;
+rm &#39;core/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar&#39;
+rm &#39;core/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt&#39;
+rm &#39;core/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties&#39;
+rm &#39;core/build/intermediates/incremental/debug/packageDebugResources/merger.xml&#39;
+rm &#39;core/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml&#39;
+rm &#39;core/build/intermediates/incremental/mergeDebugShaders/merger.xml&#39;
+rm &#39;core/build/intermediates/incremental/packageDebugAssets/merger.xml&#39;
+rm &#39;core/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/core_debug.kotlin_module&#39;
+rm &#39;core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.class&#39;
+rm &#39;core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/FrontierCore_Factory.class&#39;
+rm &#39;core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/permissions/PermissionManager_Factory.class&#39;
+rm &#39;core/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt&#39;
+rm &#39;core/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt&#39;
+rm &#39;core/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml&#39;
+rm &#39;core/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json&#39;
+rm &#39;core/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt&#39;
+rm &#39;core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/core_debug.kotlin_module&#39;
+rm &#39;core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore.class&#39;
+rm &#39;core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.class&#39;
+rm &#39;core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory.class&#39;
+rm &#39;core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class&#39;
+rm &#39;core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager.class&#39;
+rm &#39;core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager_Factory.class&#39;
+rm &#39;core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionSnapshot.class&#39;
+rm &#39;core/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar&#39;
+rm &#39;core/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/cacheable/last-build.bin&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin&#39;
+rm &#39;core/build/kotlin/compileDebugKotlin/local-state/build-history.bin&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin&#39;
+rm &#39;core/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin&#39;
+rm &#39;core/build/outputs/logs/manifest-merger-debug-report.txt&#39;
+rm &#39;core/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin&#39;
+rm &#39;core/build/tmp/kapt3/incApCache/debug/ap-classpath-entries.bin&#39;
+rm &#39;core/build/tmp/kapt3/incApCache/debug/apt-cache.bin&#39;
+rm &#39;core/build/tmp/kapt3/incApCache/debug/classpath-entries.bin&#39;
+rm &#39;core/build/tmp/kapt3/incApCache/debug/classpath-structure.bin&#39;
+rm &#39;core/build/tmp/kapt3/incApCache/debug/java-cache.bin&#39;
+rm &#39;core/build/tmp/kapt3/incrementalData/debug/META-INF/core_debug.kotlin_module&#39;
+rm &#39;core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/FrontierCore.class&#39;
+rm &#39;core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class&#39;
+rm &#39;core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/permissions/PermissionManager.class&#39;
+rm &#39;core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.class&#39;
+rm &#39;core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/FrontierCore.java&#39;
+rm &#39;core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/FrontierCore.kapt_metadata&#39;
+rm &#39;core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionManager.java&#39;
+rm &#39;core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionManager.kapt_metadata&#39;
+rm &#39;core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.java&#39;
+rm &#39;core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.kapt_metadata&#39;
+rm &#39;core/build/tmp/kapt3/stubs/debug/error/NonExistentClass.java&#39;
+rm &#39;core/build/tmp/kotlin-classes/debug/META-INF/core_debug.kotlin_module&#39;
+rm &#39;core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/FrontierCore.class&#39;
+rm &#39;core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class&#39;
+rm &#39;core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/permissions/PermissionManager.class&#39;
+rm &#39;core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.class&#39;
+rm &#39;jarvis/build/.transforms/5fdd8281e760fbf07dfd0d052c9f61e7/results.bin&#39;
+rm &#39;jarvis/build/.transforms/5fdd8281e760fbf07dfd0d052c9f61e7/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule.dex&#39;
+rm &#39;jarvis/build/.transforms/5fdd8281e760fbf07dfd0d052c9f61e7/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin&#39;
+rm &#39;jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/results.bin&#39;
+rm &#39;jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule.dex&#39;
+rm &#39;jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule_Factory.dex&#39;
+rm &#39;jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin&#39;
+rm &#39;jarvis/build/generated/source/kapt/debug/com/example/frontieraudio/jarvis/JarvisModule_Factory.java&#39;
+rm &#39;jarvis/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml&#39;
+rm &#39;jarvis/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json&#39;
+rm &#39;jarvis/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties&#39;
+rm &#39;jarvis/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json&#39;
+rm &#39;jarvis/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/jarvis_debug.kotlin_module&#39;
+rm &#39;jarvis/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/jarvis/JarvisModule.class&#39;
+rm &#39;jarvis/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/jarvis/JarvisModule_Factory.class&#39;
+rm &#39;jarvis/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar&#39;
+rm &#39;jarvis/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar&#39;
+rm &#39;jarvis/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt&#39;
+rm &#39;jarvis/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties&#39;
+rm &#39;jarvis/build/intermediates/incremental/debug/packageDebugResources/merger.xml&#39;
+rm &#39;jarvis/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml&#39;
+rm &#39;jarvis/build/intermediates/incremental/mergeDebugShaders/merger.xml&#39;
+rm &#39;jarvis/build/intermediates/incremental/packageDebugAssets/merger.xml&#39;
+rm &#39;jarvis/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/jarvis_debug.kotlin_module&#39;
+rm &#39;jarvis/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/jarvis/JarvisModule_Factory.class&#39;
+rm &#39;jarvis/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt&#39;
+rm &#39;jarvis/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt&#39;
+rm &#39;jarvis/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml&#39;
+rm &#39;jarvis/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json&#39;
+rm &#39;jarvis/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt&#39;
+rm &#39;jarvis/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/jarvis_debug.kotlin_module&#39;
+rm &#39;jarvis/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule.class&#39;
+rm &#39;jarvis/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule_Factory.class&#39;
+rm &#39;jarvis/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar&#39;
+rm &#39;jarvis/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/cacheable/last-build.bin&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin&#39;
+rm &#39;jarvis/build/kotlin/compileDebugKotlin/local-state/build-history.bin&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin&#39;
+rm &#39;jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin&#39;
+rm &#39;jarvis/build/outputs/logs/manifest-merger-debug-report.txt&#39;
+rm &#39;jarvis/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin&#39;
+rm &#39;jarvis/build/tmp/kapt3/incApCache/debug/ap-classpath-entries.bin&#39;
+rm &#39;jarvis/build/tmp/kapt3/incApCache/debug/apt-cache.bin&#39;
+rm &#39;jarvis/build/tmp/kapt3/incApCache/debug/classpath-entries.bin&#39;
+rm &#39;jarvis/build/tmp/kapt3/incApCache/debug/classpath-structure.bin&#39;
+rm &#39;jarvis/build/tmp/kapt3/incApCache/debug/java-cache.bin&#39;
+rm &#39;jarvis/build/tmp/kapt3/incrementalData/debug/META-INF/jarvis_debug.kotlin_module&#39;
+rm &#39;jarvis/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/jarvis/JarvisModule.class&#39;
+rm &#39;jarvis/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/jarvis/JarvisModule.java&#39;
+rm &#39;jarvis/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/jarvis/JarvisModule.kapt_metadata&#39;
+rm &#39;jarvis/build/tmp/kapt3/stubs/debug/error/NonExistentClass.java&#39;
+rm &#39;jarvis/build/tmp/kotlin-classes/debug/META-INF/jarvis_debug.kotlin_module&#39;
+rm &#39;jarvis/build/tmp/kotlin-classes/debug/com/example/frontieraudio/jarvis/JarvisModule.class&#39;
+rm &#39;transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/results.bin&#39;
+rm &#39;transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule.dex&#39;
+rm &#39;transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule_Factory.dex&#39;
+rm &#39;transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin&#39;
+rm &#39;transcriber/build/.transforms/f81d7e0fd839ed7cfaa1615f06233171/results.bin&#39;
+rm &#39;transcriber/build/.transforms/f81d7e0fd839ed7cfaa1615f06233171/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule.dex&#39;
+rm &#39;transcriber/build/.transforms/f81d7e0fd839ed7cfaa1615f06233171/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin&#39;
+rm &#39;transcriber/build/generated/source/kapt/debug/com/example/frontieraudio/transcriber/TranscriberModule_Factory.java&#39;
+rm &#39;transcriber/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml&#39;
+rm &#39;transcriber/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json&#39;
+rm &#39;transcriber/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties&#39;
+rm &#39;transcriber/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json&#39;
+rm &#39;transcriber/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/transcriber_debug.kotlin_module&#39;
+rm &#39;transcriber/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/transcriber/TranscriberModule.class&#39;
+rm &#39;transcriber/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/transcriber/TranscriberModule_Factory.class&#39;
+rm &#39;transcriber/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar&#39;
+rm &#39;transcriber/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar&#39;
+rm &#39;transcriber/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt&#39;
+rm &#39;transcriber/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties&#39;
+rm &#39;transcriber/build/intermediates/incremental/debug/packageDebugResources/merger.xml&#39;
+rm &#39;transcriber/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml&#39;
+rm &#39;transcriber/build/intermediates/incremental/mergeDebugShaders/merger.xml&#39;
+rm &#39;transcriber/build/intermediates/incremental/packageDebugAssets/merger.xml&#39;
+rm &#39;transcriber/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/transcriber_debug.kotlin_module&#39;
+rm &#39;transcriber/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/transcriber/TranscriberModule_Factory.class&#39;
+rm &#39;transcriber/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt&#39;
+rm &#39;transcriber/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt&#39;
+rm &#39;transcriber/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml&#39;
+rm &#39;transcriber/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json&#39;
+rm &#39;transcriber/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt&#39;
+rm &#39;transcriber/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/transcriber_debug.kotlin_module&#39;
+rm &#39;transcriber/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule.class&#39;
+rm &#39;transcriber/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule_Factory.class&#39;
+rm &#39;transcriber/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar&#39;
+rm &#39;transcriber/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/cacheable/last-build.bin&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin&#39;
+rm &#39;transcriber/build/kotlin/compileDebugKotlin/local-state/build-history.bin&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin&#39;
+rm &#39;transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin&#39;
+rm &#39;transcriber/build/outputs/logs/manifest-merger-debug-report.txt&#39;
+rm &#39;transcriber/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin&#39;
+rm &#39;transcriber/build/tmp/kapt3/incApCache/debug/ap-classpath-entries.bin&#39;
+rm &#39;transcriber/build/tmp/kapt3/incApCache/debug/apt-cache.bin&#39;
+rm &#39;transcriber/build/tmp/kapt3/incApCache/debug/classpath-entries.bin&#39;
+rm &#39;transcriber/build/tmp/kapt3/incApCache/debug/classpath-structure.bin&#39;
+rm &#39;transcriber/build/tmp/kapt3/incApCache/debug/java-cache.bin&#39;
+rm &#39;transcriber/build/tmp/kapt3/incrementalData/debug/META-INF/transcriber_debug.kotlin_module&#39;
+rm &#39;transcriber/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/transcriber/TranscriberModule.class&#39;
+rm &#39;transcriber/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/transcriber/TranscriberModule.java&#39;
+rm &#39;transcriber/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/transcriber/TranscriberModule.kapt_metadata&#39;
+rm &#39;transcriber/build/tmp/kapt3/stubs/debug/error/NonExistentClass.java&#39;
+rm &#39;transcriber/build/tmp/kotlin-classes/debug/META-INF/transcriber_debug.kotlin_module&#39;
+rm &#39;transcriber/build/tmp/kotlin-classes/debug/com/example/frontieraudio/transcriber/TranscriberModule.class&#39;
+rm &#39;ui/build/.transforms/8a67ad7c202353549c79f5d4da1c2ac6/results.bin&#39;
+rm &#39;ui/build/.transforms/8a67ad7c202353549c79f5d4da1c2ac6/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.dex&#39;
+rm &#39;ui/build/.transforms/8a67ad7c202353549c79f5d4da1c2ac6/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin&#39;
+rm &#39;ui/build/.transforms/fd91fd87810beba7d501e6cc5140d11a/results.bin&#39;
+rm &#39;ui/build/.transforms/fd91fd87810beba7d501e6cc5140d11a/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.dex&#39;
+rm &#39;ui/build/.transforms/fd91fd87810beba7d501e6cc5140d11a/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin&#39;
+rm &#39;ui/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml&#39;
+rm &#39;ui/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json&#39;
+rm &#39;ui/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties&#39;
+rm &#39;ui/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json&#39;
+rm &#39;ui/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar&#39;
+rm &#39;ui/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar&#39;
+rm &#39;ui/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt&#39;
+rm &#39;ui/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties&#39;
+rm &#39;ui/build/intermediates/incremental/debug/packageDebugResources/merger.xml&#39;
+rm &#39;ui/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml&#39;
+rm &#39;ui/build/intermediates/incremental/mergeDebugShaders/merger.xml&#39;
+rm &#39;ui/build/intermediates/incremental/packageDebugAssets/merger.xml&#39;
+rm &#39;ui/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/ui_debug.kotlin_module&#39;
+rm &#39;ui/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt&#39;
+rm &#39;ui/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt&#39;
+rm &#39;ui/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml&#39;
+rm &#39;ui/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json&#39;
+rm &#39;ui/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt&#39;
+rm &#39;ui/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/ui_debug.kotlin_module&#39;
+rm &#39;ui/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.class&#39;
+rm &#39;ui/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar&#39;
+rm &#39;ui/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.values.at&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/cacheable/last-build.bin&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin&#39;
+rm &#39;ui/build/kotlin/compileDebugKotlin/local-state/build-history.bin&#39;
+rm &#39;ui/build/outputs/logs/manifest-merger-debug-report.txt&#39;
+rm &#39;ui/build/tmp/kotlin-classes/debug/META-INF/ui_debug.kotlin_module&#39;
+rm &#39;ui/build/tmp/kotlin-classes/debug/com/example/frontieraudio/ui/ControlCenterStatusKt.class&#39;
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking git status**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short
+```
+
+```
+ M .gitignore
+ M .specstory/history/2025-11-10_17-01Z-android-application-development-overview.md
+ M app/build.gradle.kts
+ M app/src/main/java/com/example/frontieraudio/MainActivity.kt
+ M app/src/main/java/com/example/frontieraudio/startup/FrontierStartupCoordinator.kt
+ M core/build.gradle.kts
+D  core/build/.transforms/f92480c2d30241b3eff2f8c362aa4fb3/results.bin
+D  core/build/.transforms/f92480c2d30241b3eff2f8c362aa4fb3/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore.dex
+D  core/build/.transforms/f92480c2d30241b3eff2f8c362aa4fb3/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/results.bin
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager_Factory.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionSnapshot.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  core/build/generated/source/kapt/debug/com/example/frontieraudio/core/FrontierCore_Factory.java
+D  core/build/generated/source/kapt/debug/com/example/frontieraudio/core/permissions/PermissionManager_Factory.java
+D  core/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+D  core/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+D  core/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+D  core/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/core_debug.kotlin_module
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/FrontierCore.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/FrontierCore_Factory.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionManager.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionManager_Factory.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionSnapshot.class
+D  core/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+D  core/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+D  core/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+D  core/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+D  core/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+D  core/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+D  core/build/intermediates/incremental/mergeDebugShaders/merger.xml
+D  core/build/intermediates/incremental/packageDebugAssets/merger.xml
+D  core/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/core_debug.kotlin_module
+D  core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.class
+D  core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/FrontierCore_Factory.class
+D  core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/permissions/PermissionManager_Factory.class
+D  core/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+D  core/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+D  core/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+D  core/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+D  core/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/core_debug.kotlin_module
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager_Factory.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionSnapshot.class
+D  core/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+D  core/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+D  core/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  core/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin
+D  core/build/outputs/logs/manifest-merger-debug-report.txt
+D  core/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+D  core/build/tmp/kapt3/incApCache/debug/ap-classpath-entries.bin
+D  core/build/tmp/kapt3/incApCache/debug/apt-cache.bin
+D  core/build/tmp/kapt3/incApCache/debug/classpath-entries.bin
+D  core/build/tmp/kapt3/incApCache/debug/classpath-structure.bin
+D  core/build/tmp/kapt3/incApCache/debug/java-cache.bin
+D  core/build/tmp/kapt3/incrementalData/debug/META-INF/core_debug.kotlin_module
+D  core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/FrontierCore.class
+D  core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class
+D  core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/permissions/PermissionManager.class
+D  core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.class
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/FrontierCore.java
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/FrontierCore.kapt_metadata
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionManager.java
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionManager.kapt_metadata
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.java
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.kapt_metadata
+D  core/build/tmp/kapt3/stubs/debug/error/NonExistentClass.java
+D  core/build/tmp/kotlin-classes/debug/META-INF/core_debug.kotlin_module
+D  core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/FrontierCore.class
+D  core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class
+D  core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/permissions/PermissionManager.class
+D  core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.class
+ M gradle/libs.versions.toml
+D  jarvis/build/.transforms/5fdd8281e760fbf07dfd0d052c9f61e7/results.bin
+D  jarvis/build/.transforms/5fdd8281e760fbf07dfd0d052c9f61e7/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule.dex
+D  jarvis/build/.transforms/5fdd8281e760fbf07dfd0d052c9f61e7/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/results.bin
+D  jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule.dex
+D  jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule_Factory.dex
+D  jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  jarvis/build/generated/source/kapt/debug/com/example/frontieraudio/jarvis/JarvisModule_Factory.java
+D  jarvis/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+D  jarvis/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+D  jarvis/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+D  jarvis/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+D  jarvis/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/jarvis/JarvisModule.class
+D  jarvis/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/jarvis/JarvisModule_Factory.class
+D  jarvis/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+D  jarvis/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+D  jarvis/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+D  jarvis/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+D  jarvis/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+D  jarvis/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+D  jarvis/build/intermediates/incremental/mergeDebugShaders/merger.xml
+D  jarvis/build/intermediates/incremental/packageDebugAssets/merger.xml
+D  jarvis/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/jarvis/JarvisModule_Factory.class
+D  jarvis/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+D  jarvis/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+D  jarvis/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+D  jarvis/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+D  jarvis/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+D  jarvis/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule.class
+D  jarvis/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule_Factory.class
+D  jarvis/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+D  jarvis/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+D  jarvis/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  jarvis/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin
+D  jarvis/build/outputs/logs/manifest-merger-debug-report.txt
+D  jarvis/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/ap-classpath-entries.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/apt-cache.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/classpath-entries.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/classpath-structure.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/java-cache.bin
+D  jarvis/build/tmp/kapt3/incrementalData/debug/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/jarvis/JarvisModule.class
+D  jarvis/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/jarvis/JarvisModule.java
+D  jarvis/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/jarvis/JarvisModule.kapt_metadata
+D  jarvis/build/tmp/kapt3/stubs/debug/error/NonExistentClass.java
+D  jarvis/build/tmp/kotlin-classes/debug/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/tmp/kotlin-classes/debug/com/example/frontieraudio/jarvis/JarvisModule.class
+D  transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/results.bin
+D  transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule.dex
+D  transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule_Factory.dex
+D  transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  transcriber/build/.transforms/f81d7e0fd839ed7cfaa1615f06233171/results.bin
+D  transcriber/build/.transforms/f81d7e0fd839ed7cfaa1615f06233171/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule.dex
+D  transcriber/build/.transforms/f81d7e0fd839ed7cfaa1615f06233171/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  transcriber/build/generated/source/kapt/debug/com/example/frontieraudio/transcriber/TranscriberModule_Factory.java
+D  transcriber/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+D  transcriber/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+D  transcriber/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+D  transcriber/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+D  transcriber/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/transcriber/TranscriberModule.class
+D  transcriber/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/transcriber/TranscriberModule_Factory.class
+D  transcriber/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+D  transcriber/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+D  transcriber/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+D  transcriber/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+D  transcriber/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+D  transcriber/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+D  transcriber/build/intermediates/incremental/mergeDebugShaders/merger.xml
+D  transcriber/build/intermediates/incremental/packageDebugAssets/merger.xml
+D  transcriber/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/transcriber/TranscriberModule_Factory.class
+D  transcriber/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+D  transcriber/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+D  transcriber/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+D  transcriber/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+D  transcriber/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+D  transcriber/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule.class
+D  transcriber/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule_Factory.class
+D  transcriber/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+D  transcriber/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+D  transcriber/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  transcriber/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin
+D  transcriber/build/outputs/logs/manifest-merger-debug-report.txt
+D  transcriber/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/ap-classpath-entries.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/apt-cache.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/classpath-entries.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/classpath-structure.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/java-cache.bin
+D  transcriber/build/tmp/kapt3/incrementalData/debug/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/transcriber/TranscriberModule.class
+D  transcriber/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/transcriber/TranscriberModule.java
+D  transcriber/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/transcriber/TranscriberModule.kapt_metadata
+D  transcriber/build/tmp/kapt3/stubs/debug/error/NonExistentClass.java
+D  transcriber/build/tmp/kotlin-classes/debug/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/tmp/kotlin-classes/debug/com/example/frontieraudio/transcriber/TranscriberModule.class
+D  ui/build/.transforms/8a67ad7c202353549c79f5d4da1c2ac6/results.bin
+D  ui/build/.transforms/8a67ad7c202353549c79f5d4da1c2ac6/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.dex
+D  ui/build/.transforms/8a67ad7c202353549c79f5d4da1c2ac6/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  ui/build/.transforms/fd91fd87810beba7d501e6cc5140d11a/results.bin
+D  ui/build/.transforms/fd91fd87810beba7d501e6cc5140d11a/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.dex
+D  ui/build/.transforms/fd91fd87810beba7d501e6cc5140d11a/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  ui/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+D  ui/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+D  ui/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+D  ui/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+D  ui/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+D  ui/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+D  ui/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+D  ui/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+D  ui/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+D  ui/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+D  ui/build/intermediates/incremental/mergeDebugShaders/merger.xml
+D  ui/build/intermediates/incremental/packageDebugAssets/merger.xml
+D  ui/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/ui_debug.kotlin_module
+D  ui/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+D  ui/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+D  ui/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+D  ui/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+D  ui/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+D  ui/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/ui_debug.kotlin_module
+D  ui/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.class
+D  ui/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+D  ui/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+D  ui/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  ui/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+D  ui/build/outputs/logs/manifest-merger-debug-report.txt
+D  ui/build/tmp/kotlin-classes/debug/META-INF/ui_debug.kotlin_module
+D  ui/build/tmp/kotlin-classes/debug/com/example/frontieraudio/ui/ControlCenterStatusKt.class
+ M ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+?? core/build/
+?? core/src/main/java/com/example/frontieraudio/core/storage/
+?? jarvis/build/
+?? transcriber/build/
+?? ui/build/
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Fixing .gitignore for nested build folders**
+
+I’m sorting out why some build directories stay untracked despite `.gitignore` entries; it looks like the root-anchored `/build` misses nested build folders like `core/build`. I’ll add `**/build/` and also handle `.transforms` similarly to ensure nested folders are properly ignored.</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/.gitignore</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: 2
+
+```diff
+@@ -10,8 +10,9 @@
+  .DS_Store
+  /build
+- /captures
++ **/build/
++ .captures
+  .externalNativeBuild
+  .cxx
+- .transforms/
++ **/.transforms/
+  local.properties
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Correcting capture path change**</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/.gitignore</summary>
+
+**Chunk 1**
+Lines added: 1, lines removed: 1
+
+```diff
+@@ -11,5 +11,5 @@
+  /build
+  **/build/
+- .captures
++ /captures
+  .externalNativeBuild
+  .cxx
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing to remove untracked build directories**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && rm -rf core/build jarvis/build transcriber/build ui/build</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && rm -rf core/build jarvis/build transcriber/build ui/build
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking git status**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short
+```
+
+```
+ M .gitignore
+ M .specstory/history/2025-11-10_17-01Z-android-application-development-overview.md
+ M app/build.gradle.kts
+ M app/src/main/java/com/example/frontieraudio/MainActivity.kt
+ M app/src/main/java/com/example/frontieraudio/startup/FrontierStartupCoordinator.kt
+ M core/build.gradle.kts
+D  core/build/.transforms/f92480c2d30241b3eff2f8c362aa4fb3/results.bin
+D  core/build/.transforms/f92480c2d30241b3eff2f8c362aa4fb3/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore.dex
+D  core/build/.transforms/f92480c2d30241b3eff2f8c362aa4fb3/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/results.bin
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager_Factory.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionSnapshot.dex
+D  core/build/.transforms/fd3050b561715127904e0500d61d2872/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  core/build/generated/source/kapt/debug/com/example/frontieraudio/core/FrontierCore_Factory.java
+D  core/build/generated/source/kapt/debug/com/example/frontieraudio/core/permissions/PermissionManager_Factory.java
+D  core/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+D  core/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+D  core/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+D  core/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/core_debug.kotlin_module
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/FrontierCore.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/FrontierCore_Factory.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionManager.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionManager_Factory.class
+D  core/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/core/permissions/PermissionSnapshot.class
+D  core/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+D  core/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+D  core/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+D  core/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+D  core/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+D  core/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+D  core/build/intermediates/incremental/mergeDebugShaders/merger.xml
+D  core/build/intermediates/incremental/packageDebugAssets/merger.xml
+D  core/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/core_debug.kotlin_module
+D  core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.class
+D  core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/FrontierCore_Factory.class
+D  core/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/core/permissions/PermissionManager_Factory.class
+D  core/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+D  core/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+D  core/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+D  core/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+D  core/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/core_debug.kotlin_module
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory$InstanceHolder.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/FrontierCore_Factory.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionManager_Factory.class
+D  core/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/core/permissions/PermissionSnapshot.class
+D  core/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+D  core/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  core/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  core/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+D  core/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  core/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  core/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin
+D  core/build/outputs/logs/manifest-merger-debug-report.txt
+D  core/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+D  core/build/tmp/kapt3/incApCache/debug/ap-classpath-entries.bin
+D  core/build/tmp/kapt3/incApCache/debug/apt-cache.bin
+D  core/build/tmp/kapt3/incApCache/debug/classpath-entries.bin
+D  core/build/tmp/kapt3/incApCache/debug/classpath-structure.bin
+D  core/build/tmp/kapt3/incApCache/debug/java-cache.bin
+D  core/build/tmp/kapt3/incrementalData/debug/META-INF/core_debug.kotlin_module
+D  core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/FrontierCore.class
+D  core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class
+D  core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/permissions/PermissionManager.class
+D  core/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.class
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/FrontierCore.java
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/FrontierCore.kapt_metadata
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionManager.java
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionManager.kapt_metadata
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.java
+D  core/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.kapt_metadata
+D  core/build/tmp/kapt3/stubs/debug/error/NonExistentClass.java
+D  core/build/tmp/kotlin-classes/debug/META-INF/core_debug.kotlin_module
+D  core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/FrontierCore.class
+D  core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/permissions/PermissionManager$Companion.class
+D  core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/permissions/PermissionManager.class
+D  core/build/tmp/kotlin-classes/debug/com/example/frontieraudio/core/permissions/PermissionSnapshot.class
+ M gradle/libs.versions.toml
+D  jarvis/build/.transforms/5fdd8281e760fbf07dfd0d052c9f61e7/results.bin
+D  jarvis/build/.transforms/5fdd8281e760fbf07dfd0d052c9f61e7/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule.dex
+D  jarvis/build/.transforms/5fdd8281e760fbf07dfd0d052c9f61e7/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/results.bin
+D  jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule.dex
+D  jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule_Factory.dex
+D  jarvis/build/.transforms/fc18b728396683bb897a9e98c415edef/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  jarvis/build/generated/source/kapt/debug/com/example/frontieraudio/jarvis/JarvisModule_Factory.java
+D  jarvis/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+D  jarvis/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+D  jarvis/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+D  jarvis/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+D  jarvis/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/jarvis/JarvisModule.class
+D  jarvis/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/jarvis/JarvisModule_Factory.class
+D  jarvis/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+D  jarvis/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+D  jarvis/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+D  jarvis/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+D  jarvis/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+D  jarvis/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+D  jarvis/build/intermediates/incremental/mergeDebugShaders/merger.xml
+D  jarvis/build/intermediates/incremental/packageDebugAssets/merger.xml
+D  jarvis/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/jarvis/JarvisModule_Factory.class
+D  jarvis/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+D  jarvis/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+D  jarvis/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+D  jarvis/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+D  jarvis/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+D  jarvis/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule.class
+D  jarvis/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/jarvis/JarvisModule_Factory.class
+D  jarvis/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+D  jarvis/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  jarvis/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+D  jarvis/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  jarvis/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  jarvis/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin
+D  jarvis/build/outputs/logs/manifest-merger-debug-report.txt
+D  jarvis/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/ap-classpath-entries.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/apt-cache.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/classpath-entries.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/classpath-structure.bin
+D  jarvis/build/tmp/kapt3/incApCache/debug/java-cache.bin
+D  jarvis/build/tmp/kapt3/incrementalData/debug/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/jarvis/JarvisModule.class
+D  jarvis/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/jarvis/JarvisModule.java
+D  jarvis/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/jarvis/JarvisModule.kapt_metadata
+D  jarvis/build/tmp/kapt3/stubs/debug/error/NonExistentClass.java
+D  jarvis/build/tmp/kotlin-classes/debug/META-INF/jarvis_debug.kotlin_module
+D  jarvis/build/tmp/kotlin-classes/debug/com/example/frontieraudio/jarvis/JarvisModule.class
+D  transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/results.bin
+D  transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule.dex
+D  transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule_Factory.dex
+D  transcriber/build/.transforms/a400e9683b4ac9b2efa69816c900c95a/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  transcriber/build/.transforms/f81d7e0fd839ed7cfaa1615f06233171/results.bin
+D  transcriber/build/.transforms/f81d7e0fd839ed7cfaa1615f06233171/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule.dex
+D  transcriber/build/.transforms/f81d7e0fd839ed7cfaa1615f06233171/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  transcriber/build/generated/source/kapt/debug/com/example/frontieraudio/transcriber/TranscriberModule_Factory.java
+D  transcriber/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+D  transcriber/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+D  transcriber/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+D  transcriber/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+D  transcriber/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/transcriber/TranscriberModule.class
+D  transcriber/build/intermediates/classes/debug/transformDebugClassesWithAsm/dirs/com/example/frontieraudio/transcriber/TranscriberModule_Factory.class
+D  transcriber/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+D  transcriber/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+D  transcriber/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+D  transcriber/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+D  transcriber/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+D  transcriber/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+D  transcriber/build/intermediates/incremental/mergeDebugShaders/merger.xml
+D  transcriber/build/intermediates/incremental/packageDebugAssets/merger.xml
+D  transcriber/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/example/frontieraudio/transcriber/TranscriberModule_Factory.class
+D  transcriber/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+D  transcriber/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+D  transcriber/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+D  transcriber/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+D  transcriber/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+D  transcriber/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule.class
+D  transcriber/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/transcriber/TranscriberModule_Factory.class
+D  transcriber/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+D  transcriber/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  transcriber/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+D  transcriber/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  transcriber/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/cacheable/last-build.bin
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  transcriber/build/kotlin/kaptGenerateStubsDebugKotlin/local-state/build-history.bin
+D  transcriber/build/outputs/logs/manifest-merger-debug-report.txt
+D  transcriber/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/ap-classpath-entries.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/apt-cache.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/classpath-entries.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/classpath-structure.bin
+D  transcriber/build/tmp/kapt3/incApCache/debug/java-cache.bin
+D  transcriber/build/tmp/kapt3/incrementalData/debug/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/tmp/kapt3/incrementalData/debug/com/example/frontieraudio/transcriber/TranscriberModule.class
+D  transcriber/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/transcriber/TranscriberModule.java
+D  transcriber/build/tmp/kapt3/stubs/debug/com/example/frontieraudio/transcriber/TranscriberModule.kapt_metadata
+D  transcriber/build/tmp/kapt3/stubs/debug/error/NonExistentClass.java
+D  transcriber/build/tmp/kotlin-classes/debug/META-INF/transcriber_debug.kotlin_module
+D  transcriber/build/tmp/kotlin-classes/debug/com/example/frontieraudio/transcriber/TranscriberModule.class
+D  ui/build/.transforms/8a67ad7c202353549c79f5d4da1c2ac6/results.bin
+D  ui/build/.transforms/8a67ad7c202353549c79f5d4da1c2ac6/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.dex
+D  ui/build/.transforms/8a67ad7c202353549c79f5d4da1c2ac6/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  ui/build/.transforms/fd91fd87810beba7d501e6cc5140d11a/results.bin
+D  ui/build/.transforms/fd91fd87810beba7d501e6cc5140d11a/transformed/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.dex
+D  ui/build/.transforms/fd91fd87810beba7d501e6cc5140d11a/transformed/bundleLibRuntimeToDirDebug/desugar_graph.bin
+D  ui/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+D  ui/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+D  ui/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+D  ui/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+D  ui/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+D  ui/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+D  ui/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+D  ui/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+D  ui/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+D  ui/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+D  ui/build/intermediates/incremental/mergeDebugShaders/merger.xml
+D  ui/build/intermediates/incremental/packageDebugAssets/merger.xml
+D  ui/build/intermediates/java_res/debug/processDebugJavaRes/out/META-INF/ui_debug.kotlin_module
+D  ui/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+D  ui/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+D  ui/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+D  ui/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+D  ui/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+D  ui/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/META-INF/ui_debug.kotlin_module
+D  ui/build/intermediates/runtime_library_classes_dir/debug/bundleLibRuntimeToDirDebug/com/example/frontieraudio/ui/ControlCenterStatusKt.class
+D  ui/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+D  ui/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/package-parts.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+D  ui/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+D  ui/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+D  ui/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+D  ui/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+D  ui/build/outputs/logs/manifest-merger-debug-report.txt
+D  ui/build/tmp/kotlin-classes/debug/META-INF/ui_debug.kotlin_module
+D  ui/build/tmp/kotlin-classes/debug/com/example/frontieraudio/ui/ControlCenterStatusKt.class
+ M ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+?? core/src/main/java/com/example/frontieraudio/core/storage/
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Summarizing changes and new files**</details></think>
+
+---
+
+I added recursive rules to `.gitignore` (`**/build/`, `**/.transforms/`) so Gradle outputs under each module stay ignored, then ran `git rm -r --cached core/build jarvis/build transcriber/build ui/build` and removed the directories locally. `git status` now only shows the intended source changes (plus the deletes queued for commit). All the noisy build artifacts are no longer tracked; just commit when ready.
+
+---
+

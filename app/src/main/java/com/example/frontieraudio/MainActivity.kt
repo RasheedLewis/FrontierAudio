@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -18,6 +20,7 @@ import com.example.frontieraudio.jarvis.JarvisModule
 import com.example.frontieraudio.transcriber.TranscriberModule
 import com.example.frontieraudio.ui.theme.FrontierAudioTheme
 import com.example.frontieraudio.ui.ControlCenterStatus
+import com.example.frontieraudio.core.storage.datastore.FrontierPreferenceStore
 import com.example.frontieraudio.core.permissions.PermissionManager
 import com.example.frontieraudio.core.permissions.PermissionSnapshot
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,6 +32,7 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var jarvisModule: JarvisModule
     @Inject lateinit var transcriberModule: TranscriberModule
     @Inject lateinit var permissionManager: PermissionManager
+    @Inject lateinit var preferenceStore: FrontierPreferenceStore
 
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private var permissionStateHolder: androidx.compose.runtime.MutableState<PermissionSnapshot>? = null
@@ -56,6 +60,7 @@ class MainActivity : ComponentActivity() {
                 val permissionSnapshotState = remember {
                     mutableStateOf(permissionManager.snapshot())
                 }
+                val isFirstLaunch by preferenceStore.isFirstLaunch.collectAsState(initial = true)
                 LaunchedEffect(Unit) {
                     permissionStateHolder = permissionSnapshotState
                 }
@@ -70,6 +75,7 @@ class MainActivity : ComponentActivity() {
                     ControlCenterStatus(
                         jarvisModule = jarvisModule,
                         transcriberModule = transcriberModule,
+                        isFirstLaunch = isFirstLaunch,
                         permissionSnapshot = permissionSnapshotState.value,
                         modifier = Modifier.padding(innerPadding)
                     )
