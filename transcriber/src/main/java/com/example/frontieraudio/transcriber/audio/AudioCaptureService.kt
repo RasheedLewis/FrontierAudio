@@ -28,11 +28,13 @@ class AudioCaptureService : Service() {
 
     private val binder = AudioCaptureBinder()
     private val listeners = CopyOnWriteArraySet<AudioChunkListener>()
+    private val windowListeners = CopyOnWriteArraySet<AudioWindowListener>()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private var audioRecord: AudioRecord? = null
     private var captureJob: Job? = null
     private var currentConfig: AudioCaptureConfig = AudioCaptureConfig()
+    private var streamingPipeline: AudioStreamingPipeline? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -62,6 +64,14 @@ class AudioCaptureService : Service() {
         listeners -= listener
     }
 
+    fun registerWindowListener(listener: AudioWindowListener) {
+        windowListeners += listener
+    }
+
+    fun unregisterWindowListener(listener: AudioWindowListener) {
+        windowListeners -= listener
+    }
+
     fun isCapturing(): Boolean = captureJob?.isActive == true
 
     @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
@@ -86,6 +96,12 @@ class AudioCaptureService : Service() {
         audioRecord.startRecording()
         this.audioRecord = audioRecord
         this.currentConfig = resolvedConfig
+        val pipeline = AudioStreamingPipeline(
+            windowSizeBytes = resolvedConfig.bufferSizeInBytes
+        ) { bytes, timestamp ->
+            windowListeners.forEach { it.onWindow(bytes, timestamp) }
+        }
+        streamingPipeline = pipeline
         updateNotification(getString(R.string.audio_capture_notification_active))
 
         captureJob = serviceScope.launch {
@@ -98,8 +114,10 @@ class AudioCaptureService : Service() {
                     listeners.forEach { listener ->
                         listener.onAudioChunk(chunk, read, timestamp)
                     }
+                    pipeline.appendChunk(chunk, read, timestamp)
                 }
             }
+            pipeline.flush()
         }
     }
 
@@ -118,6 +136,8 @@ class AudioCaptureService : Service() {
             }
         }
         audioRecord = null
+        streamingPipeline?.flush()
+        streamingPipeline = null
 
         updateNotification(getString(R.string.audio_capture_notification_idle))
     }
