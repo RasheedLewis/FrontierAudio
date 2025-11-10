@@ -1,0 +1,15 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/transcriber/src/main/AndroidManifest.xml:2:1-61
+INJECTED from /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/transcriber/src/main/AndroidManifest.xml:2:1-61
+	package
+		ADDED from /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/transcriber/src/main/AndroidManifest.xml:2:11-58
+		INJECTED from /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/transcriber/src/main/AndroidManifest.xml
+uses-sdk
+INJECTED from /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/transcriber/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/transcriber/src/main/AndroidManifest.xml
+INJECTED from /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/transcriber/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/transcriber/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/transcriber/src/main/AndroidManifest.xml

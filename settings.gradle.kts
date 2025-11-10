@@ -20,4 +20,10 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Frontier Audio"
-include(":app")
+include(
+    ":app",
+    ":core",
+    ":jarvis",
+    ":transcriber",
+    ":ui"
+)
