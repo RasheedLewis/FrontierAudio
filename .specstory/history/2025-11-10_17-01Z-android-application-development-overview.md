@@ -3054,3 +3054,393 @@ Lint results
 
 ---
 
+_**User (2025-11-10 17:01Z)**_
+
+Complete 4. Create permission manager for `RECORD_AUDIO`, `INTERNET`, `ACCESS_FINE_LOCATION`.
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Outlining permission manager implementation**
+
+I'm mapping out the plan for a PermissionManager in the core module that handles checking and requesting critical permissions like RECORD_AUDIO and ACCESS_FINE_LOCATION, with INTERNET treated as always granted. I’ll set up Hilt injection for context, define permission status checks, and integrate permission requests in MainActivity using ActivityResultLauncher, while considering Compose UI updates and task tracking.</details></think>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="todo_write">
+<details><summary>Tool use: **todo_write** • Todo List</summary>
+
+- [-] Implement shared PermissionManager handling RECORD_AUDIO, INTERNET, ACCESS_FINE_LOCATION status
+- [ ] Integrate PermissionManager with MainActivity to request and reflect permission state
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Starting PermissionManager implementation**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && mkdir -p core/src/main/java/com/example/frontieraudio/core/permissions</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && mkdir -p core/src/main/java/com/example/frontieraudio/core/permissions
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Drafting PermissionManager implementation**
+
+I'm outlining a PermissionManager in Kotlin using ContextCompat and Hilt for injection, defining a PermissionState data class to track critical permissions like RECORD_AUDIO and ACCESS_FINE_LOCATION, treating INTERNET as always granted but still checked. I'll add methods to get the current permission state, identify missing critical permissions, log results, and decide when to request permissions. After coding this file, I'll integrate the manager with dependency injection and update MainActivity to use it.</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/permissions/PermissionManager.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;14804814-71b6-4cc5-83b3-c93c8091c47f&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;- \n+ package com.example.frontieraudio.core.permissions\n+ \n+ import android.Manifest\n+ import android.content.Context\n+ import android.content.pm.PackageManager\n+ import android.util.Log\n+ import androidx.core.content.ContextCompat\n+ import dagger.hilt.android.qualifiers.ApplicationContext\n+ import javax.inject.Inject\n+ import javax.inject.Singleton\n+ \n+ data class PermissionSnapshot(\n+     val recordAudioGranted: Boolean,\n+     val internetGranted: Boolean,\n+     val fineLocationGranted: Boolean\n+ ) {\n+     val allCriticalGranted: Boolean\n+         get() = recordAudioGranted &amp;&amp; fineLocationGranted\n+ \n+     val missingPermissions: List&lt;String&gt;\n+         get() = buildList {\n+             if (!recordAudioGranted) add(Manifest.permission.RECORD_AUDIO)\n+             if (!fineLocationGranted) add(Manifest.permission.ACCESS_FINE_LOCATION)\n+             if (!internetGranted) add(Manifest.permission.INTERNET)\n+         }\n+ }\n+ \n+ @Singleton\n+ class PermissionManager @Inject constructor(\n+     @ApplicationContext private val appContext: Context\n+ ) {\n+ \n+     fun snapshot(): PermissionSnapshot = PermissionSnapshot(\n+         recordAudioGranted = isGranted(Manifest.permission.RECORD_AUDIO),\n+         internetGranted = isGranted(Manifest.permission.INTERNET),\n+         fineLocationGranted = isGranted(Manifest.permission.ACCESS_FINE_LOCATION)\n+     )\n+ \n+     fun missingCriticalPermissions(): List&lt;String&gt; =\n+         snapshot().missingPermissions.filter { it != Manifest.permission.INTERNET }\n+ \n+     fun shouldRequestCriticalPermissions(): Boolean =\n+         missingCriticalPermissions().isNotEmpty()\n+ \n+     fun handlePermissionResult(result: Map&lt;String, Boolean&gt;) {\n+         val snapshot = snapshot()\n+         Log.i(\n+             TAG,\n+             \&quot;Permission result processed. recordAudio=${snapshot.recordAudioGranted}, \&quot; +\n+                 \&quot;fineLocation=${snapshot.fineLocationGranted}, internet=${snapshot.internetGranted}\&quot;\n+         )\n+         result.filterValues { granted -&gt; !granted }\n+             .keys\n+             .forEach { denied -&gt;\n+                 Log.w(TAG, \&quot;Permission denied: $denied\&quot;)\n+             }\n+     }\n+ \n+     private fun isGranted(permission: String): Boolean =\n+         ContextCompat.checkSelfPermission(appContext, permission) == PackageManager.PERMISSION_GRANTED\n+ \n+     private companion object {\n+         private const val TAG = \&quot;PermissionManager\&quot;\n+     }\n+ }\n+ &quot;,
+        &quot;oldStart&quot;: 1,
+        &quot;newStart&quot;: 1,
+        &quot;oldLines&quot;: 1,
+        &quot;newLines&quot;: 66,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 66
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/permissions/PermissionManager.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio.core.permissions\n\nimport android.Manifest\nimport android.content.Context\nimport android.content.pm.PackageManager\nimport android.util.Log\nimport androidx.core.content.ContextCompat\nimport dagger.hilt.android.qualifiers.ApplicationContext\nimport javax.inject.Inject\nimport javax.inject.Singleton\n\ndata class PermissionSnapshot(\n    val recordAudioGranted: Boolean,\n    val internetGranted: Boolean,\n    val fineLocationGranted: Boolean\n) {\n    val allCriticalGranted: Boolean\n        get() = recordAudioGranted &amp;&amp; fineLocationGranted\n\n    val missingPermissions: List&lt;String&gt;\n        get() = buildList {\n            if (!recordAudioGranted) add(Manifest.permission.RECORD_AUDIO)\n            if (!fineLocationGranted) add(Manifest.permission.ACCESS_FINE_LOCATION)\n            if (!internetGranted) add(Manifest.permission.INTERNET)\n        }\n}\n\n@Singleton\nclass PermissionManager @Inject constructor(\n    @ApplicationContext private val appContext: Context\n) {\n\n    fun snapshot(): PermissionSnapshot = PermissionSnapshot(\n        recordAudioGranted = isGranted(Manifest.permission.RECORD_AUDIO),\n        internetGranted = isGranted(Manifest.permission.INTERNET),\n        fineLocationGranted = isGranted(Manifest.permission.ACCESS_FINE_LOCATION)\n    )\n\n    fun missingCriticalPermissions(): List&lt;String&gt; =\n        snapshot().missingPermissions.filter { it != Manifest.permission.INTERNET }\n\n    fun shouldRequestCriticalPermissions(): Boolean =\n        missingCriticalPermissions().isNotEmpty()\n\n    fun handlePermissionResult(result: Map&lt;String, Boolean&gt;) {\n        val snapshot = snapshot()\n        Log.i(\n            TAG,\n            \&quot;Permission result processed. recordAudio=${snapshot.recordAudioGranted}, \&quot; +\n                \&quot;fineLocation=${snapshot.fineLocationGranted}, internet=${snapshot.internetGranted}\&quot;\n        )\n        result.filterValues { granted -&gt; !granted }\n            .keys\n            .forEach { denied -&gt;\n                Log.w(TAG, \&quot;Permission denied: $denied\&quot;)\n            }\n    }\n\n    private fun isGranted(permission: String): Boolean =\n        ContextCompat.checkSelfPermission(appContext, permission) == PackageManager.PERMISSION_GRANTED\n\n    private companion object {\n        private const val TAG = \&quot;PermissionManager\&quot;\n    }\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Validating and adding Android permissions**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/AndroidManifest.xml&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;2b56f471-f458-4857-b9d6-d73a6bfa8e0a&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  &lt;manifest xmlns:android=\&quot;http://schemas.android.com/apk/res/android\&quot;\n      xmlns:tools=\&quot;http://schemas.android.com/tools\&quot;&gt;\n+ \n+     &lt;uses-permission android:name=\&quot;android.permission.RECORD_AUDIO\&quot; /&gt;\n+     &lt;uses-permission android:name=\&quot;android.permission.INTERNET\&quot; /&gt;\n+     &lt;uses-permission android:name=\&quot;android.permission.ACCESS_FINE_LOCATION\&quot; /&gt;\n  \n      &lt;application&quot;,
+        &quot;oldStart&quot;: 2,
+        &quot;newStart&quot;: 2,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 8,
+        &quot;linesAdded&quot;: 4
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/AndroidManifest.xml&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;utf-8\&quot;?&gt;\n&lt;manifest xmlns:android=\&quot;http://schemas.android.com/apk/res/android\&quot;\n    xmlns:tools=\&quot;http://schemas.android.com/tools\&quot;&gt;\n\n    &lt;uses-permission android:name=\&quot;android.permission.RECORD_AUDIO\&quot; /&gt;\n    &lt;uses-permission android:name=\&quot;android.permission.INTERNET\&quot; /&gt;\n    &lt;uses-permission android:name=\&quot;android.permission.ACCESS_FINE_LOCATION\&quot; /&gt;\n\n    &lt;application\n        android:name=\&quot;.FrontierAudioApplication\&quot;\n        android:allowBackup=\&quot;true\&quot;\n        android:dataExtractionRules=\&quot;@xml/data_extraction_rules\&quot;\n        android:fullBackupContent=\&quot;@xml/backup_rules\&quot;\n        android:icon=\&quot;@mipmap/ic_launcher\&quot;\n        android:label=\&quot;@string/app_name\&quot;\n        android:roundIcon=\&quot;@mipmap/ic_launcher_round\&quot;\n        android:supportsRtl=\&quot;true\&quot;\n        android:theme=\&quot;@style/Theme.FrontierAudio\&quot;\n        tools:targetApi=\&quot;31\&quot;&gt;\n        &lt;activity\n            android:name=\&quot;.MainActivity\&quot;\n            android:exported=\&quot;true\&quot;\n            android:label=\&quot;@string/app_name\&quot;\n            android:theme=\&quot;@style/Theme.FrontierAudio\&quot;&gt;\n            &lt;intent-filter&gt;\n                &lt;action android:name=\&quot;android.intent.action.MAIN\&quot; /&gt;\n\n                &lt;category android:name=\&quot;android.intent.category.LAUNCHER\&quot; /&gt;\n            &lt;/intent-filter&gt;\n        &lt;/activity&gt;\n    &lt;/application&gt;\n\n&lt;/manifest&gt;&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Integrating PermissionManager with MainActivity and Compose state**
+
+I’m working on injecting the PermissionManager into MainActivity using Hilt, setting up the permission launcher to request missing permissions, and connecting permission state updates to Compose UI via mutable state so the UI can reactively show permission statuses. This involves managing state between Activity and Compose using `mutableStateOf`, `LaunchedEffect`, and passing a `PermissionSnapshot` to `ControlCenterStatus` for display.</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/MainActivity.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;800ef3c4-4511-4a3f-a9ba-27857c26094d&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  import androidx.activity.compose.setContent\n  import androidx.activity.enableEdgeToEdge\n+ import androidx.activity.result.ActivityResultLauncher\n+ import androidx.activity.result.contract.ActivityResultContracts\n  import androidx.compose.foundation.layout.fillMaxSize\n  import androidx.compose.foundation.layout.padding\n  import androidx.compose.material3.Scaffold\n+ import androidx.compose.runtime.DisposableEffect\n+ import androidx.compose.runtime.LaunchedEffect\n+ import androidx.compose.runtime.mutableStateOf\n+ import androidx.compose.runtime.remember\n  import androidx.compose.ui.Modifier\n  import com.example.frontieraudio.jarvis.JarvisModule\n  import com.example.frontieraudio.transcriber.TranscriberModule\n  import com.example.frontieraudio.ui.theme.FrontierAudioTheme\n  import com.example.frontieraudio.ui.ControlCenterStatus\n+ import com.example.frontieraudio.core.permissions.PermissionManager\n+ import com.example.frontieraudio.core.permissions.PermissionSnapshot\n  import dagger.hilt.android.AndroidEntryPoint\n  import javax.inject.Inject&quot;,
+        &quot;oldStart&quot;: 5,
+        &quot;newStart&quot;: 5,
+        &quot;oldLines&quot;: 12,
+        &quot;newLines&quot;: 20,
+        &quot;linesAdded&quot;: 8
+      },
+      {
+        &quot;diffString&quot;: &quot;      @Inject lateinit var jarvisModule: JarvisModule\n      @Inject lateinit var transcriberModule: TranscriberModule\n+     @Inject lateinit var permissionManager: PermissionManager\n+ \n+     private lateinit var permissionLauncher: ActivityResultLauncher&lt;Array&lt;String&gt;&gt;\n+     private var permissionStateHolder: androidx.compose.runtime.MutableState&lt;PermissionSnapshot&gt;? = null\n  \n      override fun onCreate(savedInstanceState: Bundle?) {\n          super.onCreate(savedInstanceState)\n          enableEdgeToEdge()\n+ \n+         permissionLauncher = registerForActivityResult(\n+             ActivityResultContracts.RequestMultiplePermissions()\n+         ) { result -&gt;\n+             permissionManager.handlePermissionResult(result)\n+             permissionStateHolder?.value = permissionManager.snapshot()\n+         }\n+ \n+         if (permissionManager.shouldRequestCriticalPermissions()) {\n+             val permissions = permissionManager.missingCriticalPermissions().toTypedArray()\n+             if (permissions.isNotEmpty()) {\n+                 permissionLauncher.launch(permissions)\n+             }\n+         }\n+ \n          setContent {\n              FrontierAudioTheme {\n+                 val permissionSnapshotState = remember {\n+                     mutableStateOf(permissionManager.snapshot())\n+                 }\n+                 LaunchedEffect(Unit) {\n+                     permissionStateHolder = permissionSnapshotState\n+                 }\n+                 DisposableEffect(Unit) {\n+                     onDispose {\n+                         if (permissionStateHolder === permissionSnapshotState) {\n+                             permissionStateHolder = null\n+                         }\n+                     }\n+                 }\n                  Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding -&gt;\n                      ControlCenterStatus(\n                          jarvisModule = jarvisModule,\n                          transcriberModule = transcriberModule,\n+                         permissionSnapshot = permissionSnapshotState.value,\n                          modifier = Modifier.padding(innerPadding)\n                      )&quot;,
+        &quot;oldStart&quot;: 21,
+        &quot;newStart&quot;: 29,
+        &quot;oldLines&quot;: 14,
+        &quot;newLines&quot;: 47,
+        &quot;linesAdded&quot;: 33
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/MainActivity.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio\n\nimport android.os.Bundle\nimport androidx.activity.ComponentActivity\nimport androidx.activity.compose.setContent\nimport androidx.activity.enableEdgeToEdge\nimport androidx.activity.result.ActivityResultLauncher\nimport androidx.activity.result.contract.ActivityResultContracts\nimport androidx.compose.foundation.layout.fillMaxSize\nimport androidx.compose.foundation.layout.padding\nimport androidx.compose.material3.Scaffold\nimport androidx.compose.runtime.DisposableEffect\nimport androidx.compose.runtime.LaunchedEffect\nimport androidx.compose.runtime.mutableStateOf\nimport androidx.compose.runtime.remember\nimport androidx.compose.ui.Modifier\nimport com.example.frontieraudio.jarvis.JarvisModule\nimport com.example.frontieraudio.transcriber.TranscriberModule\nimport com.example.frontieraudio.ui.theme.FrontierAudioTheme\nimport com.example.frontieraudio.ui.ControlCenterStatus\nimport com.example.frontieraudio.core.permissions.PermissionManager\nimport com.example.frontieraudio.core.permissions.PermissionSnapshot\nimport dagger.hilt.android.AndroidEntryPoint\nimport javax.inject.Inject\n\n@AndroidEntryPoint\nclass MainActivity : ComponentActivity() {\n\n    @Inject lateinit var jarvisModule: JarvisModule\n    @Inject lateinit var transcriberModule: TranscriberModule\n    @Inject lateinit var permissionManager: PermissionManager\n\n    private lateinit var permissionLauncher: ActivityResultLauncher&lt;Array&lt;String&gt;&gt;\n    private var permissionStateHolder: androidx.compose.runtime.MutableState&lt;PermissionSnapshot&gt;? = null\n\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n        enableEdgeToEdge()\n\n        permissionLauncher = registerForActivityResult(\n            ActivityResultContracts.RequestMultiplePermissions()\n        ) { result -&gt;\n            permissionManager.handlePermissionResult(result)\n            permissionStateHolder?.value = permissionManager.snapshot()\n        }\n\n        if (permissionManager.shouldRequestCriticalPermissions()) {\n            val permissions = permissionManager.missingCriticalPermissions().toTypedArray()\n            if (permissions.isNotEmpty()) {\n                permissionLauncher.launch(permissions)\n            }\n        }\n\n        setContent {\n            FrontierAudioTheme {\n                val permissionSnapshotState = remember {\n                    mutableStateOf(permissionManager.snapshot())\n                }\n                LaunchedEffect(Unit) {\n                    permissionStateHolder = permissionSnapshotState\n                }\n                DisposableEffect(Unit) {\n                    onDispose {\n                        if (permissionStateHolder === permissionSnapshotState) {\n                            permissionStateHolder = null\n                        }\n                    }\n                }\n                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding -&gt;\n                    ControlCenterStatus(\n                        jarvisModule = jarvisModule,\n                        transcriberModule = transcriberModule,\n                        permissionSnapshot = permissionSnapshotState.value,\n                        modifier = Modifier.padding(innerPadding)\n                    )\n                }\n            }\n        }\n    }\n}&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating ControlCenterStatus with permission snapshot**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;947305e7-e438-4cc7-95c9-44cd65b025e9&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  import androidx.compose.runtime.Composable\n  import androidx.compose.ui.Modifier\n+ import com.example.frontieraudio.core.permissions.PermissionSnapshot\n  import com.example.frontieraudio.jarvis.JarvisModule\n  import com.example.frontieraudio.transcriber.TranscriberModule&quot;,
+        &quot;oldStart&quot;: 4,
+        &quot;newStart&quot;: 4,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      },
+      {
+        &quot;diffString&quot;: &quot;      jarvisModule: JarvisModule,\n      transcriberModule: TranscriberModule,\n+     permissionSnapshot: PermissionSnapshot,\n      modifier: Modifier = Modifier\n  ) {\n      val jarvisReady = jarvisModule.isEnabled()\n      val transcriberReady = transcriberModule.isListening()\n-     val status = if (jarvisReady &amp;&amp; transcriberReady) {\n+     val systemStatus = if (jarvisReady &amp;&amp; transcriberReady) {\n          \&quot;Core Ready\&quot;\n      } else {\n          \&quot;Modules Pending\&quot;\n      }\n+     val permissionsStatus = if (permissionSnapshot.allCriticalGranted) {\n+         \&quot;Permissions OK\&quot;\n+     } else {\n+         val missing = permissionSnapshot.missingPermissions.joinToString()\n+         \&quot;Missing: $missing\&quot;\n+     }\n  \n      Text(\n-         text = \&quot;Frontier Control Center: $status\&quot;,\n+         text = \&quot;Frontier Control Center: $systemStatus | $permissionsStatus\&quot;,\n          modifier = modifier\n      )&quot;,
+        &quot;oldStart&quot;: 14,
+        &quot;newStart&quot;: 15,
+        &quot;oldLines&quot;: 16,
+        &quot;newLines&quot;: 23,
+        &quot;linesRemoved&quot;: 2,
+        &quot;linesAdded&quot;: 9
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio.ui\n\nimport androidx.compose.material3.Text\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Modifier\nimport com.example.frontieraudio.core.permissions.PermissionSnapshot\nimport com.example.frontieraudio.jarvis.JarvisModule\nimport com.example.frontieraudio.transcriber.TranscriberModule\n\n/**\n * Simple status surface to prove cross-module wiring.\n */\n@Composable\nfun ControlCenterStatus(\n    jarvisModule: JarvisModule,\n    transcriberModule: TranscriberModule,\n    permissionSnapshot: PermissionSnapshot,\n    modifier: Modifier = Modifier\n) {\n    val jarvisReady = jarvisModule.isEnabled()\n    val transcriberReady = transcriberModule.isListening()\n    val systemStatus = if (jarvisReady &amp;&amp; transcriberReady) {\n        \&quot;Core Ready\&quot;\n    } else {\n        \&quot;Modules Pending\&quot;\n    }\n    val permissionsStatus = if (permissionSnapshot.allCriticalGranted) {\n        \&quot;Permissions OK\&quot;\n    } else {\n        val missing = permissionSnapshot.missingPermissions.joinToString()\n        \&quot;Missing: $missing\&quot;\n    }\n\n    Text(\n        text = \&quot;Frontier Control Center: $systemStatus | $permissionsStatus\&quot;,\n        modifier = modifier\n    )\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating todo statuses and preparing to run lint checks**</details></think>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 4 files</summary>
+      
+Lint paths:
+
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/core/src/main/java/com/example/frontieraudio/core/permissions/PermissionManager.kt`
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/MainActivity.kt`
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt`
+- `/Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/AndroidManifest.xml`
+
+Lint results
+
+
+**No lint errors found**
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating todo list status**</details></think>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="todo_write">
+<details><summary>Tool use: **todo_write** • Todo List</summary>
+
+- [x] Implement shared PermissionManager handling RECORD_AUDIO, INTERNET, ACCESS_FINE_LOCATION status
+- [x] Integrate PermissionManager with MainActivity to request and reflect permission state
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing summary and code references**
+
+I’m figuring out accurate line numbers to cite key changes like the new PermissionManager, manifest updates, MainActivity edits, and Compose state. I plan to summarize these with code block references, note that tests weren’t run but recommended, and then provide a concise final response with suggested next steps.</details></think>
+
+---
+
+- Added a shared `PermissionManager` that snapshots `RECORD_AUDIO`, `INTERNET`, and `ACCESS_FINE_LOCATION` status, exposes any missing critical permissions, and centralizes permission-result logging for reuse across modules.
+```1:66:core/src/main/java/com/example/frontieraudio/core/permissions/PermissionManager.kt
+package com.example.frontieraudio.core.permissions
+…
+}
+```
+- Declared the required permissions in the application manifest so Android grants `INTERNET` at install time and prompts for microphone and location as needed.
+```1:12:app/src/main/AndroidManifest.xml
+<manifest …>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```
+- Injected the manager into `MainActivity`, wired an activity-result launcher to request any missing runtime permissions, and surfaced the current snapshot to the Compose UI alongside module health.
+```1:63:app/src/main/java/com/example/frontieraudio/MainActivity.kt
+class MainActivity : ComponentActivity() {
+…
+    permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        permissionManager.handlePermissionResult(result)
+        permissionStateHolder?.value = permissionManager.snapshot()
+    }
+…
+                    ControlCenterStatus(
+                        jarvisModule = jarvisModule,
+                        transcriberModule = transcriberModule,
+                        permissionSnapshot = permissionSnapshotState.value,
+                        modifier = Modifier.padding(innerPadding)
+                    )
+```
+```1:33:ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+fun ControlCenterStatus(
+    jarvisModule: JarvisModule,
+    transcriberModule: TranscriberModule,
+    permissionSnapshot: PermissionSnapshot,
+    modifier: Modifier = Modifier
+) {
+…
+    Text(
+        text = "Frontier Control Center: $systemStatus | $permissionsStatus",
+        modifier = modifier
+    )
+}
+```
+
+## Testing
+- Not run (please execute `./gradlew :app:assembleDebug` locally to verify the permission flow compiles end-to-end).
+
+## Next Steps
+- After confirming the build, consider adding UI affordances to re-trigger permission requests if a user denies them permanently.
+
+---
+

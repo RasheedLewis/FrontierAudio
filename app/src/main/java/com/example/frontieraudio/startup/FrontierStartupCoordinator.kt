@@ -8,10 +8,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FrontierStartupCoordinator @Inject constructor(
-    private val frontierCore: FrontierCore,
-    private val jarvisModule: JarvisModule,
-    private val transcriberModule: TranscriberModule
+class FrontierStartupCoordinator
+@Inject
+constructor(
+        private val frontierCore: FrontierCore,
+        private val jarvisModule: JarvisModule,
+        private val transcriberModule: TranscriberModule
 ) {
 
     fun initialize() {
@@ -34,4 +36,3 @@ class FrontierStartupCoordinator @Inject constructor(
         private const val TAG = "FrontierStartup"
     }
 }
-
