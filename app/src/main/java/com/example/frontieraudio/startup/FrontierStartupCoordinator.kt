@@ -1,7 +1,7 @@
 package com.example.frontieraudio.startup
 
-import android.util.Log
 import com.example.frontieraudio.core.FrontierCore
+import com.example.frontieraudio.core.logging.FrontierLogger
 import com.example.frontieraudio.core.storage.datastore.FrontierPreferenceStore
 import com.example.frontieraudio.jarvis.JarvisModule
 import com.example.frontieraudio.transcriber.TranscriberModule
@@ -20,7 +20,8 @@ constructor(
         private val frontierCore: FrontierCore,
         private val jarvisModule: JarvisModule,
         private val transcriberModule: TranscriberModule,
-        private val preferenceStore: FrontierPreferenceStore
+        private val preferenceStore: FrontierPreferenceStore,
+        private val logger: FrontierLogger
 ) {
 
     private val startupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -30,26 +31,22 @@ constructor(
         val jarvisReady = jarvisModule.isEnabled()
         val transcriberReady = transcriberModule.isListening()
 
-        Log.i(TAG, "Frontier Core initialized: $coreReady")
-        Log.i(TAG, "Jarvis module ready: $jarvisReady")
-        Log.i(TAG, "Transcriber module ready: $transcriberReady")
+        logger.i("Frontier Core initialized: %s", coreReady)
+        logger.i("Jarvis module ready: %s", jarvisReady)
+        logger.i("Transcriber module ready: %s", transcriberReady)
 
         if (!coreReady || !jarvisReady || !transcriberReady) {
-            Log.w(TAG, "Startup completed with modules pending review.")
+            logger.w("Startup completed with modules pending review.")
         } else {
-            Log.i(TAG, "All Frontier modules initialized successfully.")
+            logger.i("All Frontier modules initialized successfully.")
         }
 
         startupScope.launch {
             val firstLaunch = preferenceStore.isFirstLaunch.first()
             if (firstLaunch) {
-                Log.i(TAG, "Detected first app launch. Marking as completed.")
+                logger.i("Detected first app launch. Marking as completed.")
                 preferenceStore.markAppLaunched()
             }
         }
-    }
-
-    private companion object {
-        private const val TAG = "FrontierStartup"
     }
 }

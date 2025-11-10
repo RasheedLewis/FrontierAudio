@@ -21,12 +21,22 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            buildConfigField("String", "ENVIRONMENT", "\"DEVELOPMENT\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://dev.api.frontieraudio\"")
+            buildConfigField("Boolean", "ENABLE_LOGGING", "true")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "ENVIRONMENT", "\"PRODUCTION\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://api.frontieraudio\"")
+            buildConfigField("Boolean", "ENABLE_LOGGING", "false")
         }
     }
     compileOptions {
@@ -37,6 +47,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
