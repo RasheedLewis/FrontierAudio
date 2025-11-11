@@ -36619,3 +36619,1103 @@ Let me know if you want to integrate these harness utilities into CI next or exp
 
 ---
 
+_**User (2025-11-11 01:38Z)**_
+
+What's the command to run the tests
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Preparing test run command**</details></think>
+
+---
+
+Run the harness tests with:
+
+```
+./gradlew :transcriber:testDebugUnitTest
+```
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+I'm getting a "BUILD SUCCESSFUL" result, but I do not see the results of the specific test
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Explaining how to view detailed Gradle test results**</details></think>
+
+---
+
+`testDebugUnitTest` runs every unit test in the transcriber module, so Gradle only prints the aggregate “BUILD SUCCESSFUL”. You’ve got two quick ways to see the details:
+
+- Check the HTML report that Gradle generated: `transcriber/build/reports/tests/testDebugUnitTest/index.html`. Open that in a browser and you’ll see the breakdown by class and method.
+- Or re-run just the harness class so the console output highlights it:
+
+```
+./gradlew :transcriber:testDebugUnitTest --tests "com.example.frontieraudio.transcriber.verification.SpeakerVerificationHarnessTest"
+```
+
+(You can swap in a specific method name after the class if you want.)
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+Before starting the next PR, let's reread @THEME.md and make sure there aren't any aspects of the design we've missed 
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Summarizing THEME.md contents**</details></think>
+
+---
+
+I just re-read `docs/THEME.md`. Most of the spec is either implemented or already on our roadmap, and here’s where we stand:
+
+- **Color system & surfaces:** `FrontierAudioTheme` uses the dark matte palette with the orange primary accents, which matches the listed swatches (`#0C0D0F` backgrounds, safety orange actions, neutral grays). Cards, dividers, and surface elevations follow the “industrial” cue in current UI screens.  
+- **Typography:** `FrontierTypography` already maps Space Grotesk for headings and Inter for body text, with the +2 sp sizing baked in. Previews also confirm the grosekt heading scale.  
+- **Shapes & iconography:** Buttons/cards use the 8 dp rounded geometry described, and we’ve aligned icon assets with the heavier line style. We still need to review the icon set to ensure every state (mic, listening, shield/log) uses that “instrument panel” vibe consistently—some fallback Material icons may need restyling.  
+- **Motion cues:** Listening waveform pulse, microphone glow, and enrollment transitions follow the motion guidance, but the broader “Listening/Thinking/Speaking” mode animations aren’t fully in place yet. That’s flagged for the control center polish work.  
+- **Accessibility & layout spacing:** We’re already on an 8 dp baseline grid with 16 dp section padding, 48–64 dp touch targets, and color contrast above 7:1. Keep ensuring new screens adhere.  
+- **Brand voice & tone:** Copy in enrollment and control center leans into the “tactical precision” voice. Any new strings or dialogs should keep that clipped, confident style.
+
+Remaining open items we should keep in mind before the next PR:
+
+1. **Mode-state visuals:** build the dedicated “Listening / Thinking / Responding” overlays with the specified color shifts and motion interactions.  
+2. **Alert bar component:** implement the top-down hazard bar the doc describes for warnings/errors.  
+3. **Texture/background treatment:** consider adding the subtle carbon-fiber/noise background to major surfaces if we want to go beyond flat color.  
+4. **Icon audit:** replace any stock icons that don’t fit the technical line spec.  
+5. **Control Center states:** confirm the UI reflects the sample themed states (mic pulse, orange flash on wake, etc.).  
+6. **Documentation:** ensure design tokens (colors, typography, spacing) are codified in one place (maybe a README snippet or style guide comment) for indie contributions.
+
+With that, we’re aligned with `THEME.md`; the items above can ride along with the next PR so the interface stays true to the “tactical precision” blueprint.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+For PR-03, I have some clarifications. We will be using the AWS SDK (https://docs.aws.amazon.com/sdk-for-kotlin/ ) to access Amazon Transcribe for transcription. 
+
+
+
+Mic → Local pipeline only.
+
+
+
+Raw PCM never leaves the device until it passes speaker verification (and optional VAD).
+
+If the frame is “you”: we forward it to Amazon Transcribe Streaming over a signed WebSocket.
+
+If the frame is “not you”: we drop (or locally redact) it; nothing goes to the cloud.
+
+Transcribe returns partial/final transcripts which you render and (optionally) archive.
+
+
+
+Use streaming mode for live UI/assistant responsiveness (client → Transcribe WebSocket).
+
+
+
+Separately, after each “session” or on finalized transcript blocks, upload transcript+metadata to your S3 bucket.
+
+Use lifecycle rules: archive after X days, delete after Y days (or move to Glacier).
+
+Use SSE-KMS encryption, enforce bucket access via IAM, use VPC endpoint for S3 if high security.
+
+Build a simple Lambda triggered on new S3 object to index into DynamoDB or OpenSearch for fast search/recall by Jarvis.
+
+Ensure you tag each transcript with speaker ID & timestamp & session context so Jarvis can query “What did I say at 3:14 pm on Tuesday?” via the indexing layer.
+
+
+
+Any other questions that you need clarification on?
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Preparing thoughtful response and clarifications**</details></think>
+
+---
+
+Got it—thanks for the extra detail. I’ll incorporate the AWS SDK for Kotlin flow so we gate every PCM frame behind local speaker verification/VAD, stream only “self” audio to Amazon Transcribe’s WebSocket API for real-time captions, and then persist finalized transcript blocks (with metadata) to S3, wired to Lambda→DynamoDB/OpenSearch for Jarvis recall. I’ll also keep the storage controls you noted (SSE-KMS, lifecycle rules, VPC endpoints) in mind when we model the infra components [\[docs.aws.amazon.com/sdk-for-kotlin\]](https://docs.aws.amazon.com/sdk-for-kotlin/).
+
+The one thing I’d love to confirm before implementing PR-03:
+
+- Do you already have the AWS side (Transcribe stream host, S3 bucket, KMS key, IAM policies) provisioned, or should the task include the IaC scripts/placeholder configs so we can stub those environments for dev/test?
+
+Let me know on that front and I’ll start mapping the pipeline for PR-03 accordingly.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+I don't currently have these provisiond. Update PR-03 subtasks with this new information. We'll defer Jarvis-related tasks for PR-04.
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Updating PR-03 tasks in ROADMAP**</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/docs/ROADMAP.md</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Revising PR-03 and PR-04 tasks for AWS streaming**
+
+I’m reshaping the PR-03 task list to focus fully on AWS resource provisioning, streaming integration via Kotlin AWS SDK, speaker gating, transcript persistence, and robust upload with encryption and retries, excluding Jarvis-related indexing now moved to PR-04. I’ll also update PR-04 to add clear subtasks for Lambda-based transcript indexing and Jarvis search integration as deferred work. This keeps responsibilities clean and aligned with the latest instructions.</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;docs/ROADMAP.md&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;4ca53ff0-48fc-4b9b-8b53-08f5f52cf495&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  ### **PR-03: Cloud Transcription Service**\n  \n- **Objective:** Enable streaming transcription and cloud-based storage.\n+ **Objective:** Enable secure streaming transcription to AWS and durable cloud storage.\n  \n  **Subtasks:**\n  \n- 1. Build WebSocket client for sending audio streams to AWS backend.\n- 2. Implement backend FastAPI endpoint for transcription requests.\n- 3. Create DynamoDB schema for transcript records (user_id, timestamp, GPS, WER score).\n- 4. Add GPS metadata tagging and local caching.\n- 5. Develop retry logic for intermittent connectivity.\n- 6. Encrypt data in transit (TLS 1.3) and at rest (AES-256).\n- 7. Unit test transcription speed and cloud sync.\n+ 1. Provision AWS resources (Amazon Transcribe streaming, S3 bucket with SSE-KMS, KMS key, IAM roles/policies, optional VPC endpoints) using infrastructure-as-code.\n+ 2. Integrate the AWS SDK for Kotlin to establish a signed WebSocket session with Amazon Transcribe Streaming in real time.\n+ 3. Gate PCM frames behind local speaker verification/VAD so only verified audio is forwarded; drop or locally redact unverified frames.\n+ 4. Handle partial/final transcripts from Transcribe to drive live UI updates and maintain per-session state.\n+ 5. Persist finalized transcript blocks plus metadata (speaker ID, timestamps, session context) to S3 with lifecycle policies (archive after X days, delete or Glacier after Y).\n+ 6. Implement resilient upload, retry, and offline queueing while enforcing TLS + SSE-KMS encryption and IAM access controls.\n+ 7. Add integration tests/monitoring to validate streaming throughput, failover behaviour, and storage pipeline health.\n  \n  ---&quot;,
+        &quot;oldStart&quot;: 51,
+        &quot;newStart&quot;: 51,
+        &quot;oldLines&quot;: 15,
+        &quot;newLines&quot;: 15,
+        &quot;linesRemoved&quot;: 8,
+        &quot;linesAdded&quot;: 8
+      },
+      {
+        &quot;diffString&quot;: &quot;  6. Test response accuracy, latency, and fallback logic.\n  7. Create mock endpoints for offline testing.\n+ 8. Trigger Lambda on new S3 transcripts to index metadata into DynamoDB/OpenSearch for Jarvis recall queries.\n+ 9. Expose transcript search (“What did I say at…”) through the Jarvis context interface.\n  \n  ---&quot;,
+        &quot;oldStart&quot;: 78,
+        &quot;newStart&quot;: 78,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 6,
+        &quot;linesAdded&quot;: 2
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM docs/ROADMAP.md&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;# Frontier Audio Technical Roadmap\n\n**Project:** Frontier Audio Assistant\n**Platform:** Android (Kotlin)\n**Core Modules:** Jarvis (AI Assistant) + Always-On Selective Speaker Transcriber\n**Date:** November 2025\n**Version:** 1.1\n\n---\n\n## 1. Overview\n\nThis roadmap defines the detailed development plan for the Frontier Audio ecosystem. Each PR phase includes a breakdown of key subtasks necessary for implementation, testing, and deployment. The plan ensures modular independence between the **Jarvis AI Assistant** and **Selective Speaker Transcriber** while maintaining shared services for networking, authentication, and data management.\n\n---\n\n## 2. Development Roadmap with Subtasks\n\n### **PR-01: Core Framework**\n\n**Objective:** Establish the foundational Android architecture and shared core modules.\n\n**Subtasks:**\n\n1. Initialize Kotlin project and configure Gradle modules (&#96;core&#96;, &#96;jarvis&#96;, &#96;transcriber&#96;, &#96;ui&#96;).\n2. Implement base dependency injection (Dagger/Hilt setup).\n3. Define &#96;Application&#96; class with startup logic.\n4. Create permission manager for &#96;RECORD_AUDIO&#96;, &#96;INTERNET&#96;, &#96;ACCESS_FINE_LOCATION&#96;.\n5. Implement shared data storage layer (Room or DataStore).\n6. Set up logging utilities and environment config management.\n7. Integrate continuous integration workflow (GitHub Actions or Jenkins).\n\n---\n\n### **PR-02: Audio Capture &amp; Speaker Verification**\n\n**Objective:** Implement continuous audio capture and selective speaker filtering.\n\n**Subtasks:**\n\n1. Develop audio capture service using &#96;AudioRecord&#96; API.\n2. Build real-time buffer for streaming audio chunks.\n3. Integrate TensorFlow Lite speaker verification model.\n4. Create voice enrollment flow for new users.\n5. Implement noise filtering and gain normalization.\n6. Add permissions prompt and fail-safe handling for microphone access.\n7. Build test harness for verifying speaker matching accuracy.\n\n---\n\n### **PR-03: Cloud Transcription Service**\n\n**Objective:** Enable secure streaming transcription to AWS and durable cloud storage.\n\n**Subtasks:**\n\n1. Provision AWS resources (Amazon Transcribe streaming, S3 bucket with SSE-KMS, KMS key, IAM roles/policies, optional VPC endpoints) using infrastructure-as-code.\n2. Integrate the AWS SDK for Kotlin to establish a signed WebSocket session with Amazon Transcribe Streaming in real time.\n3. Gate PCM frames behind local speaker verification/VAD so only verified audio is forwarded; drop or locally redact unverified frames.\n4. Handle partial/final transcripts from Transcribe to drive live UI updates and maintain per-session state.\n5. Persist finalized transcript blocks plus metadata (speaker ID, timestamps, session context) to S3 with lifecycle policies (archive after X days, delete or Glacier after Y).\n6. Implement resilient upload, retry, and offline queueing while enforcing TLS + SSE-KMS encryption and IAM access controls.\n7. Add integration tests/monitoring to validate streaming throughput, failover behaviour, and storage pipeline health.\n\n---\n\n### **PR-04: Jarvis Core Integration**\n\n**Objective:** Build the real-time AI assistant interface powered by LLM APIs.\n\n**Subtasks:**\n\n1. Integrate LLM API (OpenAI or Anthropic Claude) with FastAPI gateway.\n2. Implement low-latency WebSocket pipeline for query/response.\n3. Create context memory manager for session persistence.\n4. Add text-to-speech (TTS) and speech-to-text (STT) integration.\n5. Develop interruptibility feature for user control mid-response.\n6. Test response accuracy, latency, and fallback logic.\n7. Create mock endpoints for offline testing.\n8. Trigger Lambda on new S3 transcripts to index metadata into DynamoDB/OpenSearch for Jarvis recall queries.\n9. Expose transcript search (“What did I say at…”) through the Jarvis context interface.\n\n---\n\n### **PR-05: Context Bridge &amp; Sync Layer**\n\n**Objective:** Link Jarvis and Transcriber modules via a shared event bus.\n\n**Subtasks:**\n\n1. Implement Kotlin &#96;Flow&#96;-based event bus (“Frontier Context Bus”).\n2. Define event types: &#96;TranscriptionAvailable&#96;, &#96;JarvisQuery&#96;, &#96;ContextSyncRequest&#96;.\n3. Build listener registration and lifecycle-aware subscriptions.\n4. Integrate with local transcript cache for real-time recall.\n5. Implement deduplication and backpressure control.\n6. Add synchronization with cloud context logs (SQS or MQTT).\n7. Unit test inter-module event propagation.\n\n---\n\n### **PR-06: UX &amp; Unified Interface**\n\n**Objective:** Develop a cohesive and minimal control interface for both modules.\n\n**Subtasks:**\n\n1. Design unified Control Center for toggling between Jarvis, Transcriber, and Combined modes.\n2. Create animations for “Listening,” “Thinking,” and “Speaking” states (Lottie or MotionLayout).\n3. Implement LiveData-based state management for UI synchronization.\n4. Build notification system for background transcription.\n5. Apply dark tech aesthetic and accessibility guidelines.\n6. Develop error-state visuals (permissions denied, offline, mic blocked).\n7. Conduct user experience testing and iteration.\n\n---\n\n### **PR-07: Data Security &amp; Compliance**\n\n**Objective:** Ensure system-level privacy and legal compliance.\n\n**Subtasks:**\n\n1. Implement AES-256 encryption for local data storage.\n2. Integrate Android Keystore for secure key management.\n3. Add explicit consent and onboarding flow.\n4. Enable data deletion and export (GDPR compliance).\n5. Log all permission and data-access actions.\n6. Perform internal security audit and code review.\n7. Validate compliance with CCPA/GDPR through mock audits.\n\n---\n\n### **PR-08: Performance Optimization**\n\n**Objective:** Optimize performance, reduce latency, and validate WER and energy consumption.\n\n**Subtasks:**\n\n1. Profile audio pipeline for memory and thread efficiency.\n2. Optimize TFLite model quantization and batch size.\n3. Benchmark latency (target &lt;500ms end-to-end).\n4. Test long-run stability over 24-hour operation.\n5. Validate Word Error Rate (target ≤5%).\n6. Analyze energy consumption (target ≤5%/hour).\n7. Implement background throttling to minimize CPU usage.\n\n---\n\n### **PR-09: Deployment &amp; Telemetry**\n\n**Objective:** Deploy app, integrate monitoring, and collect performance data.\n\n**Subtasks:**\n\n1. Configure CI/CD pipeline for automated builds.\n2. Create environment configuration for dev, beta, and prod.\n3. Publish to Google Play’s internal testing track.\n4. Integrate Firebase Crashlytics and Analytics.\n5. Create centralized telemetry dashboard.\n6. Monitor user metrics, crashes, and retention.\n7. Prepare release documentation and changelog.\n\n---\n\n## 3. Testing &amp; QA Strategy\n\n| Area                    | Objective                                  | Tools                        |\n| ----------------------- | ------------------------------------------ | ---------------------------- |\n| **Unit Testing**        | Validate modular functionality             | JUnit, Mockito               |\n| **Integration Testing** | End-to-end Jarvis–Transcriber interactions | Espresso, Firebase Test Lab  |\n| **Performance Testing** | Assess latency, CPU/memory use             | Android Profiler, LeakCanary |\n| **Security Testing**    | Verify encryption and access control       | OWASP ZAP, internal audit    |\n\n---\n\n## 4. Deployment Strategy\n\n1. **Internal Alpha:** For engineering validation, includes debug metrics.\n2. **Closed Beta:** Deployed to pilot users, focusing on transcription reliability.\n3. **Public Beta:** Wider rollout to collect telemetry and UX feedback.\n4. **Stable Release:** Staged deployment with backend scaling and compliance verification.\n\n---\n\n**Prepared by:** Frontier Audio Engineering Team\n**Version:** 1.1 – Development Roadmap with Subtasks\n**Date:** November 2025\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing final summary**</details></think>
+
+---
+
+Updated `PR-03` to center on the new AWS-driven workflow—provisioning Transcribe/S3/KMS via IaC, streaming only verified audio through the Kotlin AWS SDK client, capturing partial/final captions, and storing finalized transcripts to S3 with lifecycle, retry, and monitoring controls. Also pushed the Jarvis indexing/search pieces down into `PR-04` (new tasks 8–9) so that Lambda → DynamoDB/OpenSearch and the “What did I say…” query surface land alongside the broader assistant integration.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+GPS data should still be tagged
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Updating roadmap with GPS tagging**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;docs/ROADMAP.md&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;bf7b5064-cdaf-4e64-85e2-09a09c22690d&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  3. Gate PCM frames behind local speaker verification/VAD so only verified audio is forwarded; drop or locally redact unverified frames.\n  4. Handle partial/final transcripts from Transcribe to drive live UI updates and maintain per-session state.\n- 5. Persist finalized transcript blocks plus metadata (speaker ID, timestamps, session context) to S3 with lifecycle policies (archive after X days, delete or Glacier after Y).\n+ 5. Persist finalized transcript blocks plus metadata (speaker ID, timestamps, GPS fix, session context) to S3 with lifecycle policies (archive after X days, delete or Glacier after Y).\n  6. Implement resilient upload, retry, and offline queueing while enforcing TLS + SSE-KMS encryption and IAM access controls.\n  7. Add integration tests/monitoring to validate streaming throughput, failover behaviour, and storage pipeline health.&quot;,
+        &quot;oldStart&quot;: 59,
+        &quot;newStart&quot;: 59,
+        &quot;oldLines&quot;: 5,
+        &quot;newLines&quot;: 5,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 1
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM docs/ROADMAP.md&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;# Frontier Audio Technical Roadmap\n\n**Project:** Frontier Audio Assistant\n**Platform:** Android (Kotlin)\n**Core Modules:** Jarvis (AI Assistant) + Always-On Selective Speaker Transcriber\n**Date:** November 2025\n**Version:** 1.1\n\n---\n\n## 1. Overview\n\nThis roadmap defines the detailed development plan for the Frontier Audio ecosystem. Each PR phase includes a breakdown of key subtasks necessary for implementation, testing, and deployment. The plan ensures modular independence between the **Jarvis AI Assistant** and **Selective Speaker Transcriber** while maintaining shared services for networking, authentication, and data management.\n\n---\n\n## 2. Development Roadmap with Subtasks\n\n### **PR-01: Core Framework**\n\n**Objective:** Establish the foundational Android architecture and shared core modules.\n\n**Subtasks:**\n\n1. Initialize Kotlin project and configure Gradle modules (&#96;core&#96;, &#96;jarvis&#96;, &#96;transcriber&#96;, &#96;ui&#96;).\n2. Implement base dependency injection (Dagger/Hilt setup).\n3. Define &#96;Application&#96; class with startup logic.\n4. Create permission manager for &#96;RECORD_AUDIO&#96;, &#96;INTERNET&#96;, &#96;ACCESS_FINE_LOCATION&#96;.\n5. Implement shared data storage layer (Room or DataStore).\n6. Set up logging utilities and environment config management.\n7. Integrate continuous integration workflow (GitHub Actions or Jenkins).\n\n---\n\n### **PR-02: Audio Capture &amp; Speaker Verification**\n\n**Objective:** Implement continuous audio capture and selective speaker filtering.\n\n**Subtasks:**\n\n1. Develop audio capture service using &#96;AudioRecord&#96; API.\n2. Build real-time buffer for streaming audio chunks.\n3. Integrate TensorFlow Lite speaker verification model.\n4. Create voice enrollment flow for new users.\n5. Implement noise filtering and gain normalization.\n6. Add permissions prompt and fail-safe handling for microphone access.\n7. Build test harness for verifying speaker matching accuracy.\n\n---\n\n### **PR-03: Cloud Transcription Service**\n\n**Objective:** Enable secure streaming transcription to AWS and durable cloud storage.\n\n**Subtasks:**\n\n1. Provision AWS resources (Amazon Transcribe streaming, S3 bucket with SSE-KMS, KMS key, IAM roles/policies, optional VPC endpoints) using infrastructure-as-code.\n2. Integrate the AWS SDK for Kotlin to establish a signed WebSocket session with Amazon Transcribe Streaming in real time.\n3. Gate PCM frames behind local speaker verification/VAD so only verified audio is forwarded; drop or locally redact unverified frames.\n4. Handle partial/final transcripts from Transcribe to drive live UI updates and maintain per-session state.\n5. Persist finalized transcript blocks plus metadata (speaker ID, timestamps, GPS fix, session context) to S3 with lifecycle policies (archive after X days, delete or Glacier after Y).\n6. Implement resilient upload, retry, and offline queueing while enforcing TLS + SSE-KMS encryption and IAM access controls.\n7. Add integration tests/monitoring to validate streaming throughput, failover behaviour, and storage pipeline health.\n\n---\n\n### **PR-04: Jarvis Core Integration**\n\n**Objective:** Build the real-time AI assistant interface powered by LLM APIs.\n\n**Subtasks:**\n\n1. Integrate LLM API (OpenAI or Anthropic Claude) with FastAPI gateway.\n2. Implement low-latency WebSocket pipeline for query/response.\n3. Create context memory manager for session persistence.\n4. Add text-to-speech (TTS) and speech-to-text (STT) integration.\n5. Develop interruptibility feature for user control mid-response.\n6. Test response accuracy, latency, and fallback logic.\n7. Create mock endpoints for offline testing.\n8. Trigger Lambda on new S3 transcripts to index metadata into DynamoDB/OpenSearch for Jarvis recall queries.\n9. Expose transcript search (“What did I say at…”) through the Jarvis context interface.\n\n---\n\n### **PR-05: Context Bridge &amp; Sync Layer**\n\n**Objective:** Link Jarvis and Transcriber modules via a shared event bus.\n\n**Subtasks:**\n\n1. Implement Kotlin &#96;Flow&#96;-based event bus (“Frontier Context Bus”).\n2. Define event types: &#96;TranscriptionAvailable&#96;, &#96;JarvisQuery&#96;, &#96;ContextSyncRequest&#96;.\n3. Build listener registration and lifecycle-aware subscriptions.\n4. Integrate with local transcript cache for real-time recall.\n5. Implement deduplication and backpressure control.\n6. Add synchronization with cloud context logs (SQS or MQTT).\n7. Unit test inter-module event propagation.\n\n---\n\n### **PR-06: UX &amp; Unified Interface**\n\n**Objective:** Develop a cohesive and minimal control interface for both modules.\n\n**Subtasks:**\n\n1. Design unified Control Center for toggling between Jarvis, Transcriber, and Combined modes.\n2. Create animations for “Listening,” “Thinking,” and “Speaking” states (Lottie or MotionLayout).\n3. Implement LiveData-based state management for UI synchronization.\n4. Build notification system for background transcription.\n5. Apply dark tech aesthetic and accessibility guidelines.\n6. Develop error-state visuals (permissions denied, offline, mic blocked).\n7. Conduct user experience testing and iteration.\n\n---\n\n### **PR-07: Data Security &amp; Compliance**\n\n**Objective:** Ensure system-level privacy and legal compliance.\n\n**Subtasks:**\n\n1. Implement AES-256 encryption for local data storage.\n2. Integrate Android Keystore for secure key management.\n3. Add explicit consent and onboarding flow.\n4. Enable data deletion and export (GDPR compliance).\n5. Log all permission and data-access actions.\n6. Perform internal security audit and code review.\n7. Validate compliance with CCPA/GDPR through mock audits.\n\n---\n\n### **PR-08: Performance Optimization**\n\n**Objective:** Optimize performance, reduce latency, and validate WER and energy consumption.\n\n**Subtasks:**\n\n1. Profile audio pipeline for memory and thread efficiency.\n2. Optimize TFLite model quantization and batch size.\n3. Benchmark latency (target &lt;500ms end-to-end).\n4. Test long-run stability over 24-hour operation.\n5. Validate Word Error Rate (target ≤5%).\n6. Analyze energy consumption (target ≤5%/hour).\n7. Implement background throttling to minimize CPU usage.\n\n---\n\n### **PR-09: Deployment &amp; Telemetry**\n\n**Objective:** Deploy app, integrate monitoring, and collect performance data.\n\n**Subtasks:**\n\n1. Configure CI/CD pipeline for automated builds.\n2. Create environment configuration for dev, beta, and prod.\n3. Publish to Google Play’s internal testing track.\n4. Integrate Firebase Crashlytics and Analytics.\n5. Create centralized telemetry dashboard.\n6. Monitor user metrics, crashes, and retention.\n7. Prepare release documentation and changelog.\n\n---\n\n## 3. Testing &amp; QA Strategy\n\n| Area                    | Objective                                  | Tools                        |\n| ----------------------- | ------------------------------------------ | ---------------------------- |\n| **Unit Testing**        | Validate modular functionality             | JUnit, Mockito               |\n| **Integration Testing** | End-to-end Jarvis–Transcriber interactions | Espresso, Firebase Test Lab  |\n| **Performance Testing** | Assess latency, CPU/memory use             | Android Profiler, LeakCanary |\n| **Security Testing**    | Verify encryption and access control       | OWASP ZAP, internal audit    |\n\n---\n\n## 4. Deployment Strategy\n\n1. **Internal Alpha:** For engineering validation, includes debug metrics.\n2. **Closed Beta:** Deployed to pilot users, focusing on transcription reliability.\n3. **Public Beta:** Wider rollout to collect telemetry and UX feedback.\n4. **Stable Release:** Staged deployment with backend scaling and compliance verification.\n\n---\n\n**Prepared by:** Frontier Audio Engineering Team\n**Version:** 1.1 – Development Roadmap with Subtasks\n**Date:** November 2025\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+Acknowledged—`PR-03` now explicitly calls out attaching the GPS fix alongside speaker ID, timestamps, and session context when persisting transcripts to S3. Let me know if more metadata needs to ride along.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+If there are no other questions, complete  1. Provision AWS resources (Amazon Transcribe streaming, S3 bucket with SSE-KMS, KMS key, IAM roles/policies, optional VPC endpoints) using infrastructure-as-code.
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short
+```
+
+```
+ M .specstory/history/2025-11-10_17-01Z-android-application-development-overview.md
+ M docs/ROADMAP.md
+ M transcriber/src/test/java/com/example/frontieraudio/transcriber/verification/SpeakerVerificationHarnessTest.kt
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Designing Terraform infra for transcription**
+
+I’m laying out a detailed plan to create Terraform configs for transcription-related AWS resources: KMS keys, S3 bucket with encryption and lifecycle, IAM roles and policies for transcribe streaming and lambda indexing, plus optional VPC endpoint setup. I’m thinking through variables, outputs, and documentation since I can’t run AWS directly, so I’ll prepare full configs and README to guide usage.</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;infra/terraform/transcription/main.tf&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;67ae96de-b37f-4b1f-8928-4cbcbf8a545f&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;- \n+ terraform {\n+   required_version = \&quot;&gt;= 1.6.0\&quot;\n+ \n+   required_providers {\n+     aws = {\n+       source  = \&quot;hashicorp/aws\&quot;\n+       version = \&quot;&gt;= 5.40.0\&quot;\n+     }\n+   }\n+ }\n+ \n+ provider \&quot;aws\&quot; {\n+   region = var.aws_region\n+ }\n+ \n+ locals {\n+   common_tags = merge(\n+     {\n+       Project   = \&quot;FrontierAudio\&quot;\n+       Component = \&quot;Transcription\&quot;\n+       ManagedBy = \&quot;Terraform\&quot;\n+     },\n+     var.tags\n+   )\n+ }\n+ \n+ # --- KMS key for transcript encryption --------------------------------------\n+ \n+ resource \&quot;aws_kms_key\&quot; \&quot;transcript\&quot; {\n+   description             = \&quot;KMS key for encrypting Frontier Audio transcript assets\&quot;\n+   deletion_window_in_days = var.kms_deletion_window_days\n+   enable_key_rotation     = true\n+ \n+   tags = local.common_tags\n+ }\n+ \n+ resource \&quot;aws_kms_alias\&quot; \&quot;transcript\&quot; {\n+   name          = \&quot;alias/${var.kms_alias_name}\&quot;\n+   target_key_id = aws_kms_key.transcript.id\n+ }\n+ \n+ # --- S3 bucket for transcripts -----------------------------------------------\n+ \n+ resource \&quot;aws_s3_bucket\&quot; \&quot;transcripts\&quot; {\n+   bucket = var.s3_bucket_name\n+ \n+   tags = local.common_tags\n+ }\n+ \n+ resource \&quot;aws_s3_bucket_versioning\&quot; \&quot;transcripts\&quot; {\n+   bucket = aws_s3_bucket.transcripts.id\n+ \n+   versioning_configuration {\n+     status = var.enable_bucket_versioning ? \&quot;Enabled\&quot; : \&quot;Suspended\&quot;\n+   }\n+ }\n+ \n+ resource \&quot;aws_s3_bucket_public_access_block\&quot; \&quot;transcripts\&quot; {\n+   bucket = aws_s3_bucket.transcripts.id\n+ \n+   block_public_acls       = true\n+   block_public_policy     = true\n+   ignore_public_acls      = true\n+   restrict_public_buckets = true\n+ }\n+ \n+ resource \&quot;aws_s3_bucket_server_side_encryption_configuration\&quot; \&quot;transcripts\&quot; {\n+   bucket = aws_s3_bucket.transcripts.id\n+ \n+   rule {\n+     apply_server_side_encryption_by_default {\n+       kms_master_key_id = aws_kms_key.transcript.arn\n+       sse_algorithm     = \&quot;aws:kms\&quot;\n+     }\n+   }\n+ }\n+ \n+ resource \&quot;aws_s3_bucket_lifecycle_configuration\&quot; \&quot;transcripts\&quot; {\n+   bucket = aws_s3_bucket.transcripts.id\n+ \n+   rule {\n+     id     = \&quot;archive-then-expire\&quot;\n+     status = \&quot;Enabled\&quot;\n+ \n+     transition {\n+       days          = var.archive_after_days\n+       storage_class = var.archive_storage_class\n+     }\n+ \n+     expiration {\n+       days = var.delete_after_days\n+     }\n+   }\n+ }\n+ \n+ # --- IAM roles &amp; policies ----------------------------------------------------\n+ \n+ data \&quot;aws_iam_policy_document\&quot; \&quot;app_assume_role\&quot; {\n+   statement {\n+     effect = \&quot;Allow\&quot;\n+ \n+     principals {\n+       type        = var.app_principal_type\n+       identifiers = var.app_principal_identifiers\n+     }\n+ \n+     actions = [\&quot;sts:AssumeRole\&quot;]\n+   }\n+ }\n+ \n+ resource \&quot;aws_iam_role\&quot; \&quot;app_transcribe\&quot; {\n+   name               = \&quot;${var.resource_prefix}-transcribe-app-role\&quot;\n+   assume_role_policy = data.aws_iam_policy_document.app_assume_role.json\n+ \n+   tags = local.common_tags\n+ }\n+ \n+ data \&quot;aws_iam_policy_document\&quot; \&quot;app_transcribe\&quot; {\n+   statement {\n+     effect = \&quot;Allow\&quot;\n+     actions = [\n+       \&quot;transcribe:StartStreamTranscription\&quot;,\n+       \&quot;transcribe:StartCallAnalyticsStreamTranscription\&quot;,\n+       \&quot;transcribe:GetVocabulary\&quot;\n+     ]\n+     resources = [\&quot;*\&quot;]\n+   }\n+ \n+   statement {\n+     effect = \&quot;Allow\&quot;\n+     actions = [\n+       \&quot;s3:PutObject\&quot;,\n+       \&quot;s3:AbortMultipartUpload\&quot;,\n+       \&quot;s3:GetObject\&quot;,\n+       \&quot;s3:GetObjectTagging\&quot;,\n+       \&quot;s3:PutObjectTagging\&quot;\n+     ]\n+     resources = [\n+       \&quot;${aws_s3_bucket.transcripts.arn}/*\&quot;\n+     ]\n+   }\n+ \n+   statement {\n+     effect = \&quot;Allow\&quot;\n+     actions = [\n+       \&quot;s3:ListBucket\&quot;,\n+       \&quot;s3:GetBucketLocation\&quot;\n+     ]\n+     resources = [\n+       aws_s3_bucket.transcripts.arn\n+     ]\n+   }\n+ \n+   statement {\n+     effect = \&quot;Allow\&quot;\n+     actions = [\n+       \&quot;kms:Encrypt\&quot;,\n+       \&quot;kms:Decrypt\&quot;,\n+       \&quot;kms:GenerateDataKey\&quot;,\n+       \&quot;kms:DescribeKey\&quot;\n+     ]\n+     resources = [\n+       aws_kms_key.transcript.arn\n+     ]\n+   }\n+ }\n+ \n+ resource \&quot;aws_iam_policy\&quot; \&quot;app_transcribe\&quot; {\n+   name   = \&quot;${var.resource_prefix}-transcribe-app-policy\&quot;\n+   policy = data.aws_iam_policy_document.app_transcribe.json\n+ }\n+ \n+ resource \&quot;aws_iam_role_policy_attachment\&quot; \&quot;app_transcribe\&quot; {\n+   role       = aws_iam_role.app_transcribe.name\n+   policy_arn = aws_iam_policy.app_transcribe.arn\n+ }\n+ \n+ # Optional Lambda role for downstream indexing (Jarvis will consume later)\n+ resource \&quot;aws_iam_role\&quot; \&quot;indexer_lambda\&quot; {\n+   count              = var.create_indexer_role ? 1 : 0\n+   name               = \&quot;${var.resource_prefix}-transcript-indexer-role\&quot;\n+   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json\n+ \n+   tags = local.common_tags\n+ }\n+ \n+ data \&quot;aws_iam_policy_document\&quot; \&quot;lambda_assume\&quot; {\n+   statement {\n+     effect = \&quot;Allow\&quot;\n+ \n+     principals {\n+       type        = \&quot;Service\&quot;\n+       identifiers = [\&quot;lambda.amazonaws.com\&quot;]\n+     }\n+ \n+     actions = [\&quot;sts:AssumeRole\&quot;]\n+   }\n+ }\n+ \n+ data \&quot;aws_iam_policy_document\&quot; \&quot;indexer_policy\&quot; {\n+   statement {\n+     effect = \&quot;Allow\&quot;\n+     actions = [\n+       \&quot;s3:GetObject\&quot;,\n+       \&quot;s3:GetObjectTagging\&quot;\n+     ]\n+     resources = [\&quot;${aws_s3_bucket.transcripts.arn}/*\&quot;]\n+   }\n+ \n+   statement {\n+     effect = \&quot;Allow\&quot;\n+     actions = [\n+       \&quot;dynamodb:PutItem\&quot;,\n+       \&quot;dynamodb:UpdateItem\&quot;\n+     ]\n+     resources = var.indexer_dynamodb_table_arns\n+   }\n+ \n+   statement {\n+     effect = \&quot;Allow\&quot;\n+     actions = [\n+       \&quot;es:ESHttpPost\&quot;,\n+       \&quot;es:ESHttpPut\&quot;\n+     ]\n+     resources = var.indexer_opensearch_index_arns\n+   }\n+ \n+   statement {\n+     effect = \&quot;Allow\&quot;\n+     actions = [\n+       \&quot;logs:CreateLogGroup\&quot;,\n+       \&quot;logs:CreateLogStream\&quot;,\n+       \&quot;logs:PutLogEvents\&quot;\n+     ]\n+     resources = [\&quot;arn:aws:logs:${var.aws_region}:${var.aws_account_id}:*\&quot;]\n+   }\n+ \n+   statement {\n+     effect = \&quot;Allow\&quot;\n+     actions = [\n+       \&quot;kms:Decrypt\&quot;,\n+       \&quot;kms:GenerateDataKey\&quot;\n+     ]\n+     resources = [aws_kms_key.transcript.arn]\n+   }\n+ }\n+ \n+ resource \&quot;aws_iam_policy\&quot; \&quot;indexer_policy\&quot; {\n+   count  = var.create_indexer_role ? 1 : 0\n+   name   = \&quot;${var.resource_prefix}-transcript-indexer-policy\&quot;\n+   policy = data.aws_iam_policy_document.indexer_policy.json\n+ }\n+ \n+ resource \&quot;aws_iam_role_policy_attachment\&quot; \&quot;indexer_policy\&quot; {\n+   count      = var.create_indexer_role ? 1 : 0\n+   role       = aws_iam_role.indexer_lambda[0].name\n+   policy_arn = aws_iam_policy.indexer_policy[0].arn\n+ }\n+ \n+ # --- Optional S3 VPC endpoint ------------------------------------------------\n+ \n+ resource \&quot;aws_vpc_endpoint\&quot; \&quot;s3\&quot; {\n+   count             = length(var.s3_endpoint_route_table_ids) &gt; 0 ? 1 : 0\n+   vpc_id            = var.vpc_id\n+   service_name      = \&quot;com.amazonaws.${var.aws_region}.s3\&quot;\n+   route_table_ids   = var.s3_endpoint_route_table_ids\n+   vpc_endpoint_type = \&quot;Gateway\&quot;\n+ \n+   tags = merge(local.common_tags, { Name = \&quot;${var.resource_prefix}-s3-endpoint\&quot; })\n+ }\n+ &quot;,
+        &quot;oldStart&quot;: 1,
+        &quot;newStart&quot;: 1,
+        &quot;oldLines&quot;: 1,
+        &quot;newLines&quot;: 271,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 271
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM infra/terraform/transcription/main.tf&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;terraform {\n  required_version = \&quot;&gt;= 1.6.0\&quot;\n\n  required_providers {\n    aws = {\n      source  = \&quot;hashicorp/aws\&quot;\n      version = \&quot;&gt;= 5.40.0\&quot;\n    }\n  }\n}\n\nprovider \&quot;aws\&quot; {\n  region = var.aws_region\n}\n\nlocals {\n  common_tags = merge(\n    {\n      Project   = \&quot;FrontierAudio\&quot;\n      Component = \&quot;Transcription\&quot;\n      ManagedBy = \&quot;Terraform\&quot;\n    },\n    var.tags\n  )\n}\n\n# --- KMS key for transcript encryption --------------------------------------\n\nresource \&quot;aws_kms_key\&quot; \&quot;transcript\&quot; {\n  description             = \&quot;KMS key for encrypting Frontier Audio transcript assets\&quot;\n  deletion_window_in_days = var.kms_deletion_window_days\n  enable_key_rotation     = true\n\n  tags = local.common_tags\n}\n\nresource \&quot;aws_kms_alias\&quot; \&quot;transcript\&quot; {\n  name          = \&quot;alias/${var.kms_alias_name}\&quot;\n  target_key_id = aws_kms_key.transcript.id\n}\n\n# --- S3 bucket for transcripts -----------------------------------------------\n\nresource \&quot;aws_s3_bucket\&quot; \&quot;transcripts\&quot; {\n  bucket = var.s3_bucket_name\n\n  tags = local.common_tags\n}\n\nresource \&quot;aws_s3_bucket_versioning\&quot; \&quot;transcripts\&quot; {\n  bucket = aws_s3_bucket.transcripts.id\n\n  versioning_configuration {\n    status = var.enable_bucket_versioning ? \&quot;Enabled\&quot; : \&quot;Suspended\&quot;\n  }\n}\n\nresource \&quot;aws_s3_bucket_public_access_block\&quot; \&quot;transcripts\&quot; {\n  bucket = aws_s3_bucket.transcripts.id\n\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n\nresource \&quot;aws_s3_bucket_server_side_encryption_configuration\&quot; \&quot;transcripts\&quot; {\n  bucket = aws_s3_bucket.transcripts.id\n\n  rule {\n    apply_server_side_encryption_by_default {\n      kms_master_key_id = aws_kms_key.transcript.arn\n      sse_algorithm     = \&quot;aws:kms\&quot;\n    }\n  }\n}\n\nresource \&quot;aws_s3_bucket_lifecycle_configuration\&quot; \&quot;transcripts\&quot; {\n  bucket = aws_s3_bucket.transcripts.id\n\n  rule {\n    id     = \&quot;archive-then-expire\&quot;\n    status = \&quot;Enabled\&quot;\n\n    transition {\n      days          = var.archive_after_days\n      storage_class = var.archive_storage_class\n    }\n\n    expiration {\n      days = var.delete_after_days\n    }\n  }\n}\n\n# --- IAM roles &amp; policies ----------------------------------------------------\n\ndata \&quot;aws_iam_policy_document\&quot; \&quot;app_assume_role\&quot; {\n  statement {\n    effect = \&quot;Allow\&quot;\n\n    principals {\n      type        = var.app_principal_type\n      identifiers = var.app_principal_identifiers\n    }\n\n    actions = [\&quot;sts:AssumeRole\&quot;]\n  }\n}\n\nresource \&quot;aws_iam_role\&quot; \&quot;app_transcribe\&quot; {\n  name               = \&quot;${var.resource_prefix}-transcribe-app-role\&quot;\n  assume_role_policy = data.aws_iam_policy_document.app_assume_role.json\n\n  tags = local.common_tags\n}\n\ndata \&quot;aws_iam_policy_document\&quot; \&quot;app_transcribe\&quot; {\n  statement {\n    effect = \&quot;Allow\&quot;\n    actions = [\n      \&quot;transcribe:StartStreamTranscription\&quot;,\n      \&quot;transcribe:StartCallAnalyticsStreamTranscription\&quot;,\n      \&quot;transcribe:GetVocabulary\&quot;\n    ]\n    resources = [\&quot;*\&quot;]\n  }\n\n  statement {\n    effect = \&quot;Allow\&quot;\n    actions = [\n      \&quot;s3:PutObject\&quot;,\n      \&quot;s3:AbortMultipartUpload\&quot;,\n      \&quot;s3:GetObject\&quot;,\n      \&quot;s3:GetObjectTagging\&quot;,\n      \&quot;s3:PutObjectTagging\&quot;\n    ]\n    resources = [\n      \&quot;${aws_s3_bucket.transcripts.arn}/*\&quot;\n    ]\n  }\n\n  statement {\n    effect = \&quot;Allow\&quot;\n    actions = [\n      \&quot;s3:ListBucket\&quot;,\n      \&quot;s3:GetBucketLocation\&quot;\n    ]\n    resources = [\n      aws_s3_bucket.transcripts.arn\n    ]\n  }\n\n  statement {\n    effect = \&quot;Allow\&quot;\n    actions = [\n      \&quot;kms:Encrypt\&quot;,\n      \&quot;kms:Decrypt\&quot;,\n      \&quot;kms:GenerateDataKey\&quot;,\n      \&quot;kms:DescribeKey\&quot;\n    ]\n    resources = [\n      aws_kms_key.transcript.arn\n    ]\n  }\n}\n\nresource \&quot;aws_iam_policy\&quot; \&quot;app_transcribe\&quot; {\n  name   = \&quot;${var.resource_prefix}-transcribe-app-policy\&quot;\n  policy = data.aws_iam_policy_document.app_transcribe.json\n}\n\nresource \&quot;aws_iam_role_policy_attachment\&quot; \&quot;app_transcribe\&quot; {\n  role       = aws_iam_role.app_transcribe.name\n  policy_arn = aws_iam_policy.app_transcribe.arn\n}\n\n# Optional Lambda role for downstream indexing (Jarvis will consume later)\nresource \&quot;aws_iam_role\&quot; \&quot;indexer_lambda\&quot; {\n  count              = var.create_indexer_role ? 1 : 0\n  name               = \&quot;${var.resource_prefix}-transcript-indexer-role\&quot;\n  assume_role_policy = data.aws_iam_policy_document.lambda_assume.json\n\n  tags = local.common_tags\n}\n\ndata \&quot;aws_iam_policy_document\&quot; \&quot;lambda_assume\&quot; {\n  statement {\n    effect = \&quot;Allow\&quot;\n\n    principals {\n      type        = \&quot;Service\&quot;\n      identifiers = [\&quot;lambda.amazonaws.com\&quot;]\n    }\n\n    actions = [\&quot;sts:AssumeRole\&quot;]\n  }\n}\n\ndata \&quot;aws_iam_policy_document\&quot; \&quot;indexer_policy\&quot; {\n  statement {\n    effect = \&quot;Allow\&quot;\n    actions = [\n      \&quot;s3:GetObject\&quot;,\n      \&quot;s3:GetObjectTagging\&quot;\n    ]\n    resources = [\&quot;${aws_s3_bucket.transcripts.arn}/*\&quot;]\n  }\n\n  statement {\n    effect = \&quot;Allow\&quot;\n    actions = [\n      \&quot;dynamodb:PutItem\&quot;,\n      \&quot;dynamodb:UpdateItem\&quot;\n    ]\n    resources = var.indexer_dynamodb_table_arns\n  }\n\n  statement {\n    effect = \&quot;Allow\&quot;\n    actions = [\n      \&quot;es:ESHttpPost\&quot;,\n      \&quot;es:ESHttpPut\&quot;\n    ]\n    resources = var.indexer_opensearch_index_arns\n  }\n\n  statement {\n    effect = \&quot;Allow\&quot;\n    actions = [\n      \&quot;logs:CreateLogGroup\&quot;,\n      \&quot;logs:CreateLogStream\&quot;,\n      \&quot;logs:PutLogEvents\&quot;\n    ]\n    resources = [\&quot;arn:aws:logs:${var.aws_region}:${var.aws_account_id}:*\&quot;]\n  }\n\n  statement {\n    effect = \&quot;Allow\&quot;\n    actions = [\n      \&quot;kms:Decrypt\&quot;,\n      \&quot;kms:GenerateDataKey\&quot;\n    ]\n    resources = [aws_kms_key.transcript.arn]\n  }\n}\n\nresource \&quot;aws_iam_policy\&quot; \&quot;indexer_policy\&quot; {\n  count  = var.create_indexer_role ? 1 : 0\n  name   = \&quot;${var.resource_prefix}-transcript-indexer-policy\&quot;\n  policy = data.aws_iam_policy_document.indexer_policy.json\n}\n\nresource \&quot;aws_iam_role_policy_attachment\&quot; \&quot;indexer_policy\&quot; {\n  count      = var.create_indexer_role ? 1 : 0\n  role       = aws_iam_role.indexer_lambda[0].name\n  policy_arn = aws_iam_policy.indexer_policy[0].arn\n}\n\n# --- Optional S3 VPC endpoint ------------------------------------------------\n\nresource \&quot;aws_vpc_endpoint\&quot; \&quot;s3\&quot; {\n  count             = length(var.s3_endpoint_route_table_ids) &gt; 0 ? 1 : 0\n  vpc_id            = var.vpc_id\n  service_name      = \&quot;com.amazonaws.${var.aws_region}.s3\&quot;\n  route_table_ids   = var.s3_endpoint_route_table_ids\n  vpc_endpoint_type = \&quot;Gateway\&quot;\n\n  tags = merge(local.common_tags, { Name = \&quot;${var.resource_prefix}-s3-endpoint\&quot; })\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Noticing missing final newline**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;infra/terraform/transcription/variables.tf&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;16c65447-3836-4c74-b820-38028fd7529b&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;- \n+ variable \&quot;aws_region\&quot; {\n+   description = \&quot;AWS region to deploy resources into.\&quot;\n+   type        = string\n+ }\n+ \n+ variable \&quot;aws_account_id\&quot; {\n+   description = \&quot;AWS account number (used for IAM policy resource ARNs).\&quot;\n+   type        = string\n+ }\n+ \n+ variable \&quot;resource_prefix\&quot; {\n+   description = \&quot;Prefix used for naming AWS resources (e.g. frontier-audio-dev).\&quot;\n+   type        = string\n+ }\n+ \n+ variable \&quot;s3_bucket_name\&quot; {\n+   description = \&quot;Name of the S3 bucket that stores encrypted transcripts.\&quot;\n+   type        = string\n+ }\n+ \n+ variable \&quot;kms_alias_name\&quot; {\n+   description = \&quot;Alias name (without the alias/ prefix) for the transcript KMS key.\&quot;\n+   type        = string\n+   default     = \&quot;frontier-audio-transcripts\&quot;\n+ }\n+ \n+ variable \&quot;kms_deletion_window_days\&quot; {\n+   description = \&quot;Number of days before a scheduled KMS key deletion.\&quot;\n+   type        = number\n+   default     = 30\n+ }\n+ \n+ variable \&quot;archive_after_days\&quot; {\n+   description = \&quot;Number of days after which transcripts transition to colder storage.\&quot;\n+   type        = number\n+   default     = 30\n+ }\n+ \n+ variable \&quot;delete_after_days\&quot; {\n+   description = \&quot;Number of days after which transcripts are permanently deleted.\&quot;\n+   type        = number\n+   default     = 365\n+ }\n+ \n+ variable \&quot;archive_storage_class\&quot; {\n+   description = \&quot;Amazon S3 storage class to transition objects into (e.g. GLACIER, DEEP_ARCHIVE).\&quot;\n+   type        = string\n+   default     = \&quot;DEEP_ARCHIVE\&quot;\n+ }\n+ \n+ variable \&quot;enable_bucket_versioning\&quot; {\n+   description = \&quot;Whether to enable S3 bucket versioning.\&quot;\n+   type        = bool\n+   default     = true\n+ }\n+ \n+ variable \&quot;app_principal_type\&quot; {\n+   description = \&quot;IAM principal type that will assume the streaming application role (e.g. Service, AWS, Federated).\&quot;\n+   type        = string\n+   default     = \&quot;AWS\&quot;\n+ }\n+ \n+ variable \&quot;app_principal_identifiers\&quot; {\n+   description = \&quot;List of principal ARNs or identifiers allowed to assume the streaming application role.\&quot;\n+   type        = list(string)\n+ }\n+ \n+ variable \&quot;create_indexer_role\&quot; {\n+   description = \&quot;Whether to create a Lambda execution role for downstream indexing.\&quot;\n+   type        = bool\n+   default     = true\n+ }\n+ \n+ variable \&quot;indexer_dynamodb_table_arns\&quot; {\n+   description = \&quot;List of DynamoDB table ARNs the indexer Lambda can write to.\&quot;\n+   type        = list(string)\n+   default     = []\n+ }\n+ \n+ variable \&quot;indexer_opensearch_index_arns\&quot; {\n+   description = \&quot;List of OpenSearch index ARNs accessible by the indexer Lambda.\&quot;\n+   type        = list(string)\n+   default     = []\n+ }\n+ \n+ variable \&quot;vpc_id\&quot; {\n+   description = \&quot;VPC ID used when creating optional endpoints.\&quot;\n+   type        = string\n+   default     = \&quot;\&quot;\n+ }\n+ \n+ variable \&quot;s3_endpoint_route_table_ids\&quot; {\n+   description = \&quot;Route table IDs for creating an S3 Gateway VPC endpoint. Leave empty to skip.\&quot;\n+   type        = list(string)\n+   default     = []\n+ }\n+ \n+ variable \&quot;tags\&quot; {\n+   description = \&quot;Additional resource tags.\&quot;\n+   type        = map(string)\n+   default     = {}\n+ }\n+ &quot;,
+        &quot;oldStart&quot;: 1,
+        &quot;newStart&quot;: 1,
+        &quot;oldLines&quot;: 1,
+        &quot;newLines&quot;: 103,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 103
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM infra/terraform/transcription/variables.tf&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;variable \&quot;aws_region\&quot; {\n  description = \&quot;AWS region to deploy resources into.\&quot;\n  type        = string\n}\n\nvariable \&quot;aws_account_id\&quot; {\n  description = \&quot;AWS account number (used for IAM policy resource ARNs).\&quot;\n  type        = string\n}\n\nvariable \&quot;resource_prefix\&quot; {\n  description = \&quot;Prefix used for naming AWS resources (e.g. frontier-audio-dev).\&quot;\n  type        = string\n}\n\nvariable \&quot;s3_bucket_name\&quot; {\n  description = \&quot;Name of the S3 bucket that stores encrypted transcripts.\&quot;\n  type        = string\n}\n\nvariable \&quot;kms_alias_name\&quot; {\n  description = \&quot;Alias name (without the alias/ prefix) for the transcript KMS key.\&quot;\n  type        = string\n  default     = \&quot;frontier-audio-transcripts\&quot;\n}\n\nvariable \&quot;kms_deletion_window_days\&quot; {\n  description = \&quot;Number of days before a scheduled KMS key deletion.\&quot;\n  type        = number\n  default     = 30\n}\n\nvariable \&quot;archive_after_days\&quot; {\n  description = \&quot;Number of days after which transcripts transition to colder storage.\&quot;\n  type        = number\n  default     = 30\n}\n\nvariable \&quot;delete_after_days\&quot; {\n  description = \&quot;Number of days after which transcripts are permanently deleted.\&quot;\n  type        = number\n  default     = 365\n}\n\nvariable \&quot;archive_storage_class\&quot; {\n  description = \&quot;Amazon S3 storage class to transition objects into (e.g. GLACIER, DEEP_ARCHIVE).\&quot;\n  type        = string\n  default     = \&quot;DEEP_ARCHIVE\&quot;\n}\n\nvariable \&quot;enable_bucket_versioning\&quot; {\n  description = \&quot;Whether to enable S3 bucket versioning.\&quot;\n  type        = bool\n  default     = true\n}\n\nvariable \&quot;app_principal_type\&quot; {\n  description = \&quot;IAM principal type that will assume the streaming application role (e.g. Service, AWS, Federated).\&quot;\n  type        = string\n  default     = \&quot;AWS\&quot;\n}\n\nvariable \&quot;app_principal_identifiers\&quot; {\n  description = \&quot;List of principal ARNs or identifiers allowed to assume the streaming application role.\&quot;\n  type        = list(string)\n}\n\nvariable \&quot;create_indexer_role\&quot; {\n  description = \&quot;Whether to create a Lambda execution role for downstream indexing.\&quot;\n  type        = bool\n  default     = true\n}\n\nvariable \&quot;indexer_dynamodb_table_arns\&quot; {\n  description = \&quot;List of DynamoDB table ARNs the indexer Lambda can write to.\&quot;\n  type        = list(string)\n  default     = []\n}\n\nvariable \&quot;indexer_opensearch_index_arns\&quot; {\n  description = \&quot;List of OpenSearch index ARNs accessible by the indexer Lambda.\&quot;\n  type        = list(string)\n  default     = []\n}\n\nvariable \&quot;vpc_id\&quot; {\n  description = \&quot;VPC ID used when creating optional endpoints.\&quot;\n  type        = string\n  default     = \&quot;\&quot;\n}\n\nvariable \&quot;s3_endpoint_route_table_ids\&quot; {\n  description = \&quot;Route table IDs for creating an S3 Gateway VPC endpoint. Leave empty to skip.\&quot;\n  type        = list(string)\n  default     = []\n}\n\nvariable \&quot;tags\&quot; {\n  description = \&quot;Additional resource tags.\&quot;\n  type        = map(string)\n  default     = {}\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Requesting outputs file**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;infra/terraform/transcription/outputs.tf&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;1b4ec9a9-2e1b-4668-8a2b-f7642fd2bf19&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;- \n+ output \&quot;s3_bucket_name\&quot; {\n+   description = \&quot;Name of the transcript storage bucket.\&quot;\n+   value       = aws_s3_bucket.transcripts.bucket\n+ }\n+ \n+ output \&quot;s3_bucket_arn\&quot; {\n+   description = \&quot;ARN of the transcript storage bucket.\&quot;\n+   value       = aws_s3_bucket.transcripts.arn\n+ }\n+ \n+ output \&quot;kms_key_arn\&quot; {\n+   description = \&quot;ARN of the KMS key used for transcript encryption.\&quot;\n+   value       = aws_kms_key.transcript.arn\n+ }\n+ \n+ output \&quot;kms_alias_name\&quot; {\n+   description = \&quot;Alias associated with the transcript KMS key.\&quot;\n+   value       = aws_kms_alias.transcript.name\n+ }\n+ \n+ output \&quot;application_role_arn\&quot; {\n+   description = \&quot;IAM role ARN that the transcription client should assume.\&quot;\n+   value       = aws_iam_role.app_transcribe.arn\n+ }\n+ \n+ output \&quot;indexer_role_arn\&quot; {\n+   description = \&quot;IAM role ARN for the downstream indexing Lambda (if created).\&quot;\n+   value       = one([for role in aws_iam_role.indexer_lambda : role.arn])\n+   depends_on  = [aws_iam_role.indexer_lambda]\n+   condition   = var.create_indexer_role\n+ }\n+ \n+ output \&quot;s3_vpc_endpoint_id\&quot; {\n+   description = \&quot;ID of the optional S3 VPC endpoint.\&quot;\n+   value       = one([for endpoint in aws_vpc_endpoint.s3 : endpoint.id])\n+   condition   = length(var.s3_endpoint_route_table_ids) &gt; 0\n+ }\n+ &quot;,
+        &quot;oldStart&quot;: 1,
+        &quot;newStart&quot;: 1,
+        &quot;oldLines&quot;: 1,
+        &quot;newLines&quot;: 38,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 38
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM infra/terraform/transcription/outputs.tf&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;output \&quot;s3_bucket_name\&quot; {\n  description = \&quot;Name of the transcript storage bucket.\&quot;\n  value       = aws_s3_bucket.transcripts.bucket\n}\n\noutput \&quot;s3_bucket_arn\&quot; {\n  description = \&quot;ARN of the transcript storage bucket.\&quot;\n  value       = aws_s3_bucket.transcripts.arn\n}\n\noutput \&quot;kms_key_arn\&quot; {\n  description = \&quot;ARN of the KMS key used for transcript encryption.\&quot;\n  value       = aws_kms_key.transcript.arn\n}\n\noutput \&quot;kms_alias_name\&quot; {\n  description = \&quot;Alias associated with the transcript KMS key.\&quot;\n  value       = aws_kms_alias.transcript.name\n}\n\noutput \&quot;application_role_arn\&quot; {\n  description = \&quot;IAM role ARN that the transcription client should assume.\&quot;\n  value       = aws_iam_role.app_transcribe.arn\n}\n\noutput \&quot;indexer_role_arn\&quot; {\n  description = \&quot;IAM role ARN for the downstream indexing Lambda (if created).\&quot;\n  value       = one([for role in aws_iam_role.indexer_lambda : role.arn])\n  depends_on  = [aws_iam_role.indexer_lambda]\n  condition   = var.create_indexer_role\n}\n\noutput \&quot;s3_vpc_endpoint_id\&quot; {\n  description = \&quot;ID of the optional S3 VPC endpoint.\&quot;\n  value       = one([for endpoint in aws_vpc_endpoint.s3 : endpoint.id])\n  condition   = length(var.s3_endpoint_route_table_ids) &gt; 0\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Identifying Terraform output constraints**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;infra/terraform/transcription/outputs.tf&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;9ccd5751-8cbb-4835-93c0-ae7febc66661&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  output \&quot;indexer_role_arn\&quot; {\n    description = \&quot;IAM role ARN for the downstream indexing Lambda (if created).\&quot;\n-   value       = one([for role in aws_iam_role.indexer_lambda : role.arn])\n-   depends_on  = [aws_iam_role.indexer_lambda]\n-   condition   = var.create_indexer_role\n+   value       = var.create_indexer_role ? aws_iam_role.indexer_lambda[0].arn : null\n  }\n  \n  output \&quot;s3_vpc_endpoint_id\&quot; {\n    description = \&quot;ID of the optional S3 VPC endpoint.\&quot;\n-   value       = one([for endpoint in aws_vpc_endpoint.s3 : endpoint.id])\n-   condition   = length(var.s3_endpoint_route_table_ids) &gt; 0\n+   value       = length(var.s3_endpoint_route_table_ids) &gt; 0 ? aws_vpc_endpoint.s3[0].id : null\n  }\n  &quot;,
+        &quot;oldStart&quot;: 26,
+        &quot;newStart&quot;: 26,
+        &quot;oldLines&quot;: 13,
+        &quot;newLines&quot;: 10,
+        &quot;linesRemoved&quot;: 5,
+        &quot;linesAdded&quot;: 2
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM infra/terraform/transcription/outputs.tf&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;output \&quot;s3_bucket_name\&quot; {\n  description = \&quot;Name of the transcript storage bucket.\&quot;\n  value       = aws_s3_bucket.transcripts.bucket\n}\n\noutput \&quot;s3_bucket_arn\&quot; {\n  description = \&quot;ARN of the transcript storage bucket.\&quot;\n  value       = aws_s3_bucket.transcripts.arn\n}\n\noutput \&quot;kms_key_arn\&quot; {\n  description = \&quot;ARN of the KMS key used for transcript encryption.\&quot;\n  value       = aws_kms_key.transcript.arn\n}\n\noutput \&quot;kms_alias_name\&quot; {\n  description = \&quot;Alias associated with the transcript KMS key.\&quot;\n  value       = aws_kms_alias.transcript.name\n}\n\noutput \&quot;application_role_arn\&quot; {\n  description = \&quot;IAM role ARN that the transcription client should assume.\&quot;\n  value       = aws_iam_role.app_transcribe.arn\n}\n\noutput \&quot;indexer_role_arn\&quot; {\n  description = \&quot;IAM role ARN for the downstream indexing Lambda (if created).\&quot;\n  value       = var.create_indexer_role ? aws_iam_role.indexer_lambda[0].arn : null\n}\n\noutput \&quot;s3_vpc_endpoint_id\&quot; {\n  description = \&quot;ID of the optional S3 VPC endpoint.\&quot;\n  value       = length(var.s3_endpoint_route_table_ids) &gt; 0 ? aws_vpc_endpoint.s3[0].id : null\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Adding usage README**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;infra/terraform/transcription/README.md&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;b3590658-f21b-4ca8-bd8c-8e3853d6db2e&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;- \n+ # Frontier Audio – Transcription Infra Terraform\n+ \n+ This Terraform package provisions the AWS scaffolding required for PR-03:\n+ \n+ * KMS key + alias for encrypting transcript assets.\n+ * Private S3 bucket with SSE-KMS, lifecycle rules (archive/delete), and optional versioning.\n+ * IAM role/policy for the transcription client (mobile app or gateway) to access Amazon Transcribe Streaming, S3, and the KMS key.\n+ * Optional Lambda execution role for downstream indexing (DynamoDB / OpenSearch).\n+ * Optional S3 Gateway VPC endpoint.\n+ \n+ ## Prerequisites\n+ \n+ * Terraform ≥ 1.6\n+ * AWS CLI credentials able to create IAM/KMS/S3 resources in the target account.\n+ * (Optional) Existing VPC and route tables if you want the S3 VPC endpoint.\n+ \n+ ## Files\n+ \n+ | File          | Description |\n+ | ------------- | ----------- |\n+ | &#96;main.tf&#96;     | Provider config and resource definitions. |\n+ | &#96;variables.tf&#96;| All tunable settings (region, bucket name, lifecycle days, etc.). |\n+ | &#96;outputs.tf&#96;  | Useful ARNs/IDs for integrating the application stack. |\n+ | &#96;terraform.tfvars.example&#96; | Sample variable file you can copy and customize. |\n+ \n+ ## Usage\n+ \n+ &#96;&#96;&#96;bash\n+ cd infra/terraform/transcription\n+ cp terraform.tfvars.example terraform.tfvars   # customize values\n+ terraform init\n+ terraform plan\n+ terraform apply\n+ &#96;&#96;&#96;\n+ \n+ Outputs include the transcript bucket name, KMS key ARN, IAM role ARNs, and the optional S3 VPC endpoint ID. Feed those values into the mobile/backend configuration so the Kotlin client can assume the correct role and point to the encrypted bucket.\n+ \n+ ## Notes\n+ \n+ * The module does **not** create Amazon Transcribe resources (the service is serverless). Instead, it ensures you have the IAM permissions and network controls required to call the streaming WebSocket API safely.\n+ * If you do not need the indexing Lambda yet, set &#96;create_indexer_role = false&#96;.\n+ * Provide the correct principal identifier list so only your Cognito/STS identity provider (or backend service) can assume the &#96;app_transcribe&#96; role.\n+ * Adjust lifecycle policies (&#96;archive_after_days&#96;, &#96;delete_after_days&#96;, &#96;archive_storage_class&#96;) to match retention requirements.\n+ * When enabling the S3 Gateway endpoint, supply &#96;vpc_id&#96; and the route table IDs so traffic to S3 stays on the AWS backbone.\n+ \n+ &quot;,
+        &quot;oldStart&quot;: 1,
+        &quot;newStart&quot;: 1,
+        &quot;oldLines&quot;: 1,
+        &quot;newLines&quot;: 46,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 46
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM infra/terraform/transcription/README.md&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;# Frontier Audio – Transcription Infra Terraform\n\nThis Terraform package provisions the AWS scaffolding required for PR-03:\n\n* KMS key + alias for encrypting transcript assets.\n* Private S3 bucket with SSE-KMS, lifecycle rules (archive/delete), and optional versioning.\n* IAM role/policy for the transcription client (mobile app or gateway) to access Amazon Transcribe Streaming, S3, and the KMS key.\n* Optional Lambda execution role for downstream indexing (DynamoDB / OpenSearch).\n* Optional S3 Gateway VPC endpoint.\n\n## Prerequisites\n\n* Terraform ≥ 1.6\n* AWS CLI credentials able to create IAM/KMS/S3 resources in the target account.\n* (Optional) Existing VPC and route tables if you want the S3 VPC endpoint.\n\n## Files\n\n| File          | Description |\n| ------------- | ----------- |\n| &#96;main.tf&#96;     | Provider config and resource definitions. |\n| &#96;variables.tf&#96;| All tunable settings (region, bucket name, lifecycle days, etc.). |\n| &#96;outputs.tf&#96;  | Useful ARNs/IDs for integrating the application stack. |\n| &#96;terraform.tfvars.example&#96; | Sample variable file you can copy and customize. |\n\n## Usage\n\n&#96;&#96;&#96;bash\ncd infra/terraform/transcription\ncp terraform.tfvars.example terraform.tfvars   # customize values\nterraform init\nterraform plan\nterraform apply\n&#96;&#96;&#96;\n\nOutputs include the transcript bucket name, KMS key ARN, IAM role ARNs, and the optional S3 VPC endpoint ID. Feed those values into the mobile/backend configuration so the Kotlin client can assume the correct role and point to the encrypted bucket.\n\n## Notes\n\n* The module does **not** create Amazon Transcribe resources (the service is serverless). Instead, it ensures you have the IAM permissions and network controls required to call the streaming WebSocket API safely.\n* If you do not need the indexing Lambda yet, set &#96;create_indexer_role = false&#96;.\n* Provide the correct principal identifier list so only your Cognito/STS identity provider (or backend service) can assume the &#96;app_transcribe&#96; role.\n* Adjust lifecycle policies (&#96;archive_after_days&#96;, &#96;delete_after_days&#96;, &#96;archive_storage_class&#96;) to match retention requirements.\n* When enabling the S3 Gateway endpoint, supply &#96;vpc_id&#96; and the route table IDs so traffic to S3 stays on the AWS backbone.\n\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Requesting example tfvars file**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;infra/terraform/transcription/terraform.tfvars.example&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;ab985ee3-73df-4e0d-8b9b-2a077572c32a&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;- \n+ # Copy this file to terraform.tfvars and customize the values.\n+ \n+ aws_region         = \&quot;us-west-2\&quot;\n+ aws_account_id     = \&quot;123456789012\&quot;\n+ resource_prefix    = \&quot;frontier-audio-dev\&quot;\n+ s3_bucket_name     = \&quot;frontier-audio-dev-transcripts\&quot;\n+ kms_alias_name     = \&quot;frontier-audio-transcripts\&quot;\n+ \n+ archive_after_days = 30\n+ delete_after_days  = 365\n+ archive_storage_class = \&quot;DEEP_ARCHIVE\&quot;\n+ \n+ app_principal_type        = \&quot;AWS\&quot;\n+ app_principal_identifiers = [\&quot;arn:aws:iam::123456789012:role/frontier-audio-dev-app\&quot;]\n+ \n+ create_indexer_role            = true\n+ indexer_dynamodb_table_arns    = [\&quot;arn:aws:dynamodb:us-west-2:123456789012:table/frontier-audio-transcripts\&quot;]\n+ indexer_opensearch_index_arns  = [\&quot;arn:aws:es:us-west-2:123456789012:domain/frontier-audio-search/*\&quot;]\n+ \n+ # Uncomment if you want a VPC endpoint for S3\n+ # vpc_id                     = \&quot;vpc-0abc123456789def0\&quot;\n+ # s3_endpoint_route_table_ids = [\&quot;rtb-0123456789abcdef0\&quot;]\n+ \n+ tags = {\n+   Environment = \&quot;dev\&quot;\n+   Owner       = \&quot;frontier-audio\&quot;\n+ }\n+ &quot;,
+        &quot;oldStart&quot;: 1,
+        &quot;newStart&quot;: 1,
+        &quot;oldLines&quot;: 1,
+        &quot;newLines&quot;: 28,
+        &quot;linesRemoved&quot;: 1,
+        &quot;linesAdded&quot;: 28
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM infra/terraform/transcription/terraform.tfvars.example&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;# Copy this file to terraform.tfvars and customize the values.\n\naws_region         = \&quot;us-west-2\&quot;\naws_account_id     = \&quot;123456789012\&quot;\nresource_prefix    = \&quot;frontier-audio-dev\&quot;\ns3_bucket_name     = \&quot;frontier-audio-dev-transcripts\&quot;\nkms_alias_name     = \&quot;frontier-audio-transcripts\&quot;\n\narchive_after_days = 30\ndelete_after_days  = 365\narchive_storage_class = \&quot;DEEP_ARCHIVE\&quot;\n\napp_principal_type        = \&quot;AWS\&quot;\napp_principal_identifiers = [\&quot;arn:aws:iam::123456789012:role/frontier-audio-dev-app\&quot;]\n\ncreate_indexer_role            = true\nindexer_dynamodb_table_arns    = [\&quot;arn:aws:dynamodb:us-west-2:123456789012:table/frontier-audio-transcripts\&quot;]\nindexer_opensearch_index_arns  = [\&quot;arn:aws:es:us-west-2:123456789012:domain/frontier-audio-search/*\&quot;]\n\n# Uncomment if you want a VPC endpoint for S3\n# vpc_id                     = \&quot;vpc-0abc123456789def0\&quot;\n# s3_endpoint_route_table_ids = [\&quot;rtb-0123456789abcdef0\&quot;]\n\ntags = {\n  Environment = \&quot;dev\&quot;\n  Owner       = \&quot;frontier-audio\&quot;\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Fixing Terraform output indexing errors**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;infra/terraform/transcription/outputs.tf&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;fb3ec95f-8408-42b2-adc0-69faf8b3259f&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  output \&quot;indexer_role_arn\&quot; {\n    description = \&quot;IAM role ARN for the downstream indexing Lambda (if created).\&quot;\n-   value       = var.create_indexer_role ? aws_iam_role.indexer_lambda[0].arn : null\n+   value       = try(aws_iam_role.indexer_lambda[0].arn, null)\n  }\n  \n  output \&quot;s3_vpc_endpoint_id\&quot; {\n    description = \&quot;ID of the optional S3 VPC endpoint.\&quot;\n-   value       = length(var.s3_endpoint_route_table_ids) &gt; 0 ? aws_vpc_endpoint.s3[0].id : null\n+   value       = try(aws_vpc_endpoint.s3[0].id, null)\n  }\n  &quot;,
+        &quot;oldStart&quot;: 26,
+        &quot;newStart&quot;: 26,
+        &quot;oldLines&quot;: 10,
+        &quot;newLines&quot;: 10,
+        &quot;linesRemoved&quot;: 2,
+        &quot;linesAdded&quot;: 2
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM infra/terraform/transcription/outputs.tf&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;output \&quot;s3_bucket_name\&quot; {\n  description = \&quot;Name of the transcript storage bucket.\&quot;\n  value       = aws_s3_bucket.transcripts.bucket\n}\n\noutput \&quot;s3_bucket_arn\&quot; {\n  description = \&quot;ARN of the transcript storage bucket.\&quot;\n  value       = aws_s3_bucket.transcripts.arn\n}\n\noutput \&quot;kms_key_arn\&quot; {\n  description = \&quot;ARN of the KMS key used for transcript encryption.\&quot;\n  value       = aws_kms_key.transcript.arn\n}\n\noutput \&quot;kms_alias_name\&quot; {\n  description = \&quot;Alias associated with the transcript KMS key.\&quot;\n  value       = aws_kms_alias.transcript.name\n}\n\noutput \&quot;application_role_arn\&quot; {\n  description = \&quot;IAM role ARN that the transcription client should assume.\&quot;\n  value       = aws_iam_role.app_transcribe.arn\n}\n\noutput \&quot;indexer_role_arn\&quot; {\n  description = \&quot;IAM role ARN for the downstream indexing Lambda (if created).\&quot;\n  value       = try(aws_iam_role.indexer_lambda[0].arn, null)\n}\n\noutput \&quot;s3_vpc_endpoint_id\&quot; {\n  description = \&quot;ID of the optional S3 VPC endpoint.\&quot;\n  value       = try(aws_vpc_endpoint.s3[0].id, null)\n}\n\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Ensuring safe resource references and variable handling**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short
+```
+
+```
+ M .specstory/history/2025-11-10_17-01Z-android-application-development-overview.md
+ M docs/ROADMAP.md
+ M transcriber/src/test/java/com/example/frontieraudio/transcriber/verification/SpeakerVerificationHarnessTest.kt
+?? infra/
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing final summary message**
+
+I'll wrap up with a clear summary of the new infrastructure-as-code changes, include usage instructions like running `terraform init`, highlight the new folder and outputs, and mention the updates made to `docs/ROADMAP.md`. Since the transcriber harness updates are already built but not committed, I’ll keep them separate from this summary. This final message will ensure everything is clear and ready for verification.</details></think>
+
+---
+
+Provisioning bundle for PR-03 is ready.
+
+- Added `infra/terraform/transcription/` with Terraform definitions for the AWS foundation: KMS key + alias, encrypted transcript bucket (SSE-KMS, lifecycle/archive/delete, versioning toggle), IAM role/policy for the streaming client, optional indexing Lambda role, and an opt-in S3 Gateway VPC endpoint.
+- Supplied `variables.tf`, `outputs.tf`, and `terraform.tfvars.example` so you can feed in region/account/prefix, lifecycle windows, app principals, and optional VPC data.
+- Documented usage and caveats in `infra/terraform/transcription/README.md` (Terraform ≥1.6, `terraform init/plan/apply`, how to skip the indexer role, etc.).
+- Updated `docs/ROADMAP.md` so PR-03 explicitly archives transcripts with GPS metadata included in the S3 payload.
+
+Validation: no automated tests to run (Terraform configs only). After copying `terraform.tfvars.example` → `terraform.tfvars`, run `cd infra/terraform/transcription && terraform init && terraform plan` to inspect.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+List out the steps I need to do to inspect
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Preparing to explain Terraform plan steps**</details></think>
+
+---
+
+To inspect the new Terraform stack:
+
+1. `cd infra/terraform/transcription`
+2. `cp terraform.tfvars.example terraform.tfvars` and edit the values (region, account id, bucket name, principals, etc.)
+3. `terraform init`
+4. `terraform plan`
+
+That plan output lets you review every AWS resource before you `terraform apply`. If you want a more detailed diff, add `-out plan.tfplan` to the plan step and then run `terraform show plan.tfplan`.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+Make sure terraform.tfvars in the gitignore
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '1,120p' .gitignore</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '1,120p' .gitignore
+```
+
+```
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+**/build/
+/captures
+.externalNativeBuild
+.cxx
+**/.transforms/
+/transcriber/src/main/assets/models/*.tflite
+local.properties
+
+```
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;.gitignore&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;a6d1d8c3-db3e-4047-970c-53c39d986148&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  /transcriber/src/main/assets/models/*.tflite\n  local.properties\n+ infra/terraform/**/terraform.tfvars\n+ infra/terraform/**/terraform.tfstate\n+ infra/terraform/**/terraform.tfstate.*\n+ infra/terraform/**/.terraform.lock.hcl\n+ infra/terraform/**/.terraform/\n  &quot;,
+        &quot;oldStart&quot;: 17,
+        &quot;newStart&quot;: 17,
+        &quot;oldLines&quot;: 3,
+        &quot;newLines&quot;: 8,
+        &quot;linesAdded&quot;: 5
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM .gitignore&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;*.iml\n.gradle\n/local.properties\n/.idea/caches\n/.idea/libraries\n/.idea/modules.xml\n/.idea/workspace.xml\n/.idea/navEditor.xml\n/.idea/assetWizardSettings.xml\n.DS_Store\n/build\n**/build/\n/captures\n.externalNativeBuild\n.cxx\n**/.transforms/\n/transcriber/src/main/assets/models/*.tflite\nlocal.properties\ninfra/terraform/**/terraform.tfvars\ninfra/terraform/**/terraform.tfstate\ninfra/terraform/**/terraform.tfstate.*\ninfra/terraform/**/.terraform.lock.hcl\ninfra/terraform/**/.terraform/\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short
+```
+
+```
+ M .gitignore
+ M .specstory/history/2025-11-10_17-01Z-android-application-development-overview.md
+ M docs/ROADMAP.md
+ M transcriber/src/test/java/com/example/frontieraudio/transcriber/verification/SpeakerVerificationHarnessTest.kt
+?? infra/
+
+```
+</details>
+</tool-use>
+
+---
+
+Done. `.gitignore` now excludes `terraform.tfvars` plus the usual Terraform state/lock artifacts under `infra/terraform/**`, so your local overrides won’t end up in Git.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+What do I need to create in aws? Or does terraform do this automatically
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Summarizing Terraform setup and requirements**
+
+I'll explain how Terraform will create key AWS resources like KMS keys, S3 buckets, IAM roles, and optional VPC endpoints, while clarifying that services like DynamoDB, OpenSearch, and Transcribe aren’t provisioned by Terraform here. I’ll highlight the need for unique S3 bucket names, proper AWS credentials, and necessary permissions, and walk through the steps from planning to applying the Terraform configuration.</details></think>
+
+---
+
+Terraform will spin up almost everything for you once you fill in the variables and run `terraform apply`. Specifically, the module creates:
+
+- A dedicated KMS key + alias (with rotation) for transcript encryption.
+- The S3 bucket that stores transcripts, with SSE-KMS, lifecycle archive/delete rules, public-access blocks, and optional versioning.
+- An IAM role/policy that your transcription client assumes to call Amazon Transcribe Streaming and write/read the bucket/KMS key.
+- (Optional) A Lambda execution role for the indexing pipeline (only if you leave `create_indexer_role = true`).
+- (Optional) An S3 Gateway VPC endpoint if you pass a VPC ID and route-table IDs.
+
+What Terraform does **not** create:
+
+- DynamoDB tables or OpenSearch domains—the variable file takes their ARNs if you want the optional indexer role to write to them.
+- The IAM principal that will assume the app role (Cognito, STS, backend role, etc.). You need to list its ARN(s) in `app_principal_identifiers`.
+- VPC or route tables (those have to exist if you enable the S3 endpoint).
+- Any Amazon Transcribe “infrastructure” (Transcribe is managed; you just call the API).
+
+Prerequisites before you run Terraform:
+
+1. Pick/confirm the AWS account and region, and supply them in `terraform.tfvars`.
+2. Make sure the S3 bucket name is globally unique.
+3. Decide which principal(s) should assume the app role and add their ARNs.
+4. If enabling indexing, provide correct DynamoDB/OpenSearch ARNs; otherwise set `create_indexer_role = false`.
+5. If you want the S3 VPC endpoint, ensure the VPC and route tables already exist.
+
+Then run from `infra/terraform/transcription`:
+
+```
+terraform init
+terraform plan
+terraform apply
+```
+
+Terraform will create the AWS resources listed above; nothing else needs to be manually provisioned unless you want optional services outside this module.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+Error: creating IAM Role (frontier-audio-dev-transcribe-app-role): operation error IAM: CreateRole, https response error StatusCode: 400, MalformedPolicyDocument: Invalid principal in policy:
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Preparing explanation for principal type issues**</details></think>
+
+---
+
+That 400 means AWS rejected the trust policy Terraform built from `app_principal_type` + `app_principal_identifiers`. In other words, the principal value in the `sts:AssumeRole` document isn’t a valid ARN for the type you specified.
+
+Double-check:
+
+1. **Principal type** – `app_principal_type` must match the entity you want to assume the role:  
+   - `AWS` for IAM users/roles (ARN like `arn:aws:iam::123456789012:role/some-role`)  
+   - `Service` for AWS services (e.g. `transcribe.amazonaws.com`)  
+   - `Federated` for identity providers (e.g. `cognito-identity.amazonaws.com`, `accounts.google.com`)  
+   - `CanonicalUser` only for S3 canonical IDs, etc.
+
+2. **Identifiers list** – every entry in `app_principal_identifiers` must be a valid identifier for that type:  
+   - For `AWS`: full ARN of the role/user; stick to resources in the same account unless you intend cross-account assume role.  
+   - For `Service`: the service principal string (`transcribe.amazonaws.com`).  
+   - For `Federated`: the ARN of the IdP or the provider URI.
+
+3. **No empty entries** – Terraform will still render empty strings if the list contains `""`, producing the MalformedPolicyDocument.
+
+So update `terraform.tfvars` accordingly. For example:
+
+```hcl
+app_principal_type        = "AWS"
+app_principal_identifiers = ["arn:aws:iam::123456789012:role/frontier-audio-gateway"]
+```
+
+or, if the Transcribe service itself should assume it:
+
+```hcl
+app_principal_type        = "Service"
+app_principal_identifiers = ["transcribe.amazonaws.com"]
+```
+
+After fixing the trust-policy inputs, rerun `terraform plan` / `apply`. სწ
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+Where do I find the arn of my account?
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+For the `aws_account_id` variable you only need the 12-digit account number. You can grab it from the AWS console under the account menu (top right → “My Account”) or from the AWS CLI:  
+
+```
+aws sts get-caller-identity --query 'Account' --output text
+```
+
+If you actually need the full ARN of an IAM user or role (for `app_principal_identifiers`), you can list them with the CLI:
+
+```
+aws iam list-roles --query 'Roles[].Arn' --output text
+```
+
+or check the “Summary” page of the specific role/user in the console; the ARN is displayed at the top. nyingine
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+Do I need the `add_principal_type` then?
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Clarifying app_principal_type usage**</details></think>
+
+---
+
+Yes—you still need `app_principal_type`. Terraform uses that value to decide how to render the `sts:AssumeRole` trust policy for the IAM role it’s creating. Keep it aligned with whatever you put in `app_principal_identifiers`:
+
+- If you’re letting an IAM role/user assume this new role, set `app_principal_type = "AWS"` and list their ARN(s).
+- If an AWS service should assume it, use `app_principal_type = "Service"` with the service principals (e.g. `transcribe.amazonaws.com`).
+- For Cognito or other identity providers, use `app_principal_type = "Federated"` and supply the provider ARN/URI.
+
+If you remove the type, Terraform won’t know which field to populate and you’ll hit the same MalformedPolicyDocument error.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+But ":role/frontier-audio-dev-app" does not exist in aws yet
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Providing IAM role guidance**</details></think>
+
+---
+
+Right—Terraform can’t invent the *caller* that assumes this new role. You have two choices:
+
+1. **Use an existing principal.**  
+   Point `app_principal_identifiers` at a role/user/service that already exists (for example, a backend role that will broker STS tokens for the mobile app, or `transcribe.amazonaws.com` if you want the Transcribe service itself to assume it). No extra work besides grabbing that ARN and dropping it into `terraform.tfvars`.
+
+2. **Create the principal first.**  
+   If you want a dedicated application role (e.g. `frontier-audio-dev-app`), create it up front—either manually in the console or via Terraform in a separate module. Once it exists, Terraform can reference its ARN in `app_principal_identifiers`.
+
+The new IAM role we’re provisioning is the *target* role that grants S3/KMS/Transcribe access. Something else (Cognito IdP, a backend broker, etc.) must already exist to assume it. If you prefer to have Terraform manage that broker role too, we can add another module to create it, but there has to be a real principal behind the ARN before you apply this stack.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+How do I create the I
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+
+
+---
+
+
+
+---
+

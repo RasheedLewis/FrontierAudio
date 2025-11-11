@@ -50,17 +50,17 @@ This roadmap defines the detailed development plan for the Frontier Audio ecosys
 
 ### **PR-03: Cloud Transcription Service**
 
-**Objective:** Enable streaming transcription and cloud-based storage.
+**Objective:** Enable secure streaming transcription to AWS and durable cloud storage.
 
 **Subtasks:**
 
-1. Build WebSocket client for sending audio streams to AWS backend.
-2. Implement backend FastAPI endpoint for transcription requests.
-3. Create DynamoDB schema for transcript records (user_id, timestamp, GPS, WER score).
-4. Add GPS metadata tagging and local caching.
-5. Develop retry logic for intermittent connectivity.
-6. Encrypt data in transit (TLS 1.3) and at rest (AES-256).
-7. Unit test transcription speed and cloud sync.
+1. Provision AWS resources (Amazon Transcribe streaming, S3 bucket with SSE-KMS, KMS key, IAM roles/policies, optional VPC endpoints) using infrastructure-as-code.
+2. Integrate the AWS SDK for Kotlin to establish a signed WebSocket session with Amazon Transcribe Streaming in real time.
+3. Gate PCM frames behind local speaker verification/VAD so only verified audio is forwarded; drop or locally redact unverified frames.
+4. Handle partial/final transcripts from Transcribe to drive live UI updates and maintain per-session state.
+5. Persist finalized transcript blocks plus metadata (speaker ID, timestamps, GPS fix, session context) to S3 with lifecycle policies (archive after X days, delete or Glacier after Y).
+6. Implement resilient upload, retry, and offline queueing while enforcing TLS + SSE-KMS encryption and IAM access controls.
+7. Add integration tests/monitoring to validate streaming throughput, failover behaviour, and storage pipeline health.
 
 ---
 
@@ -77,6 +77,8 @@ This roadmap defines the detailed development plan for the Frontier Audio ecosys
 5. Develop interruptibility feature for user control mid-response.
 6. Test response accuracy, latency, and fallback logic.
 7. Create mock endpoints for offline testing.
+8. Trigger Lambda on new S3 transcripts to index metadata into DynamoDB/OpenSearch for Jarvis recall queries.
+9. Expose transcript search (“What did I say at…”) through the Jarvis context interface.
 
 ---
 
