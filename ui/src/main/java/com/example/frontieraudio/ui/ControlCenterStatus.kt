@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -33,6 +34,7 @@ fun ControlCenterStatus(
         permissionSnapshot: PermissionSnapshot,
         environmentConfig: EnvironmentConfig,
         onVoiceEnrollmentClick: () -> Unit,
+        onRequestPermissions: () -> Unit,
         modifier: Modifier = Modifier
 ) {
     val jarvisReady = jarvisModule.isEnabled()
@@ -87,6 +89,12 @@ fun ControlCenterStatus(
                     badgeLabel = if (permissionsReady) "Ready" else "Attention"
             )
 
+            if (!permissionsReady) {
+                PermissionWarningCard(
+                        missingPermissions = permissionSnapshot.missingPermissions,
+                        onRequestPermissions = onRequestPermissions
+                )
+            }
             Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
 
             Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
@@ -193,6 +201,45 @@ private fun StatusPill(color: Color, label: String) {
                         ),
                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
         )
+    }
+}
+
+@Composable
+private fun PermissionWarningCard(
+        missingPermissions: List<String>,
+        onRequestPermissions: () -> Unit
+) {
+    Surface(
+            color = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            shape = MaterialTheme.shapes.medium
+    ) {
+        Column(
+                modifier = Modifier.padding(FrontierTheme.spacing.medium),
+                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)
+        ) {
+            Text(
+                    text = "Microphone access required",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+            )
+            val reasons =
+                    missingPermissions.joinToString(separator = "\n") { manifestName ->
+                        when (manifestName) {
+                            android.Manifest.permission.RECORD_AUDIO ->
+                                    "• Record Audio – enables voice capture"
+                            android.Manifest.permission.ACCESS_FINE_LOCATION ->
+                                    "• Fine Location – tags transcripts for safety reports"
+                            android.Manifest.permission.INTERNET ->
+                                    "• Internet – syncs transcripts to HQ"
+                            else -> "• ${manifestName.substringAfterLast('.')}"
+                        }
+                    }
+            if (reasons.isNotBlank()) {
+                Text(text = reasons, style = MaterialTheme.typography.bodySmall)
+            }
+            Button(onClick = onRequestPermissions) { Text("Grant Permissions") }
+        }
     }
 }
 

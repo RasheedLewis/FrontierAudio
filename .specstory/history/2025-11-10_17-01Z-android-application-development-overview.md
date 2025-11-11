@@ -27082,3 +27082,5519 @@ Build check: `./gradlew :app:compileDebugKotlin`
 
 ---
 
+_**User (2025-11-11 01:38Z)**_
+
+How do I verify that the gain normalization has worked?
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Explaining normalization verification**</details></think>
+
+---
+
+Here’s a quick way to convince yourself the auto-gain is doing what we expect:
+
+1. **Log RMS before/after for a live run**  
+   Add temporary logging inside `NoiseFilteringProcessor.process(…)`:
+   ```kotlin
+   val inputRms = rms
+   val outputRms = computeRms(chunk, read)
+   logger.d("GainNorm", "in=%.3f out=%.3f gain=%.2f", inputRms, outputRms, gain)
+   ```
+   Deploy to a dev build, speak softly and then loudly. You should see the output RMS gravitate toward the `targetRms` (~0.12) while the reported gain increases for quiet input and drops for loud input.
+
+2. **Inspect stored PCM clips**  
+   After recording a sample in the enrollment flow, pull the generated `clip_*.pcm` from the device:
+   ```bash
+   adb pull /sdcard/Android/data/<package>/files/voice_profile/clip_1.pcm .
+   ```
+   Load it into an audio tool (Audacity, sox). Normalize on your desktop and check peak levels—quiet and loud source recordings should now have similar amplitudes.
+
+3. **Unit sanity check**  
+   You can also drop a quick unit test around `NoiseFilteringProcessor`: feed it a quiet sine wave and a loud sine wave, then assert that the output RMS values are within ±10% of `targetRms`. That guarantees the algorithm behaves regardless of the input level.
+
+Once you’re satisfied, remove the logging or disable the test code so the release build stays clean.
+
+---
+
+_**User (2025-11-11 01:38Z)**_
+
+Complete 6. Add permissions prompt and fail-safe handling for microphone access. I believe the permissions prompts have already been implemented though
+
+---
+
+_**Agent (model gpt-5-codex, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Planning permission fail-safe UI and logic**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && cat <<'EOF' > ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && cat <<'EOF' > ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Verifying file save completion**</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio/ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Recovering lost file content**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && git show HEAD:ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && git show HEAD:ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt
+```
+
+```
+fatal: path &#39;ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt&#39; does not exist in &#39;HEAD&#39;
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking filename casing and history**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && ls ui/src/main/java/com/example/frontieraudio/ui</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && ls ui/src/main/java/com/example/frontieraudio/ui
+```
+
+```
+ControlCenterStatus.kt
+theme
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Investigating missing file content**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && git status --short</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && git status --short
+```
+
+```
+ M .specstory/history/2025-11-10_17-01Z-android-application-development-overview.md
+ M transcriber/src/main/java/com/example/frontieraudio/transcriber/audio/AudioProcessingConfig.kt
+ M ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Recovering lost file content**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && git checkout -- ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio && git checkout -- ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing to apply patch with permission handling**</details></think>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file">
+<details><summary>Tool use: **read_file** • Read file: /Users/rasheedlewis/AndroidStudioProjects/Frontieraudio/ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Planning permission card UI integration**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;05165149-4197-44dd-aac1-a1e943e70005&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;  import androidx.compose.foundation.layout.fillMaxWidth\n  import androidx.compose.foundation.layout.padding\n+ import androidx.compose.material3.Button\n  import androidx.compose.material3.Divider\n  import androidx.compose.material3.MaterialTheme&quot;,
+        &quot;oldStart&quot;: 7,
+        &quot;newStart&quot;: 7,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      },
+      {
+        &quot;diffString&quot;: &quot;          environmentConfig: EnvironmentConfig,\n          onVoiceEnrollmentClick: () -&gt; Unit,\n+         onRequestPermissions: () -&gt; Unit,\n          modifier: Modifier = Modifier\n  ) {&quot;,
+        &quot;oldStart&quot;: 34,
+        &quot;newStart&quot;: 35,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 5,
+        &quot;linesAdded&quot;: 1
+      },
+      {
+        &quot;diffString&quot;: &quot;              )\n  \n+             if (!permissionsReady) {\n+                 PermissionWarningCard(\n+                         missingPermissions = permissionSnapshot.missingPermissions,\n+                         onRequestPermissions = onRequestPermissions\n+                 )\n+             }\n              Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))\n  &quot;,
+        &quot;oldStart&quot;: 88,
+        &quot;newStart&quot;: 90,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 10,
+        &quot;linesAdded&quot;: 6
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio.ui\n\nimport androidx.compose.foundation.background\nimport androidx.compose.foundation.layout.Arrangement\nimport androidx.compose.foundation.layout.Column\nimport androidx.compose.foundation.layout.Row\nimport androidx.compose.foundation.layout.fillMaxWidth\nimport androidx.compose.foundation.layout.padding\nimport androidx.compose.material3.Button\nimport androidx.compose.material3.Divider\nimport androidx.compose.material3.MaterialTheme\nimport androidx.compose.material3.Surface\nimport androidx.compose.material3.Text\nimport androidx.compose.material3.TextButton\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.graphics.Color\nimport androidx.compose.ui.text.font.FontWeight\nimport androidx.compose.ui.unit.dp\nimport com.example.frontieraudio.core.environment.EnvironmentConfig\nimport com.example.frontieraudio.core.permissions.PermissionSnapshot\nimport com.example.frontieraudio.jarvis.JarvisModule\nimport com.example.frontieraudio.transcriber.TranscriberModule\nimport com.example.frontieraudio.ui.theme.FrontierTheme\nimport java.util.Locale\n\n@Composable\nfun ControlCenterStatus(\n        jarvisModule: JarvisModule,\n        transcriberModule: TranscriberModule,\n        isFirstLaunch: Boolean,\n        isVoiceEnrolled: Boolean,\n        permissionSnapshot: PermissionSnapshot,\n        environmentConfig: EnvironmentConfig,\n        onVoiceEnrollmentClick: () -&gt; Unit,\n        onRequestPermissions: () -&gt; Unit,\n        modifier: Modifier = Modifier\n) {\n    val jarvisReady = jarvisModule.isEnabled()\n    val transcriberReady = transcriberModule.isListening()\n    val permissionsReady = permissionSnapshot.allCriticalGranted\n\n    val environmentLabel =\n            environmentConfig.environment.name.lowercase(Locale.US).replaceFirstChar {\n                if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()\n            }\n\n    Surface(\n            modifier = modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background),\n            shape = MaterialTheme.shapes.large,\n            tonalElevation = 6.dp,\n            shadowElevation = 8.dp,\n            color = MaterialTheme.colorScheme.surface\n    ) {\n        Column(\n                modifier = Modifier.padding(FrontierTheme.spacing.extraLarge),\n                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)\n        ) {\n            Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {\n                Text(\n                        text = \&quot;Frontier Control Center\&quot;,\n                        style = MaterialTheme.typography.headlineLarge,\n                        color = MaterialTheme.colorScheme.onSurface\n                )\n                Text(\n                        text = \&quot;Mission-ready diagnostics at a glance.\&quot;,\n                        style = MaterialTheme.typography.bodySmall,\n                        color = MaterialTheme.colorScheme.onSurfaceVariant\n                )\n            }\n\n            StatusRow(\n                    label = \&quot;Jarvis Module\&quot;,\n                    value = if (jarvisReady) \&quot;Operational\&quot; else \&quot;Offline\&quot;,\n                    highlight = statusColor(jarvisReady),\n                    badgeLabel = if (jarvisReady) \&quot;Ready\&quot; else \&quot;Attention\&quot;\n            )\n            StatusRow(\n                    label = \&quot;Transcriber Module\&quot;,\n                    value = if (transcriberReady) \&quot;Listening\&quot; else \&quot;Idle\&quot;,\n                    highlight = statusColor(transcriberReady),\n                    badgeLabel = if (transcriberReady) \&quot;Ready\&quot; else \&quot;Attention\&quot;\n            )\n            StatusRow(\n                    label = \&quot;Permissions\&quot;,\n                    value = if (permissionsReady) \&quot;All Clear\&quot; else \&quot;Action Required\&quot;,\n                    highlight = statusColor(permissionsReady),\n                    badgeLabel = if (permissionsReady) \&quot;Ready\&quot; else \&quot;Attention\&quot;\n            )\n\n            if (!permissionsReady) {\n                PermissionWarningCard(\n                        missingPermissions = permissionSnapshot.missingPermissions,\n                        onRequestPermissions = onRequestPermissions\n                )\n            }\n            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))\n\n            Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {\n                Text(\n                        text = \&quot;Environment\&quot;,\n                        style = MaterialTheme.typography.titleMedium,\n                        color = MaterialTheme.colorScheme.onSurface\n                )\n                EnvironmentRow(\n                        environmentLabel = environmentLabel,\n                        config = environmentConfig,\n                        isVoiceEnrolled = isVoiceEnrolled,\n                        onVoiceEnrollmentClick = onVoiceEnrollmentClick\n                )\n                Text(\n                        text =\n                                if (isFirstLaunch) \&quot;First-time deployment: enrollment recommended.\&quot;\n                                else \&quot;Returning operator: settings synced.\&quot;,\n                        style = MaterialTheme.typography.bodySmall,\n                        color = MaterialTheme.colorScheme.onSurfaceVariant\n                )\n            }\n        }\n    }\n}\n\n@Composable\nprivate fun StatusRow(label: String, value: String, highlight: Color, badgeLabel: String) {\n    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {\n        Column(\n                modifier = Modifier.weight(1f),\n                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)\n        ) {\n            Text(\n                    text = label,\n                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),\n                    color = MaterialTheme.colorScheme.onSurfaceVariant\n            )\n            Text(\n                    text = value,\n                    style = MaterialTheme.typography.bodyLarge,\n                    color = MaterialTheme.colorScheme.onSurface\n            )\n        }\n        StatusPill(color = highlight, label = badgeLabel)\n    }\n}\n\n@Composable\nprivate fun EnvironmentRow(\n        environmentLabel: String,\n        config: EnvironmentConfig,\n        isVoiceEnrolled: Boolean,\n        onVoiceEnrollmentClick: () -&gt; Unit\n) {\n    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)) {\n        Text(\n                text = \&quot;$environmentLabel mode\&quot;,\n                style = MaterialTheme.typography.bodyLarge,\n                color = MaterialTheme.colorScheme.primary\n        )\n        Text(\n                text = config.apiBaseUrl,\n                style = MaterialTheme.typography.bodySmall,\n                color = MaterialTheme.colorScheme.onSurfaceVariant\n        )\n        Text(\n                text = \&quot;Logging ${if (config.loggingEnabled) \&quot;enabled\&quot; else \&quot;disabled\&quot;}\&quot;,\n                style = MaterialTheme.typography.bodySmall,\n                color =\n                        if (config.loggingEnabled) MaterialTheme.colorScheme.tertiary\n                        else MaterialTheme.colorScheme.error\n        )\n        Text(\n                text = if (isVoiceEnrolled) \&quot;Voice profile verified\&quot; else \&quot;Voice profile pending\&quot;,\n                style = MaterialTheme.typography.bodySmall,\n                color =\n                        if (isVoiceEnrolled) MaterialTheme.colorScheme.tertiary\n                        else MaterialTheme.colorScheme.error\n        )\n        TextButton(onClick = onVoiceEnrollmentClick) {\n            Text(\n                    text = \&quot;Re-enroll Voice\&quot;,\n                    color = MaterialTheme.colorScheme.primary,\n                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)\n            )\n        }\n    }\n}\n\n@Composable\nprivate fun StatusPill(color: Color, label: String) {\n    Surface(\n            color = color.copy(alpha = 0.18f),\n            contentColor = color,\n            shape = MaterialTheme.shapes.small\n    ) {\n        Text(\n                text = label.uppercase(Locale.US),\n                modifier =\n                        Modifier.padding(\n                                horizontal = FrontierTheme.spacing.small,\n                                vertical = FrontierTheme.spacing.tiny\n                        ),\n                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)\n        )\n    }\n}\n\n@Composable\nprivate fun statusColor(isReady: Boolean): Color {\n    return if (isReady) {\n        MaterialTheme.colorScheme.tertiary\n    } else {\n        MaterialTheme.colorScheme.error\n    }\n}\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Adding new PermissionWarningCard component**</details></think>
+
+---
+
+<tool-use data-tool-type="unknown" data-tool-name="apply_patch">
+<details>
+<summary>Tool use: **apply_patch**</summary>
+
+
+Parameters:
+
+```json
+{
+  &quot;relativeWorkspacePath&quot;: &quot;ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt&quot;
+}
+```
+Additional data:
+
+```json
+{
+  &quot;codeblockId&quot;: &quot;9a59fef8-559e-40d1-bfe7-079f55f27a73&quot;
+}
+```
+Result:
+
+```json
+{
+  &quot;diff&quot;: {
+    &quot;chunks&quot;: [
+      {
+        &quot;diffString&quot;: &quot;      }\n  }\n+ \n+ @Composable\n+ private fun PermissionWarningCard(\n+         missingPermissions: List&lt;String&gt;,\n+         onRequestPermissions: () -&gt; Unit\n+ ) {\n+     Surface(\n+             color = MaterialTheme.colorScheme.errorContainer,\n+             contentColor = MaterialTheme.colorScheme.onErrorContainer,\n+             shape = MaterialTheme.shapes.medium\n+     ) {\n+         Column(\n+                 modifier = Modifier.padding(FrontierTheme.spacing.medium),\n+                 verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)\n+         ) {\n+             Text(\n+                     text = \&quot;Microphone access required\&quot;,\n+                     style = MaterialTheme.typography.titleMedium,\n+                     fontWeight = FontWeight.SemiBold\n+             )\n+             val reasons = missingPermissions.joinToString(separator = \&quot;\\n\&quot;) { manifestName -&gt;\n+                 when (manifestName) {\n+                     android.Manifest.permission.RECORD_AUDIO -&gt; \&quot;• Record Audio – enables voice capture\&quot;\n+                     android.Manifest.permission.ACCESS_FINE_LOCATION -&gt; \&quot;• Fine Location – tags transcripts for safety reports\&quot;\n+                     android.Manifest.permission.INTERNET -&gt; \&quot;• Internet – syncs transcripts to HQ\&quot;\n+                     else -&gt; \&quot;• ${manifestName.substringAfterLast(&#39;.&#39;)}\&quot;\n+                 }\n+             }\n+             if (reasons.isNotBlank()) {\n+                 Text(\n+                         text = reasons,\n+                         style = MaterialTheme.typography.bodySmall\n+                 )\n+             }\n+             Button(onClick = onRequestPermissions) {\n+                 Text(\&quot;Grant Permissions\&quot;)\n+             }\n+         }\n+     }\n+ }\n  \n  @Composable&quot;,
+        &quot;oldStart&quot;: 204,
+        &quot;newStart&quot;: 204,
+        &quot;oldLines&quot;: 4,
+        &quot;newLines&quot;: 44,
+        &quot;linesAdded&quot;: 40
+      }
+    ],
+    &quot;editor&quot;: &quot;EDITOR_AI&quot;
+  },
+  &quot;shouldAutoFixLints&quot;: true,
+  &quot;resultForModel&quot;: &quot;Success. Updated the following files:\nM ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt&quot;,
+  &quot;contentsAfterEdit&quot;: &quot;package com.example.frontieraudio.ui\n\nimport androidx.compose.foundation.background\nimport androidx.compose.foundation.layout.Arrangement\nimport androidx.compose.foundation.layout.Column\nimport androidx.compose.foundation.layout.Row\nimport androidx.compose.foundation.layout.fillMaxWidth\nimport androidx.compose.foundation.layout.padding\nimport androidx.compose.material3.Button\nimport androidx.compose.material3.Divider\nimport androidx.compose.material3.MaterialTheme\nimport androidx.compose.material3.Surface\nimport androidx.compose.material3.Text\nimport androidx.compose.material3.TextButton\nimport androidx.compose.runtime.Composable\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\nimport androidx.compose.ui.graphics.Color\nimport androidx.compose.ui.text.font.FontWeight\nimport androidx.compose.ui.unit.dp\nimport com.example.frontieraudio.core.environment.EnvironmentConfig\nimport com.example.frontieraudio.core.permissions.PermissionSnapshot\nimport com.example.frontieraudio.jarvis.JarvisModule\nimport com.example.frontieraudio.transcriber.TranscriberModule\nimport com.example.frontieraudio.ui.theme.FrontierTheme\nimport java.util.Locale\n\n@Composable\nfun ControlCenterStatus(\n        jarvisModule: JarvisModule,\n        transcriberModule: TranscriberModule,\n        isFirstLaunch: Boolean,\n        isVoiceEnrolled: Boolean,\n        permissionSnapshot: PermissionSnapshot,\n        environmentConfig: EnvironmentConfig,\n        onVoiceEnrollmentClick: () -&gt; Unit,\n        onRequestPermissions: () -&gt; Unit,\n        modifier: Modifier = Modifier\n) {\n    val jarvisReady = jarvisModule.isEnabled()\n    val transcriberReady = transcriberModule.isListening()\n    val permissionsReady = permissionSnapshot.allCriticalGranted\n\n    val environmentLabel =\n            environmentConfig.environment.name.lowercase(Locale.US).replaceFirstChar {\n                if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()\n            }\n\n    Surface(\n            modifier = modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background),\n            shape = MaterialTheme.shapes.large,\n            tonalElevation = 6.dp,\n            shadowElevation = 8.dp,\n            color = MaterialTheme.colorScheme.surface\n    ) {\n        Column(\n                modifier = Modifier.padding(FrontierTheme.spacing.extraLarge),\n                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)\n        ) {\n            Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {\n                Text(\n                        text = \&quot;Frontier Control Center\&quot;,\n                        style = MaterialTheme.typography.headlineLarge,\n                        color = MaterialTheme.colorScheme.onSurface\n                )\n                Text(\n                        text = \&quot;Mission-ready diagnostics at a glance.\&quot;,\n                        style = MaterialTheme.typography.bodySmall,\n                        color = MaterialTheme.colorScheme.onSurfaceVariant\n                )\n            }\n\n            StatusRow(\n                    label = \&quot;Jarvis Module\&quot;,\n                    value = if (jarvisReady) \&quot;Operational\&quot; else \&quot;Offline\&quot;,\n                    highlight = statusColor(jarvisReady),\n                    badgeLabel = if (jarvisReady) \&quot;Ready\&quot; else \&quot;Attention\&quot;\n            )\n            StatusRow(\n                    label = \&quot;Transcriber Module\&quot;,\n                    value = if (transcriberReady) \&quot;Listening\&quot; else \&quot;Idle\&quot;,\n                    highlight = statusColor(transcriberReady),\n                    badgeLabel = if (transcriberReady) \&quot;Ready\&quot; else \&quot;Attention\&quot;\n            )\n            StatusRow(\n                    label = \&quot;Permissions\&quot;,\n                    value = if (permissionsReady) \&quot;All Clear\&quot; else \&quot;Action Required\&quot;,\n                    highlight = statusColor(permissionsReady),\n                    badgeLabel = if (permissionsReady) \&quot;Ready\&quot; else \&quot;Attention\&quot;\n            )\n\n            if (!permissionsReady) {\n                PermissionWarningCard(\n                        missingPermissions = permissionSnapshot.missingPermissions,\n                        onRequestPermissions = onRequestPermissions\n                )\n            }\n            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))\n\n            Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {\n                Text(\n                        text = \&quot;Environment\&quot;,\n                        style = MaterialTheme.typography.titleMedium,\n                        color = MaterialTheme.colorScheme.onSurface\n                )\n                EnvironmentRow(\n                        environmentLabel = environmentLabel,\n                        config = environmentConfig,\n                        isVoiceEnrolled = isVoiceEnrolled,\n                        onVoiceEnrollmentClick = onVoiceEnrollmentClick\n                )\n                Text(\n                        text =\n                                if (isFirstLaunch) \&quot;First-time deployment: enrollment recommended.\&quot;\n                                else \&quot;Returning operator: settings synced.\&quot;,\n                        style = MaterialTheme.typography.bodySmall,\n                        color = MaterialTheme.colorScheme.onSurfaceVariant\n                )\n            }\n        }\n    }\n}\n\n@Composable\nprivate fun StatusRow(label: String, value: String, highlight: Color, badgeLabel: String) {\n    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {\n        Column(\n                modifier = Modifier.weight(1f),\n                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)\n        ) {\n            Text(\n                    text = label,\n                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),\n                    color = MaterialTheme.colorScheme.onSurfaceVariant\n            )\n            Text(\n                    text = value,\n                    style = MaterialTheme.typography.bodyLarge,\n                    color = MaterialTheme.colorScheme.onSurface\n            )\n        }\n        StatusPill(color = highlight, label = badgeLabel)\n    }\n}\n\n@Composable\nprivate fun EnvironmentRow(\n        environmentLabel: String,\n        config: EnvironmentConfig,\n        isVoiceEnrolled: Boolean,\n        onVoiceEnrollmentClick: () -&gt; Unit\n) {\n    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)) {\n        Text(\n                text = \&quot;$environmentLabel mode\&quot;,\n                style = MaterialTheme.typography.bodyLarge,\n                color = MaterialTheme.colorScheme.primary\n        )\n        Text(\n                text = config.apiBaseUrl,\n                style = MaterialTheme.typography.bodySmall,\n                color = MaterialTheme.colorScheme.onSurfaceVariant\n        )\n        Text(\n                text = \&quot;Logging ${if (config.loggingEnabled) \&quot;enabled\&quot; else \&quot;disabled\&quot;}\&quot;,\n                style = MaterialTheme.typography.bodySmall,\n                color =\n                        if (config.loggingEnabled) MaterialTheme.colorScheme.tertiary\n                        else MaterialTheme.colorScheme.error\n        )\n        Text(\n                text = if (isVoiceEnrolled) \&quot;Voice profile verified\&quot; else \&quot;Voice profile pending\&quot;,\n                style = MaterialTheme.typography.bodySmall,\n                color =\n                        if (isVoiceEnrolled) MaterialTheme.colorScheme.tertiary\n                        else MaterialTheme.colorScheme.error\n        )\n        TextButton(onClick = onVoiceEnrollmentClick) {\n            Text(\n                    text = \&quot;Re-enroll Voice\&quot;,\n                    color = MaterialTheme.colorScheme.primary,\n                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)\n            )\n        }\n    }\n}\n\n@Composable\nprivate fun StatusPill(color: Color, label: String) {\n    Surface(\n            color = color.copy(alpha = 0.18f),\n            contentColor = color,\n            shape = MaterialTheme.shapes.small\n    ) {\n        Text(\n                text = label.uppercase(Locale.US),\n                modifier =\n                        Modifier.padding(\n                                horizontal = FrontierTheme.spacing.small,\n                                vertical = FrontierTheme.spacing.tiny\n                        ),\n                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)\n        )\n    }\n}\n\n@Composable\nprivate fun PermissionWarningCard(\n        missingPermissions: List&lt;String&gt;,\n        onRequestPermissions: () -&gt; Unit\n) {\n    Surface(\n            color = MaterialTheme.colorScheme.errorContainer,\n            contentColor = MaterialTheme.colorScheme.onErrorContainer,\n            shape = MaterialTheme.shapes.medium\n    ) {\n        Column(\n                modifier = Modifier.padding(FrontierTheme.spacing.medium),\n                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)\n        ) {\n            Text(\n                    text = \&quot;Microphone access required\&quot;,\n                    style = MaterialTheme.typography.titleMedium,\n                    fontWeight = FontWeight.SemiBold\n            )\n            val reasons = missingPermissions.joinToString(separator = \&quot;\\n\&quot;) { manifestName -&gt;\n                when (manifestName) {\n                    android.Manifest.permission.RECORD_AUDIO -&gt; \&quot;• Record Audio – enables voice capture\&quot;\n                    android.Manifest.permission.ACCESS_FINE_LOCATION -&gt; \&quot;• Fine Location – tags transcripts for safety reports\&quot;\n                    android.Manifest.permission.INTERNET -&gt; \&quot;• Internet – syncs transcripts to HQ\&quot;\n                    else -&gt; \&quot;• ${manifestName.substringAfterLast(&#39;.&#39;)}\&quot;\n                }\n            }\n            if (reasons.isNotBlank()) {\n                Text(\n                        text = reasons,\n                        style = MaterialTheme.typography.bodySmall\n                )\n            }\n            Button(onClick = onRequestPermissions) {\n                Text(\&quot;Grant Permissions\&quot;)\n            }\n        }\n    }\n}\n\n@Composable\nprivate fun statusColor(isReady: Boolean): Color {\n    return if (isReady) {\n        MaterialTheme.colorScheme.tertiary\n    } else {\n        MaterialTheme.colorScheme.error\n    }\n}\n&quot;
+}
+```
+User decision: **accepted**
+
+Status: **completed**
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Adding missing import statement**</details></think>
+
+---
+
+The model made no changes to the file.
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking imports at top of file**</details></think>
+
+---
+
+Could not find file '/Users/rasheedlewis/AndroidStudioProjects/Frontieraudio/ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt' in the workspace.
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking case sensitivity in file paths**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects && ls</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects && ls
+```
+
+```
+BasicStateCodelab
+BasicsCodelab
+ConvertKotlin
+FrontierAudio
+GreetingCard
+HappyBirthday
+LearnTogether
+MyApplication
+Quadrant
+QuoraAndroidApp
+QuoraAndroidApp.zip
+TaskManager
+codelab-android-compose
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Navigating to uppercase directory**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && head -n 40 ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && head -n 40 ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+```
+
+```
+package com.example.frontieraudio.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.example.frontieraudio.core.environment.EnvironmentConfig
+import com.example.frontieraudio.core.permissions.PermissionSnapshot
+import com.example.frontieraudio.jarvis.JarvisModule
+import com.example.frontieraudio.transcriber.TranscriberModule
+import com.example.frontieraudio.ui.theme.FrontierTheme
+import java.util.Locale
+
+@Composable
+fun ControlCenterStatus(
+        jarvisModule: JarvisModule,
+        transcriberModule: TranscriberModule,
+        isFirstLaunch: Boolean,
+        isVoiceEnrolled: Boolean,
+        permissionSnapshot: PermissionSnapshot,
+        environmentConfig: EnvironmentConfig,
+        onVoiceEnrollmentClick: () -&gt; Unit,
+        onRequestPermissions: () -&gt; Unit,
+        modifier: Modifier = Modifier
+) {
+    val jarvisReady = jarvisModule.isEnabled()
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Adding import statement for android.Manifest**</details></think>
+
+---
+
+The model made no changes to the file.
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Considering patch insertion for imports**</details></think>
+
+---
+
+The model made no changes to the file.
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing to insert import statement**</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt</summary>
+
+**Chunk 1**
+Lines added: 27, lines removed: 1
+
+```diff
+@@ -1,1 +1,27 @@
+- 
++ package com.example.frontierraudio.ui
++ 
++ import android.Manifest
++ import androidx.compose.foundation.background
++ import androidx.compose.foundation.layout.Arrangement
++ import androidx.compose.foundation.layout.Column
++ import androidx.compose.foundation.layout.Row
++ import androidx.compose.foundation.layout.fillMaxWidth
++ import androidx.compose.foundation.layout.padding
++ import androidx.compose.material3.Button
++ import androidx.compose.material3.Divider
++ import androidx.compose.material3.MaterialTheme
++ import androidx.compose.material3.Surface
++ import androidx.compose.material3.Text
++ import androidx.compose.material3.TextButton
++ import androidx.compose.runtime.Composable
++ import androidx.compose.ui.Alignment
++ import androidx.compose.ui.Modifier
++ import androidx.compose.ui.graphics.Color
++ import androidx.compose.ui.text.font.FontWeight
++ import androidx.compose.ui.unit.dp
++ import com.example.frontieraudio.core.environment.EnvironmentConfig
++ import com.example.frontieraudio.core.permissions.PermissionSnapshot
++ import com.example.frontierraudio.jarvis.JarvisModule
++ import com.example.frontierraudio.transcriber.TranscriberModule
++ import com.example.frontierraudio.ui.theme.FrontierTheme
++ import java.util.Locale
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating PermissionWarningCard to Manifest.permission**</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt</summary>
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Enhancing voice enrollment for permissions**
+
+I’m updating `VoiceEnrollmentFlow` and `MainActivity` to handle microphone permission properly by adding `hasMicPermission` and `onRequestPermissions` parameters. This involves modifying function signatures, adjusting UI to show permission errors and request buttons, and wiring permission request logic through Compose state and lambda callbacks for a smoother user experience.</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+**Chunk 1**
+Lines added: 2, lines removed: undefined
+
+```diff
+@@ -65,4 +65,6 @@
+  fun VoiceEnrollmentFlow(
+      controller: VoiceEnrollmentController,
++     hasMicPermission: Boolean,
++     onRequestPermissions: () -&gt; Unit,
+      modifier: Modifier = Modifier,
+      userName: String = &quot;Operator&quot;,
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -139,4 +141,5 @@
+                              total = prompts.size,
+                              prompt = prompts[promptIndex],
++                             hasMicPermission = hasMicPermission,
+                              isRecording = isRecording,
+                              hasRecording = recordedSamples.containsKey(promptIndex),
+```
+
+**Chunk 3**
+Lines added: 5, lines removed: undefined
+
+```diff
+@@ -145,4 +148,9 @@
+                              errorMessage = recordingError,
+                              onRecord = {
++                                 if (!hasMicPermission) {
++                                     recordingError = &quot;Microphone permission required before recording.&quot;
++                                     onRequestPermissions()
++                                     return@EnrollmentPrompt
++                                 }
+                                  recordingError = null
+                                  val started = controller.startRecording()
+```
+
+**Chunk 4**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -178,5 +186,6 @@
+                                  recordedSamples.remove(promptIndex)
+                                  recordedSampleInfo.remove(promptIndex)
+-                             }
++                             },
++                             onRequestPermissions = onRequestPermissions
+                          )
+  
+```
+
+**Chunk 5**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -272,4 +281,5 @@
+      total: Int,
+      prompt: String,
++     hasMicPermission: Boolean,
+      isRecording: Boolean,
+      hasRecording: Boolean,
+```
+
+**Chunk 6**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -280,5 +290,6 @@
+      onStop: () -&gt; Unit,
+      onContinue: () -&gt; Unit,
+-     onRerecord: () -&gt; Unit
++     onRerecord: () -&gt; Unit,
++     onRequestPermissions: () -&gt; Unit
+  ) {
+      Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating EnrollmentPrompt definition**</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+**Chunk 1**
+Lines added: 11, lines removed: undefined
+
+```diff
+@@ -326,4 +326,15 @@
+  
+          VoiceWaveform(isActive = isRecording, amplitude = amplitude)
++ 
++         if (!hasMicPermission) {
++             Text(
++                 text = &quot;Microphone permission is required before recording.&quot;,
++                 style = MaterialTheme.typography.bodySmall,
++                 color = MaterialTheme.colorScheme.error
++             )
++             Button(onClick = onRequestPermissions) {
++                 Text(&quot;Grant Permission&quot;)
++             }
++         }
+  
+          if (sampleInfo != null &amp;&amp; hasRecording) {
+```
+
+**Chunk 2**
+Lines added: 2, lines removed: 1
+
+```diff
+@@ -362,5 +373,6 @@
+                          onClick = onRecord,
+                          modifier = Modifier.fillMaxWidth(),
+-                         shape = MaterialTheme.shapes.medium
++                         shape = MaterialTheme.shapes.medium,
++                         enabled = hasMicPermission
+                      ) {
+                          Text(&quot;Record Sample&quot;)
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Updating VoiceEnrollmentController and MainActivity**</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/MainActivity.kt</summary>
+
+**Chunk 1**
+Lines added: 7, lines removed: undefined
+
+```diff
+@@ -111,4 +111,11 @@
+                      }
+                  }
++ 
++                 val requestPermissions: () -&gt; Unit = {
++                     val missing = permissionManager.missingCriticalPermissions().toTypedArray()
++                     if (missing.isNotEmpty()) {
++                         permissionLauncher.launch(missing)
++                     }
++                 }
+  
+                  LaunchedEffect(Unit) { permissionStateHolder = permissionSnapshotState }
+```
+
+**Chunk 2**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -133,7 +140,7 @@
+  
+                  Box(
+-                         modifier =
+-                                 Modifier.fillMaxSize()
+-                                         .background(MaterialTheme.colorScheme.background)
++                         modifier = Modifier
++                             .fillMaxSize()
++                             .background(MaterialTheme.colorScheme.background)
+                  ) {
+                      Scaffold(
+```
+
+**Chunk 3**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -150,4 +157,5 @@
+                                  environmentConfig = environmentConfig,
+                                  onVoiceEnrollmentClick = { manualEnrollment = true },
++                                 onRequestPermissions = requestPermissions,
+                                  modifier = Modifier.padding(innerPadding)
+                          )
+```
+
+**Chunk 4**
+Lines added: 3, lines removed: 1
+
+```diff
+@@ -157,6 +165,8 @@
+                          VoiceEnrollmentFlow(
+                                  controller = enrollmentController,
+-                                 userName = &quot;Operator&quot;,
++                                 hasMicPermission = permissionSnapshotState.value.recordAudioGranted,
++                                 onRequestPermissions = requestPermissions,
+                                  modifier = Modifier.fillMaxSize().align(Alignment.Center),
++                                 userName = &quot;Operator&quot;,
+                                  onDismiss = { manualEnrollment = false }
+                          )
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Verifying permission handling and UI updates**
+
+I’m making sure `requestPermissions` is properly accessible in `ControlCenterStatus` and related flows, updating usages in `VoiceEnrollmentController`, and confirming permission state updates correctly. I’ll also fix parameter passing in `TypographyPreviews.kt` and tweak UI elements like `PermissionWarningCard` formatting. It’s important to ensure permissions control the recording start as expected.</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontierraudio/ui/theme/TypographyPreviews.kt</summary>
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Verifying VoiceEnrollmentFlow usage and imports**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && head -n 40 app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && head -n 40 app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+package com.example.frontieraudio.enrollment
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Compiling Kotlin code**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ./gradlew :app:compileDebugKotlin</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ./gradlew :app:compileDebugKotlin
+```
+
+```
+&gt; Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :app:preBuild UP-TO-DATE
+&gt; Task :app:preDebugBuild UP-TO-DATE
+&gt; Task :app:generateDebugBuildConfig UP-TO-DATE
+&gt; Task :core:preBuild UP-TO-DATE
+&gt; Task :core:preDebugBuild UP-TO-DATE
+&gt; Task :core:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :jarvis:preBuild UP-TO-DATE
+&gt; Task :jarvis:preDebugBuild UP-TO-DATE
+&gt; Task :jarvis:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :transcriber:preBuild UP-TO-DATE
+&gt; Task :transcriber:preDebugBuild UP-TO-DATE
+&gt; Task :transcriber:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :ui:preBuild UP-TO-DATE
+&gt; Task :ui:preDebugBuild UP-TO-DATE
+&gt; Task :ui:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :app:checkDebugAarMetadata UP-TO-DATE
+&gt; Task :app:generateDebugResValues UP-TO-DATE
+&gt; Task :core:generateDebugResValues UP-TO-DATE
+&gt; Task :core:generateDebugResources UP-TO-DATE
+&gt; Task :core:packageDebugResources UP-TO-DATE
+&gt; Task :jarvis:generateDebugResValues UP-TO-DATE
+&gt; Task :jarvis:generateDebugResources UP-TO-DATE
+&gt; Task :jarvis:packageDebugResources UP-TO-DATE
+&gt; Task :transcriber:generateDebugResValues UP-TO-DATE
+&gt; Task :transcriber:generateDebugResources UP-TO-DATE
+&gt; Task :transcriber:packageDebugResources UP-TO-DATE
+&gt; Task :ui:generateDebugResValues UP-TO-DATE
+&gt; Task :ui:generateDebugResources UP-TO-DATE
+&gt; Task :ui:packageDebugResources UP-TO-DATE
+&gt; Task :app:mapDebugSourceSetPaths UP-TO-DATE
+&gt; Task :app:generateDebugResources UP-TO-DATE
+&gt; Task :app:mergeDebugResources UP-TO-DATE
+&gt; Task :app:packageDebugResources UP-TO-DATE
+&gt; Task :app:parseDebugLocalResources UP-TO-DATE
+&gt; Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+&gt; Task :app:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :core:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :core:processDebugManifest UP-TO-DATE
+&gt; Task :jarvis:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :jarvis:processDebugManifest UP-TO-DATE
+&gt; Task :transcriber:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :transcriber:processDebugManifest UP-TO-DATE
+&gt; Task :ui:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :ui:processDebugManifest UP-TO-DATE
+
+&gt; Task :app:processDebugMainManifest
+[org.tensorflow:tensorflow-lite:2.14.0] /Users/rasheedlewis/.gradle/caches/8.10.2/transforms/9fbfd979912ce1f037988c02aeeab7d1/transformed/tensorflow-lite-2.14.0/AndroidManifest.xml Warning:
+	Namespace &#39;org.tensorflow.lite&#39; is used in multiple modules and/or libraries: org.tensorflow:tensorflow-lite:2.14.0, org.tensorflow:tensorflow-lite-api:2.14.0. Please ensure that all modules and libraries have a unique namespace. For more information, See https://developer.android.com/studio/build/configure-app-module#set-namespace
+
+&gt; Task :app:processDebugManifest
+&gt; Task :core:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :core:parseDebugLocalResources UP-TO-DATE
+&gt; Task :core:generateDebugRFile UP-TO-DATE
+&gt; Task :jarvis:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :jarvis:parseDebugLocalResources UP-TO-DATE
+&gt; Task :jarvis:generateDebugRFile UP-TO-DATE
+&gt; Task :transcriber:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :transcriber:parseDebugLocalResources UP-TO-DATE
+&gt; Task :transcriber:generateDebugRFile UP-TO-DATE
+&gt; Task :ui:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :ui:parseDebugLocalResources UP-TO-DATE
+&gt; Task :ui:generateDebugRFile UP-TO-DATE
+&gt; Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :core:javaPreCompileDebug UP-TO-DATE
+&gt; Task :jarvis:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :jarvis:javaPreCompileDebug UP-TO-DATE
+&gt; Task :transcriber:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :app:processDebugManifestForPackage
+&gt; Task :transcriber:javaPreCompileDebug UP-TO-DATE
+&gt; Task :ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :ui:javaPreCompileDebug UP-TO-DATE
+&gt; Task :app:processDebugResources
+
+&gt; Task :core:kaptGenerateStubsDebugKotlin
+w: Kapt currently doesn&#39;t support language version 2.0+. Falling back to 1.9.
+
+&gt; Task :core:kaptDebugKotlin
+&gt; Task :core:compileDebugKotlin
+&gt; Task :core:compileDebugJavaWithJavac
+&gt; Task :core:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :core:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :core:bundleLibRuntimeToJarDebug UP-TO-DATE
+
+&gt; Task :jarvis:kaptGenerateStubsDebugKotlin
+w: Kapt currently doesn&#39;t support language version 2.0+. Falling back to 1.9.
+
+&gt; Task :transcriber:kaptGenerateStubsDebugKotlin
+w: Kapt currently doesn&#39;t support language version 2.0+. Falling back to 1.9.
+
+&gt; Task :jarvis:kaptDebugKotlin
+warning: The following options were not recognized by any processor: &#39;[dagger.hilt.android.internal.disableAndroidSuperclassValidation, dagger.hilt.android.internal.projectType, dagger.hilt.internal.useAggregatingRootProcessor, kapt.kotlin.generated]&#39;
+
+&gt; Task :jarvis:compileDebugKotlin
+&gt; Task :jarvis:compileDebugJavaWithJavac
+&gt; Task :jarvis:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :jarvis:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :transcriber:kaptDebugKotlin
+&gt; Task :transcriber:compileDebugKotlin
+&gt; Task :transcriber:compileDebugJavaWithJavac
+&gt; Task :transcriber:transformDebugClassesWithAsm
+&gt; Task :transcriber:bundleLibCompileToJarDebug
+
+&gt; Task :ui:compileDebugKotlin FAILED
+e: file:///Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt:24:35 Unresolved reference &#39;jarvis&#39;.
+e: file:///Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt:25:35 Unresolved reference &#39;transcriber&#39;.
+e: file:///Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt:26:38 Unresolved reference &#39;theme&#39;.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use &#39;--warning-mode all&#39; to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+74 actionable tasks: 19 executed, 55 up-to-date
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task &#39;:ui:compileDebugKotlin&#39;.
+&gt; A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   &gt; Compilation error. See log for more details
+
+* Try:
+&gt; Run with --stacktrace option to get the stack trace.
+&gt; Run with --info or --debug option to get more log output.
+&gt; Run with --scan to get full insights.
+&gt; Get more help at https://help.gradle.org.
+
+BUILD FAILED in 42s
+
+```
+</details>
+</tool-use>
+
+---
+
+
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Investigating import errors**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '1,60p' ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '1,60p' ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt
+```
+
+```
+package com.example.frontierraudio.ui
+
+import android.Manifest
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.example.frontieraudio.core.environment.EnvironmentConfig
+import com.example.frontieraudio.core.permissions.PermissionSnapshot
+import com.example.frontierraudio.jarvis.JarvisModule
+import com.example.frontierraudio.transcriber.TranscriberModule
+import com.example.frontierraudio.ui.theme.FrontierTheme
+import java.util.Locale
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Correcting package name typos**</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt</summary>
+
+**Chunk 1**
+Lines added: 3, lines removed: 3
+
+```diff
+@@ -22,7 +22,7 @@
+  import com.example.frontieraudio.core.environment.EnvironmentConfig
+  import com.example.frontieraudio.core.permissions.PermissionSnapshot
+- import com.example.frontierraudio.jarvis.JarvisModule
+- import com.example.frontierraudio.transcriber.TranscriberModule
+- import com.example.frontierraudio.ui.theme.FrontierTheme
++ import com.example.frontieraudio.jarvis.JarvisModule
++ import com.example.frontieraudio.transcriber.TranscriberModule
++ import com.example.frontieraudio.ui.theme.FrontierTheme
+  import java.util.Locale
+  
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Verifying Manifest usage and rerunning build**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ./gradlew :app:compileDebugKotlin</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ./gradlew :app:compileDebugKotlin
+```
+
+```
+&gt; Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :app:preBuild UP-TO-DATE
+&gt; Task :app:preDebugBuild UP-TO-DATE
+&gt; Task :app:generateDebugBuildConfig UP-TO-DATE
+&gt; Task :core:preBuild UP-TO-DATE
+&gt; Task :core:preDebugBuild UP-TO-DATE
+&gt; Task :core:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :jarvis:preBuild UP-TO-DATE
+&gt; Task :jarvis:preDebugBuild UP-TO-DATE
+&gt; Task :jarvis:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :transcriber:preBuild UP-TO-DATE
+&gt; Task :transcriber:preDebugBuild UP-TO-DATE
+&gt; Task :transcriber:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :ui:preBuild UP-TO-DATE
+&gt; Task :ui:preDebugBuild UP-TO-DATE
+&gt; Task :ui:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :app:checkDebugAarMetadata UP-TO-DATE
+&gt; Task :app:generateDebugResValues UP-TO-DATE
+&gt; Task :core:generateDebugResValues UP-TO-DATE
+&gt; Task :core:generateDebugResources UP-TO-DATE
+&gt; Task :core:packageDebugResources UP-TO-DATE
+&gt; Task :jarvis:generateDebugResValues UP-TO-DATE
+&gt; Task :jarvis:generateDebugResources UP-TO-DATE
+&gt; Task :jarvis:packageDebugResources UP-TO-DATE
+&gt; Task :transcriber:generateDebugResValues UP-TO-DATE
+&gt; Task :transcriber:generateDebugResources UP-TO-DATE
+&gt; Task :transcriber:packageDebugResources UP-TO-DATE
+&gt; Task :ui:generateDebugResValues UP-TO-DATE
+&gt; Task :ui:generateDebugResources UP-TO-DATE
+&gt; Task :ui:packageDebugResources UP-TO-DATE
+&gt; Task :app:mapDebugSourceSetPaths UP-TO-DATE
+&gt; Task :app:generateDebugResources UP-TO-DATE
+&gt; Task :app:mergeDebugResources UP-TO-DATE
+&gt; Task :app:packageDebugResources UP-TO-DATE
+&gt; Task :app:parseDebugLocalResources UP-TO-DATE
+&gt; Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+&gt; Task :app:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :core:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :core:processDebugManifest UP-TO-DATE
+&gt; Task :jarvis:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :jarvis:processDebugManifest UP-TO-DATE
+&gt; Task :transcriber:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :transcriber:processDebugManifest UP-TO-DATE
+&gt; Task :ui:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :ui:processDebugManifest UP-TO-DATE
+&gt; Task :app:processDebugMainManifest UP-TO-DATE
+&gt; Task :app:processDebugManifest UP-TO-DATE
+&gt; Task :app:processDebugManifestForPackage UP-TO-DATE
+&gt; Task :core:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :core:parseDebugLocalResources UP-TO-DATE
+&gt; Task :core:generateDebugRFile UP-TO-DATE
+&gt; Task :jarvis:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :jarvis:parseDebugLocalResources UP-TO-DATE
+&gt; Task :jarvis:generateDebugRFile UP-TO-DATE
+&gt; Task :transcriber:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :transcriber:parseDebugLocalResources UP-TO-DATE
+&gt; Task :transcriber:generateDebugRFile UP-TO-DATE
+&gt; Task :ui:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :ui:parseDebugLocalResources UP-TO-DATE
+&gt; Task :ui:generateDebugRFile UP-TO-DATE
+&gt; Task :app:processDebugResources UP-TO-DATE
+&gt; Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :core:kaptGenerateStubsDebugKotlin UP-TO-DATE
+&gt; Task :core:kaptDebugKotlin UP-TO-DATE
+&gt; Task :core:compileDebugKotlin UP-TO-DATE
+&gt; Task :core:javaPreCompileDebug UP-TO-DATE
+&gt; Task :core:compileDebugJavaWithJavac UP-TO-DATE
+&gt; Task :core:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :core:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :core:bundleLibRuntimeToJarDebug UP-TO-DATE
+&gt; Task :jarvis:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :jarvis:kaptGenerateStubsDebugKotlin UP-TO-DATE
+&gt; Task :jarvis:kaptDebugKotlin UP-TO-DATE
+&gt; Task :jarvis:compileDebugKotlin UP-TO-DATE
+&gt; Task :jarvis:javaPreCompileDebug UP-TO-DATE
+&gt; Task :jarvis:compileDebugJavaWithJavac UP-TO-DATE
+&gt; Task :jarvis:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :jarvis:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :transcriber:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :transcriber:kaptGenerateStubsDebugKotlin UP-TO-DATE
+&gt; Task :transcriber:kaptDebugKotlin UP-TO-DATE
+&gt; Task :transcriber:compileDebugKotlin UP-TO-DATE
+&gt; Task :transcriber:javaPreCompileDebug UP-TO-DATE
+&gt; Task :transcriber:compileDebugJavaWithJavac UP-TO-DATE
+&gt; Task :transcriber:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :transcriber:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :ui:javaPreCompileDebug UP-TO-DATE
+
+&gt; Task :ui:compileDebugKotlin
+w: file:///Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt:98:13 &#39;@Deprecated(...) @Composable() @ComposableTarget(...) fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit&#39; is deprecated. Renamed to HorizontalDivider.
+
+&gt; Task :ui:compileDebugJavaWithJavac NO-SOURCE
+&gt; Task :ui:bundleLibCompileToJarDebug
+
+&gt; Task :app:kaptGenerateStubsDebugKotlin
+w: Kapt currently doesn&#39;t support language version 2.0+. Falling back to 1.9.
+
+&gt; Task :app:kaptDebugKotlin
+
+&gt; Task :app:compileDebugKotlin
+e: file:///Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/MainActivity.kt:167:33 No parameter with name &#39;hasMicPermission&#39; found.
+e: file:///Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/MainActivity.kt:168:33 No parameter with name &#39;onRequestPermissions&#39; found.
+e: file:///Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/ui/theme/TypographyPreviews.kt:56:13 No value passed for parameter &#39;onRequestPermissions&#39;.
+
+&gt; Task :app:compileDebugKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task &#39;:app:compileDebugKotlin&#39;.
+&gt; A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use &#39;--warning-mode all&#39; to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+78 actionable tasks: 5 executed, 73 up-to-date
+   &gt; Compilation error. See log for more details
+
+* Try:
+&gt; Run with --stacktrace option to get the stack trace.
+&gt; Run with --info or --debug option to get more log output.
+&gt; Run with --scan to get full insights.
+&gt; Get more help at https://help.gradle.org.
+
+BUILD FAILED in 18s
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Verifying VoiceEnrollmentFlow parameter mismatch**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '60,120p' app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '60,120p' app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+sed: app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Correcting file path case**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '1,40p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '1,40p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+package com.example.frontieraudio.enrollment
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Showing function signature**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "VoiceEnrollmentFlow" -n app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "VoiceEnrollmentFlow" -n app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+65:fun VoiceEnrollmentFlow(
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Showing snippet**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '60,120p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '60,120p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+    val durationSeconds: Float,
+    val rms: Float
+)
+
+@Composable
+fun VoiceEnrollmentFlow(
+    controller: VoiceEnrollmentController,
+    modifier: Modifier = Modifier,
+    userName: String = &quot;Operator&quot;,
+    onDismiss: () -&gt; Unit = {}
+) {
+    val prompts = remember(userName) {
+        listOf(
+            &quot;Frontier, start recording now.&quot;,
+            &quot;Safety first, always on time.&quot;,
+            &quot;My name is ${userName.trim()}.&quot;
+        )
+    }
+    var step by remember { mutableStateOf(EnrollmentStep.Entry) }
+    var promptIndex by remember { mutableStateOf(0) }
+    val recordedSamples = remember { mutableMapOf&lt;Int, ByteArray&gt;() }
+    val recordedSampleInfo = remember { mutableMapOf&lt;Int, RecordedSampleInfo&gt;() }
+    var isRecording by remember { mutableStateOf(false) }
+    var recordingError by remember { mutableStateOf&lt;String?&gt;(null) }
+    var infoMessage by remember { mutableStateOf&lt;String?&gt;(null) }
+    val currentAmplitude by controller.currentAmplitude.collectAsState(initial = 0f)
+
+    DisposableEffect(Unit) {
+        onDispose { controller.cancelRecording() }
+    }
+
+    LaunchedEffect(step) {
+        if (step == EnrollmentStep.Processing) {
+            recordingError = null
+            infoMessage = null
+            val orderedSamples = prompts.indices.map { recordedSamples[it] ?: ByteArray(0) }
+            val success = controller.finalizeEnrollment(orderedSamples)
+            delay(1_000)
+            step = if (success) EnrollmentStep.Success else EnrollmentStep.Failure
+        } else if (step == EnrollmentStep.Recording) {
+            infoMessage = null
+        }
+    }
+
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.96f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(FrontierTheme.spacing.section),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 12.dp,
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking for duplicate function definitions**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "hasMicPermission" app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "hasMicPermission" app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Investigating unsaved code edits**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && tail -n 200 app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && tail -n 200 app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = &quot;Enrollment • Step ${index + 1} of $total&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = &quot;${index + 1}/$total&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.medium)) {
+            val quotedPrompt = &quot;\&quot;$prompt\&quot;&quot;
+            Text(
+                text = quotedPrompt,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = &quot;Speak clearly, about 6 inches from your mic.&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        VoiceWaveform(isActive = isRecording, amplitude = amplitude)
+
+        if (sampleInfo != null &amp;&amp; hasRecording) {
+            SampleSummary(info = sampleInfo)
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
+            when {
+                isRecording -&gt; {
+                    Button(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(&quot;Stop Recording&quot;)
+                    }
+                }
+                hasRecording -&gt; {
+                    Button(
+                        onClick = onContinue,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(if (index + 1 == total) &quot;Analyze Recording&quot; else &quot;Continue&quot;)
+                    }
+                    OutlinedButton(
+                        onClick = onRerecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(&quot;Re-record&quot;)
+                    }
+                }
+                else -&gt; {
+                    Button(
+                        onClick = onRecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(&quot;Record Sample&quot;)
+                    }
+                }
+            }
+        }
+
+        if (errorMessage != null &amp;&amp; !isRecording) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun SampleSummary(info: RecordedSampleInfo) {
+    val durationSeconds = info.durationSeconds
+    val rmsPercent = (info.rms * 100f).coerceIn(0f, 100f)
+    val durationText = if (durationSeconds &lt; 0.05f) &quot;&lt;0.1s&quot; else &quot;${&quot;%.1f&quot;.format(durationSeconds)}s&quot;
+    val qualityText = when {
+        info.rms &lt; 0.05f -&gt; &quot;Signal very low&quot;
+        info.rms &lt; 0.12f -&gt; &quot;Signal modest&quot;
+        else -&gt; &quot;Signal strong&quot;
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)) {
+        Text(
+            text = &quot;Captured $durationText • RMS ${(rmsPercent.roundToInt())}%&quot;,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = qualityText,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun ProcessingView() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)
+    ) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        Text(
+            text = &quot;Analyzing your voice signature…&quot;,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun ResultView(
+    title: String,
+    message: String,
+    primaryLabel: String,
+    onPrimary: () -&gt; Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Button(
+            onClick = onPrimary,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(primaryLabel)
+        }
+    }
+}
+
+@Composable
+private fun VoiceWaveform(isActive: Boolean, amplitude: Float) {
+    val smoothedAmplitude by animateFloatAsState(
+        targetValue = if (isActive) amplitude.coerceIn(0f, 1f) else 0f,
+        animationSpec = tween(durationMillis = 140),
+        label = &quot;waveAmplitude&quot;
+    )
+    val transition = rememberInfiniteTransition(label = &quot;wavePhase&quot;)
+    val phase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 720, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = &quot;wavePhaseValue&quot;
+    )
+    val baseHeights = remember { listOf(12f, 22f, 34f, 18f, 30f, 16f, 26f) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        baseHeights.forEachIndexed { index, base -&gt;
+            val oscillation = ((sin(phase + index * 0.65f) + 1f) / 2f)
+            val dynamicBoost = 28f * smoothedAmplitude * (0.6f + 0.4f * oscillation)
+            val height = (base + dynamicBoost).dp
+            val colorAlpha = if (isActive) 0.25f + (0.6f * smoothedAmplitude * (0.5f + 0.5f * oscillation)) else 0.25f
+            val color = MaterialTheme.colorScheme.secondary.copy(alpha = colorAlpha.coerceIn(0.25f, 0.95f))
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(height)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+        }
+    }
+}
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Verifying code edit application**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "onRequestPermissions" app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "onRequestPermissions" app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Investigating partial code edits**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "Microphone" app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "Microphone" app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+grep: app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Correcting directory path casing**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "Microphone" app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && grep -n "Microphone" app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking for unstaged changes**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git diff app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git diff app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Evaluating file edit issues**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && cat app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && cat app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+package com.example.frontieraudio.enrollment
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.frontieraudio.ui.theme.FrontierTheme
+import kotlinx.coroutines.delay
+import java.util.Locale
+import kotlin.math.PI
+import kotlin.math.roundToInt
+import kotlin.math.sin
+
+private enum class EnrollmentStep {
+    Entry,
+    Recording,
+    Processing,
+    Success,
+    Failure
+}
+
+data class RecordedSampleInfo(
+    val durationSeconds: Float,
+    val rms: Float
+)
+
+@Composable
+fun VoiceEnrollmentFlow(
+    controller: VoiceEnrollmentController,
+    modifier: Modifier = Modifier,
+    userName: String = &quot;Operator&quot;,
+    onDismiss: () -&gt; Unit = {}
+) {
+    val prompts = remember(userName) {
+        listOf(
+            &quot;Frontier, start recording now.&quot;,
+            &quot;Safety first, always on time.&quot;,
+            &quot;My name is ${userName.trim()}.&quot;
+        )
+    }
+    var step by remember { mutableStateOf(EnrollmentStep.Entry) }
+    var promptIndex by remember { mutableStateOf(0) }
+    val recordedSamples = remember { mutableMapOf&lt;Int, ByteArray&gt;() }
+    val recordedSampleInfo = remember { mutableMapOf&lt;Int, RecordedSampleInfo&gt;() }
+    var isRecording by remember { mutableStateOf(false) }
+    var recordingError by remember { mutableStateOf&lt;String?&gt;(null) }
+    var infoMessage by remember { mutableStateOf&lt;String?&gt;(null) }
+    val currentAmplitude by controller.currentAmplitude.collectAsState(initial = 0f)
+
+    DisposableEffect(Unit) {
+        onDispose { controller.cancelRecording() }
+    }
+
+    LaunchedEffect(step) {
+        if (step == EnrollmentStep.Processing) {
+            recordingError = null
+            infoMessage = null
+            val orderedSamples = prompts.indices.map { recordedSamples[it] ?: ByteArray(0) }
+            val success = controller.finalizeEnrollment(orderedSamples)
+            delay(1_000)
+            step = if (success) EnrollmentStep.Success else EnrollmentStep.Failure
+        } else if (step == EnrollmentStep.Recording) {
+            infoMessage = null
+        }
+    }
+
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.96f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(FrontierTheme.spacing.section),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 12.dp,
+                shadowElevation = 24.dp,
+                shape = MaterialTheme.shapes.large
+            ) {
+                Column(
+                    modifier = Modifier.padding(FrontierTheme.spacing.extraLarge),
+                    verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)
+                ) {
+                    when (step) {
+                        EnrollmentStep.Entry -&gt; EnrollmentIntro(
+                            onBegin = { step = EnrollmentStep.Recording },
+                            onExplain = {
+                                infoMessage =
+                                    &quot;Frontier Audio uses on-device AI to recognize your voice and prevent unauthorized recording.&quot;
+                            }
+                        )
+
+                        EnrollmentStep.Recording -&gt; EnrollmentPrompt(
+                            index = promptIndex,
+                            total = prompts.size,
+                            prompt = prompts[promptIndex],
+                            isRecording = isRecording,
+                            hasRecording = recordedSamples.containsKey(promptIndex),
+                            sampleInfo = recordedSampleInfo[promptIndex],
+                            amplitude = currentAmplitude,
+                            errorMessage = recordingError,
+                            onRecord = {
+                                recordingError = null
+                                val started = controller.startRecording()
+                                if (!started) {
+                                    recordingError = &quot;Unable to access microphone. Please try again.&quot;
+                                } else {
+                                    isRecording = true
+                                }
+                            },
+                            onStop = {
+                                val bytes = controller.stopRecording()
+                                isRecording = false
+                                if (bytes.isEmpty()) {
+                                    recordingError = &quot;We couldn’t hear anything. Try again.&quot;
+                                } else {
+                                    recordedSamples[promptIndex] = bytes
+                                    val durationSeconds = controller.estimateDurationSeconds(bytes)
+                                    val rms = controller.estimateRms(bytes)
+                                    recordedSampleInfo[promptIndex] = RecordedSampleInfo(durationSeconds, rms)
+                                }
+                            },
+                            onContinue = {
+                                recordingError = null
+                                if (promptIndex + 1 &gt;= prompts.size) {
+                                    step = EnrollmentStep.Processing
+                                } else {
+                                    promptIndex += 1
+                                }
+                            },
+                            onRerecord = {
+                                controller.cancelRecording()
+                                isRecording = false
+                                recordedSamples.remove(promptIndex)
+                                recordedSampleInfo.remove(promptIndex)
+                            }
+                        )
+
+                        EnrollmentStep.Processing -&gt; ProcessingView()
+
+                        EnrollmentStep.Success -&gt; ResultView(
+                            title = &quot;✅ Voice Enrolled Successfully&quot;,
+                            message = &quot;Frontier Audio will now recognize you automatically.&quot;,
+                            primaryLabel = &quot;Continue to App&quot;,
+                            onPrimary = {
+                                controller.cancelRecording()
+                                onDismiss()
+                            }
+                        )
+
+                        EnrollmentStep.Failure -&gt; ResultView(
+                            title = &quot;⚠️ We couldn’t get a clear sample&quot;,
+                            message = &quot;Try again in a quiet environment.&quot;,
+                            primaryLabel = &quot;Retry Enrollment&quot;,
+                            onPrimary = {
+                                controller.cancelRecording()
+                                recordedSamples.clear()
+                                recordedSampleInfo.clear()
+                                promptIndex = 0
+                                step = EnrollmentStep.Recording
+                            }
+                        )
+                    }
+
+                    if (recordingError != null &amp;&amp; step != EnrollmentStep.Success) {
+                        Text(
+                            text = recordingError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    if (infoMessage != null) {
+                        Text(
+                            text = infoMessage!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else if (step == EnrollmentStep.Entry) {
+                        Text(
+                            text = &quot;For your safety and privacy, Frontier Audio only listens to you.&quot;,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EnrollmentIntro(
+    onBegin: () -&gt; Unit,
+    onExplain: () -&gt; Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+        Text(
+            text = &quot;🎙️ Voice Enrollment Required&quot;,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = &quot;For your safety and privacy, Frontier Audio only listens to you. Record a short sample to verify your voice.&quot;,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(
+            onClick = onBegin,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(&quot;Begin Enrollment&quot;)
+        }
+        OutlinedButton(
+            onClick = onExplain,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(&quot;What’s this?&quot;)
+        }
+    }
+}
+
+@Composable
+private fun EnrollmentPrompt(
+    index: Int,
+    total: Int,
+    prompt: String,
+    isRecording: Boolean,
+    hasRecording: Boolean,
+    sampleInfo: RecordedSampleInfo?,
+    amplitude: Float,
+    errorMessage: String?,
+    onRecord: () -&gt; Unit,
+    onStop: () -&gt; Unit,
+    onContinue: () -&gt; Unit,
+    onRerecord: () -&gt; Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = &quot;Enrollment • Step ${index + 1} of $total&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = &quot;${index + 1}/$total&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.medium)) {
+            val quotedPrompt = &quot;\&quot;$prompt\&quot;&quot;
+            Text(
+                text = quotedPrompt,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = &quot;Speak clearly, about 6 inches from your mic.&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        VoiceWaveform(isActive = isRecording, amplitude = amplitude)
+
+        if (sampleInfo != null &amp;&amp; hasRecording) {
+            SampleSummary(info = sampleInfo)
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
+            when {
+                isRecording -&gt; {
+                    Button(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(&quot;Stop Recording&quot;)
+                    }
+                }
+                hasRecording -&gt; {
+                    Button(
+                        onClick = onContinue,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(if (index + 1 == total) &quot;Analyze Recording&quot; else &quot;Continue&quot;)
+                    }
+                    OutlinedButton(
+                        onClick = onRerecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(&quot;Re-record&quot;)
+                    }
+                }
+                else -&gt; {
+                    Button(
+                        onClick = onRecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(&quot;Record Sample&quot;)
+                    }
+                }
+            }
+        }
+
+        if (errorMessage != null &amp;&amp; !isRecording) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun SampleSummary(info: RecordedSampleInfo) {
+    val durationSeconds = info.durationSeconds
+    val rmsPercent = (info.rms * 100f).coerceIn(0f, 100f)
+    val durationText = if (durationSeconds &lt; 0.05f) &quot;&lt;0.1s&quot; else &quot;${&quot;%.1f&quot;.format(durationSeconds)}s&quot;
+    val qualityText = when {
+        info.rms &lt; 0.05f -&gt; &quot;Signal very low&quot;
+        info.rms &lt; 0.12f -&gt; &quot;Signal modest&quot;
+        else -&gt; &quot;Signal strong&quot;
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)) {
+        Text(
+            text = &quot;Captured $durationText • RMS ${(rmsPercent.roundToInt())}%&quot;,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = qualityText,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun ProcessingView() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)
+    ) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        Text(
+            text = &quot;Analyzing your voice signature…&quot;,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun ResultView(
+    title: String,
+    message: String,
+    primaryLabel: String,
+    onPrimary: () -&gt; Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Button(
+            onClick = onPrimary,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(primaryLabel)
+        }
+    }
+}
+
+@Composable
+private fun VoiceWaveform(isActive: Boolean, amplitude: Float) {
+    val smoothedAmplitude by animateFloatAsState(
+        targetValue = if (isActive) amplitude.coerceIn(0f, 1f) else 0f,
+        animationSpec = tween(durationMillis = 140),
+        label = &quot;waveAmplitude&quot;
+    )
+    val transition = rememberInfiniteTransition(label = &quot;wavePhase&quot;)
+    val phase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 720, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = &quot;wavePhaseValue&quot;
+    )
+    val baseHeights = remember { listOf(12f, 22f, 34f, 18f, 30f, 16f, 26f) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        baseHeights.forEachIndexed { index, base -&gt;
+            val oscillation = ((sin(phase + index * 0.65f) + 1f) / 2f)
+            val dynamicBoost = 28f * smoothedAmplitude * (0.6f + 0.4f * oscillation)
+            val height = (base + dynamicBoost).dp
+            val colorAlpha = if (isActive) 0.25f + (0.6f * smoothedAmplitude * (0.5f + 0.5f * oscillation)) else 0.25f
+            val color = MaterialTheme.colorScheme.secondary.copy(alpha = colorAlpha.coerceIn(0.25f, 0.95f))
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(height)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+        }
+    }
+}
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Rewriting file with permission parameters**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && cat <<'EOF' > app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+package com.example.frontieraudio.enrollment
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.frontieraudio.ui.theme.FrontierTheme
+import kotlinx.coroutines.delay
+import java.util.Locale
+import kotlin.math.PI
+import kotlin.math.roundToInt
+import kotlin.math.sin
+
+private enum class EnrollmentStep {
+    Entry,
+    Recording,
+    Processing,
+    Success,
+    Failure
+}
+
+data class RecordedSampleInfo(
+    val durationSeconds: Float,
+    val rms: Float
+)
+
+@Composable
+fun VoiceEnrollmentFlow(
+    controller: VoiceEnrollmentController,
+    hasMicPermission: Boolean,
+    onRequestPermissions: () -> Unit,
+    modifier: Modifier = Modifier,
+    userName: String = "Operator",
+    onDismiss: () -> Unit = {}
+) {
+    val prompts = remember(userName) {
+        listOf(
+            "Frontier, start recording now.",
+            "Safety first, always on time.",
+            "My name is ${userName.trim()}."
+        )
+    }
+    var step by remember { mutableStateOf(EnrollmentStep.Entry) }
+    var promptIndex by remember { mutableStateOf(0) }
+    val recordedSamples = remember { mutableMapOf<Int, ByteArray>() }
+    val recordedSampleInfo = remember { mutableMapOf<Int, RecordedSampleInfo>() }
+    var isRecording by remember { mutableStateOf(false) }
+    var recordingError by remember { mutableStateOf<String?>(null) }
+    var infoMessage by remember { mutableStateOf<String?>(null) }
+    val currentAmplitude by controller.currentAmplitude.collectAsState(initial = 0f)
+
+    DisposableEffect(Unit) {
+        onDispose { controller.cancelRecording() }
+    }
+
+    LaunchedEffect(step) {
+        if (step == EnrollmentStep.Processing) {
+            recordingError = null
+            infoMessage = null
+            val orderedSamples = prompts.indices.map { recordedSamples[it] ?: ByteArray(0) }
+            val success = controller.finalizeEnrollment(orderedSamples)
+            delay(1_000)
+            step = if (success) EnrollmentStep.Success else EnrollmentStep.Failure
+        } else if (step == EnrollmentStep.Recording) {
+            infoMessage = null
+        }
+    }
+
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.96f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(FrontierTheme.spacing.section),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 12.dp,
+                shadowElevation = 24.dp,
+                shape = MaterialTheme.shapes.large
+            ) {
+                Column(
+                    modifier = Modifier.padding(FrontierTheme.spacing.extraLarge),
+                    verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)
+                ) {
+                    when (step) {
+                        EnrollmentStep.Entry -> EnrollmentIntro(
+                            onBegin = { step = EnrollmentStep.Recording },
+                            onExplain = {
+                                infoMessage =
+                                    "Frontier Audio uses on-device AI to recognize your voice and prevent unauthorized recording."
+                            }
+                        )
+
+                        EnrollmentStep.Recording -> EnrollmentPrompt(
+                            index = promptIndex,
+                            total = prompts.size,
+                            prompt = prompts[promptIndex],
+                            hasMicPermission = hasMicPermission,
+                            isRecording = isRecording,
+                            hasRecording = recordedSamples.containsKey(promptIndex),
+                            sampleInfo = recordedSampleInfo[promptIndex],
+                            amplitude = currentAmplitude,
+                            errorMessage = recordingError,
+                            onRecord = {
+                                if (!hasMicPermission) {
+                                    recordingError = "Microphone permission required before recording."
+                                    onRequestPermissions()
+                                    return@EnrollmentPrompt
+                                }
+                                recordingError = null
+                                val started = controller.startRecording()
+                                if (!started) {
+                                    recordingError = "Unable to access microphone. Please try again."
+                                } else {
+                                    isRecording = true
+                                }
+                            },
+                            onStop = {
+                                val bytes = controller.stopRecording()
+                                isRecording = false
+                                if (bytes.isEmpty()) {
+                                    recordingError = "We couldn’t hear anything. Try again."
+                                } else {
+                                    recordedSamples[promptIndex] = bytes
+                                    val durationSeconds = controller.estimateDurationSeconds(bytes)
+                                    val rms = controller.estimateRms(bytes)
+                                    recordedSampleInfo[promptIndex] = RecordedSampleInfo(durationSeconds, rms)
+                                }
+                            },
+                            onContinue = {
+                                recordingError = null
+                                if (promptIndex + 1 >= prompts.size) {
+                                    step = EnrollmentStep.Processing
+                                } else {
+                                    promptIndex += 1
+                                }
+                            },
+                            onRerecord = {
+                                controller.cancelRecording()
+                                isRecording = false
+                                recordedSamples.remove(promptIndex)
+                                recordedSampleInfo.remove(promptIndex)
+                            },
+                            onRequestPermissions = onRequestPermissions
+                        )
+
+                        EnrollmentStep.Processing -> ProcessingView()
+
+                        EnrollmentStep.Success -> ResultView(
+                            title = "✅ Voice Enrolled Successfully",
+                            message = "Frontier Audio will now recognize you automatically.",
+                            primaryLabel = "Continue to App",
+                            onPrimary = {
+                                controller.cancelRecording()
+                                onDismiss()
+                            }
+                        )
+
+                        EnrollmentStep.Failure -> ResultView(
+                            title = "⚠️ We couldn’t get a clear sample",
+                            message = "Try again in a quiet environment.",
+                            primaryLabel = "Retry Enrollment",
+                            onPrimary = {
+                                controller.cancelRecording()
+                                recordedSamples.clear()
+                                recordedSampleInfo.clear()
+                                promptIndex = 0
+                                step = EnrollmentStep.Recording
+                            }
+                        )
+                    }
+
+                    if (recordingError != null && step != EnrollmentStep.Success) {
+                        Text(
+                            text = recordingError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    if (infoMessage != null) {
+                        Text(
+                            text = infoMessage!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else if (step == EnrollmentStep.Entry) {
+                        Text(
+                            text = "For your safety and privacy, Frontier Audio only listens to you.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EnrollmentIntro(
+    onBegin: () -> Unit,
+    onExplain: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+        Text(
+            text = "🎙️ Voice Enrollment Required",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = "For your safety and privacy, Frontier Audio only listens to you. Record a short sample to verify your voice.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(
+            onClick = onBegin,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text("Begin Enrollment")
+        }
+        OutlinedButton(
+            onClick = onExplain,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text("What’s this?")
+        }
+    }
+}
+
+@Composable
+private fun EnrollmentPrompt(
+    index: Int,
+    total: Int,
+    prompt: String,
+    hasMicPermission: Boolean,
+    isRecording: Boolean,
+    hasRecording: Boolean,
+    sampleInfo: RecordedSampleInfo?,
+    amplitude: Float,
+    errorMessage: String?,
+    onRecord: () -> Unit,
+    onStop: () -> Unit,
+    onContinue: () -> Unit,
+    onRerecord: () -> Unit,
+    onRequestPermissions: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Enrollment • Step ${index + 1} of $total",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "${index + 1}/$total",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.medium)) {
+            val quotedPrompt = "\"$prompt\""
+            Text(
+                text = quotedPrompt,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "Speak clearly, about 6 inches from your mic.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        VoiceWaveform(isActive = isRecording, amplitude = amplitude)
+
+        if (!hasMicPermission) {
+            Text(
+                text = "Microphone permission is required before recording.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            Button(
+                onClick = onRequestPermissions,
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text("Grant Permission")
+            }
+        }
+
+        if (sampleInfo != null && hasRecording) {
+            SampleSummary(info = sampleInfo)
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
+            when {
+                isRecording -> {
+                    Button(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text("Stop Recording")
+                    }
+                }
+                hasRecording -> {
+                    Button(
+                        onClick = onContinue,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(if (index + 1 == total) "Analyze Recording" else "Continue")
+                    }
+                    OutlinedButton(
+                        onClick = onRerecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text("Re-record")
+                    }
+                }
+                else -> {
+                    Button(
+                        onClick = onRecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        enabled = hasMicPermission
+                    ) {
+                        Text("Record Sample")
+                    }
+                }
+            }
+        }
+
+        if (errorMessage != null && !isRecording) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun SampleSummary(info: RecordedSampleInfo) {
+    val durationSeconds = info.durationSeconds
+    val rmsPercent = (info.rms * 100f).coerceIn(0f, 100f)
+    val durationText = if (durationSeconds < 0.05f) "<0.1s" else "${"%.1f".format(durationSeconds)}s"
+    val qualityText = when {
+        info.rms < 0.05f -> "Signal very low"
+        info.rms < 0.12f -> "Signal modest"
+        else -> "Signal strong"
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)) {
+        Text(
+            text = "Captured $durationText • RMS ${(rmsPercent.roundToInt())}%",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = qualityText,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun ProcessingView() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)
+    ) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        Text(
+            text = "Analyzing your voice signature…",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun ResultView(
+    title: String,
+    message: String,
+    primaryLabel: String,
+    onPrimary: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Button(
+            onClick = onPrimary,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(primaryLabel)
+        }
+    }
+}
+
+@Composable
+private fun VoiceWaveform(isActive: Boolean, amplitude: Float) {
+    val smoothedAmplitude by animateFloatAsState(
+        targetValue = if (isActive) amplitude.coerceIn(0f, 1f) else 0f,
+        animationSpec = tween(durationMillis = 140),
+        label = "waveAmplitude"
+    )
+    val transition = rememberInfiniteTransition(label = "wavePhase")
+    val phase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 720, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "wavePhaseValue"
+    )
+    val baseHeights = remember { listOf(12f, 22f, 34f, 18f, 30f, 16f, 26f) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        baseHeights.forEachIndexed { index, base ->
+            val oscillation = ((sin(phase + index * 0.65f) + 1f) / 2f)
+            val dynamicBoost = 28f * smoothedAmplitude * (0.6f + 0.4f * oscillation)
+            val height = (base + dynamicBoost).dp
+            val colorAlpha = if (isActive) 0.25f + (0.6f * smoothedAmplitude * (0.5f + 0.5f * oscillation)) else 0.25f
+            val color = MaterialTheme.colorScheme.secondary.copy(alpha = colorAlpha.coerceIn(0.25f, 0.95f))
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(height)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+        }
+    }
+}
+EOF
+</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && cat <<'EOF' > app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+package com.example.frontieraudio.enrollment
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.frontieraudio.ui.theme.FrontierTheme
+import kotlinx.coroutines.delay
+import java.util.Locale
+import kotlin.math.PI
+import kotlin.math.roundToInt
+import kotlin.math.sin
+
+private enum class EnrollmentStep {
+    Entry,
+    Recording,
+    Processing,
+    Success,
+    Failure
+}
+
+data class RecordedSampleInfo(
+    val durationSeconds: Float,
+    val rms: Float
+)
+
+@Composable
+fun VoiceEnrollmentFlow(
+    controller: VoiceEnrollmentController,
+    hasMicPermission: Boolean,
+    onRequestPermissions: () -> Unit,
+    modifier: Modifier = Modifier,
+    userName: String = "Operator",
+    onDismiss: () -> Unit = {}
+) {
+    val prompts = remember(userName) {
+        listOf(
+            "Frontier, start recording now.",
+            "Safety first, always on time.",
+            "My name is ${userName.trim()}."
+        )
+    }
+    var step by remember { mutableStateOf(EnrollmentStep.Entry) }
+    var promptIndex by remember { mutableStateOf(0) }
+    val recordedSamples = remember { mutableMapOf<Int, ByteArray>() }
+    val recordedSampleInfo = remember { mutableMapOf<Int, RecordedSampleInfo>() }
+    var isRecording by remember { mutableStateOf(false) }
+    var recordingError by remember { mutableStateOf<String?>(null) }
+    var infoMessage by remember { mutableStateOf<String?>(null) }
+    val currentAmplitude by controller.currentAmplitude.collectAsState(initial = 0f)
+
+    DisposableEffect(Unit) {
+        onDispose { controller.cancelRecording() }
+    }
+
+    LaunchedEffect(step) {
+        if (step == EnrollmentStep.Processing) {
+            recordingError = null
+            infoMessage = null
+            val orderedSamples = prompts.indices.map { recordedSamples[it] ?: ByteArray(0) }
+            val success = controller.finalizeEnrollment(orderedSamples)
+            delay(1_000)
+            step = if (success) EnrollmentStep.Success else EnrollmentStep.Failure
+        } else if (step == EnrollmentStep.Recording) {
+            infoMessage = null
+        }
+    }
+
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.96f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(FrontierTheme.spacing.section),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 12.dp,
+                shadowElevation = 24.dp,
+                shape = MaterialTheme.shapes.large
+            ) {
+                Column(
+                    modifier = Modifier.padding(FrontierTheme.spacing.extraLarge),
+                    verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)
+                ) {
+                    when (step) {
+                        EnrollmentStep.Entry -> EnrollmentIntro(
+                            onBegin = { step = EnrollmentStep.Recording },
+                            onExplain = {
+                                infoMessage =
+                                    "Frontier Audio uses on-device AI to recognize your voice and prevent unauthorized recording."
+                            }
+                        )
+
+                        EnrollmentStep.Recording -> EnrollmentPrompt(
+                            index = promptIndex,
+                            total = prompts.size,
+                            prompt = prompts[promptIndex],
+                            hasMicPermission = hasMicPermission,
+                            isRecording = isRecording,
+                            hasRecording = recordedSamples.containsKey(promptIndex),
+                            sampleInfo = recordedSampleInfo[promptIndex],
+                            amplitude = currentAmplitude,
+                            errorMessage = recordingError,
+                            onRecord = {
+                                if (!hasMicPermission) {
+                                    recordingError = "Microphone permission required before recording."
+                                    onRequestPermissions()
+                                    return@EnrollmentPrompt
+                                }
+                                recordingError = null
+                                val started = controller.startRecording()
+                                if (!started) {
+                                    recordingError = "Unable to access microphone. Please try again."
+                                } else {
+                                    isRecording = true
+                                }
+                            },
+                            onStop = {
+                                val bytes = controller.stopRecording()
+                                isRecording = false
+                                if (bytes.isEmpty()) {
+                                    recordingError = "We couldn’t hear anything. Try again."
+                                } else {
+                                    recordedSamples[promptIndex] = bytes
+                                    val durationSeconds = controller.estimateDurationSeconds(bytes)
+                                    val rms = controller.estimateRms(bytes)
+                                    recordedSampleInfo[promptIndex] = RecordedSampleInfo(durationSeconds, rms)
+                                }
+                            },
+                            onContinue = {
+                                recordingError = null
+                                if (promptIndex + 1 >= prompts.size) {
+                                    step = EnrollmentStep.Processing
+                                } else {
+                                    promptIndex += 1
+                                }
+                            },
+                            onRerecord = {
+                                controller.cancelRecording()
+                                isRecording = false
+                                recordedSamples.remove(promptIndex)
+                                recordedSampleInfo.remove(promptIndex)
+                            },
+                            onRequestPermissions = onRequestPermissions
+                        )
+
+                        EnrollmentStep.Processing -> ProcessingView()
+
+                        EnrollmentStep.Success -> ResultView(
+                            title = "✅ Voice Enrolled Successfully",
+                            message = "Frontier Audio will now recognize you automatically.",
+                            primaryLabel = "Continue to App",
+                            onPrimary = {
+                                controller.cancelRecording()
+                                onDismiss()
+                            }
+                        )
+
+                        EnrollmentStep.Failure -> ResultView(
+                            title = "⚠️ We couldn’t get a clear sample",
+                            message = "Try again in a quiet environment.",
+                            primaryLabel = "Retry Enrollment",
+                            onPrimary = {
+                                controller.cancelRecording()
+                                recordedSamples.clear()
+                                recordedSampleInfo.clear()
+                                promptIndex = 0
+                                step = EnrollmentStep.Recording
+                            }
+                        )
+                    }
+
+                    if (recordingError != null && step != EnrollmentStep.Success) {
+                        Text(
+                            text = recordingError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    if (infoMessage != null) {
+                        Text(
+                            text = infoMessage!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else if (step == EnrollmentStep.Entry) {
+                        Text(
+                            text = "For your safety and privacy, Frontier Audio only listens to you.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EnrollmentIntro(
+    onBegin: () -> Unit,
+    onExplain: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+        Text(
+            text = "🎙️ Voice Enrollment Required",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = "For your safety and privacy, Frontier Audio only listens to you. Record a short sample to verify your voice.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(
+            onClick = onBegin,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text("Begin Enrollment")
+        }
+        OutlinedButton(
+            onClick = onExplain,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text("What’s this?")
+        }
+    }
+}
+
+@Composable
+private fun EnrollmentPrompt(
+    index: Int,
+    total: Int,
+    prompt: String,
+    hasMicPermission: Boolean,
+    isRecording: Boolean,
+    hasRecording: Boolean,
+    sampleInfo: RecordedSampleInfo?,
+    amplitude: Float,
+    errorMessage: String?,
+    onRecord: () -> Unit,
+    onStop: () -> Unit,
+    onContinue: () -> Unit,
+    onRerecord: () -> Unit,
+    onRequestPermissions: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Enrollment • Step ${index + 1} of $total",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "${index + 1}/$total",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.medium)) {
+            val quotedPrompt = "\"$prompt\""
+            Text(
+                text = quotedPrompt,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "Speak clearly, about 6 inches from your mic.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        VoiceWaveform(isActive = isRecording, amplitude = amplitude)
+
+        if (!hasMicPermission) {
+            Text(
+                text = "Microphone permission is required before recording.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            Button(
+                onClick = onRequestPermissions,
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text("Grant Permission")
+            }
+        }
+
+        if (sampleInfo != null && hasRecording) {
+            SampleSummary(info = sampleInfo)
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
+            when {
+                isRecording -> {
+                    Button(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text("Stop Recording")
+                    }
+                }
+                hasRecording -> {
+                    Button(
+                        onClick = onContinue,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(if (index + 1 == total) "Analyze Recording" else "Continue")
+                    }
+                    OutlinedButton(
+                        onClick = onRerecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text("Re-record")
+                    }
+                }
+                else -> {
+                    Button(
+                        onClick = onRecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        enabled = hasMicPermission
+                    ) {
+                        Text("Record Sample")
+                    }
+                }
+            }
+        }
+
+        if (errorMessage != null && !isRecording) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun SampleSummary(info: RecordedSampleInfo) {
+    val durationSeconds = info.durationSeconds
+    val rmsPercent = (info.rms * 100f).coerceIn(0f, 100f)
+    val durationText = if (durationSeconds < 0.05f) "<0.1s" else "${"%.1f".format(durationSeconds)}s"
+    val qualityText = when {
+        info.rms < 0.05f -> "Signal very low"
+        info.rms < 0.12f -> "Signal modest"
+        else -> "Signal strong"
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)) {
+        Text(
+            text = "Captured $durationText • RMS ${(rmsPercent.roundToInt())}%",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = qualityText,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun ProcessingView() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)
+    ) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        Text(
+            text = "Analyzing your voice signature…",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun ResultView(
+    title: String,
+    message: String,
+    primaryLabel: String,
+    onPrimary: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Button(
+            onClick = onPrimary,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(primaryLabel)
+        }
+    }
+}
+
+@Composable
+private fun VoiceWaveform(isActive: Boolean, amplitude: Float) {
+    val smoothedAmplitude by animateFloatAsState(
+        targetValue = if (isActive) amplitude.coerceIn(0f, 1f) else 0f,
+        animationSpec = tween(durationMillis = 140),
+        label = "waveAmplitude"
+    )
+    val transition = rememberInfiniteTransition(label = "wavePhase")
+    val phase by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 720, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "wavePhaseValue"
+    )
+    val baseHeights = remember { listOf(12f, 22f, 34f, 18f, 30f, 16f, 26f) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        baseHeights.forEachIndexed { index, base ->
+            val oscillation = ((sin(phase + index * 0.65f) + 1f) / 2f)
+            val dynamicBoost = 28f * smoothedAmplitude * (0.6f + 0.4f * oscillation)
+            val height = (base + dynamicBoost).dp
+            val colorAlpha = if (isActive) 0.25f + (0.6f * smoothedAmplitude * (0.5f + 0.5f * oscillation)) else 0.25f
+            val color = MaterialTheme.colorScheme.secondary.copy(alpha = colorAlpha.coerceIn(0.25f, 0.95f))
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(height)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+        }
+    }
+}
+EOF
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Verifying component usage and running build**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ./gradlew :app:compileDebugKotlin</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ./gradlew :app:compileDebugKotlin
+```
+
+```
+&gt; Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :app:preBuild UP-TO-DATE
+&gt; Task :app:preDebugBuild UP-TO-DATE
+&gt; Task :app:generateDebugBuildConfig UP-TO-DATE
+&gt; Task :core:preBuild UP-TO-DATE
+&gt; Task :core:preDebugBuild UP-TO-DATE
+&gt; Task :core:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :jarvis:preBuild UP-TO-DATE
+&gt; Task :jarvis:preDebugBuild UP-TO-DATE
+&gt; Task :jarvis:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :transcriber:preBuild UP-TO-DATE
+&gt; Task :transcriber:preDebugBuild UP-TO-DATE
+&gt; Task :transcriber:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :ui:preBuild UP-TO-DATE
+&gt; Task :ui:preDebugBuild UP-TO-DATE
+&gt; Task :ui:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :app:checkDebugAarMetadata UP-TO-DATE
+&gt; Task :app:generateDebugResValues UP-TO-DATE
+&gt; Task :core:generateDebugResValues UP-TO-DATE
+&gt; Task :core:generateDebugResources UP-TO-DATE
+&gt; Task :core:packageDebugResources UP-TO-DATE
+&gt; Task :jarvis:generateDebugResValues UP-TO-DATE
+&gt; Task :jarvis:generateDebugResources UP-TO-DATE
+&gt; Task :jarvis:packageDebugResources UP-TO-DATE
+&gt; Task :transcriber:generateDebugResValues UP-TO-DATE
+&gt; Task :transcriber:generateDebugResources UP-TO-DATE
+&gt; Task :transcriber:packageDebugResources UP-TO-DATE
+&gt; Task :ui:generateDebugResValues UP-TO-DATE
+&gt; Task :ui:generateDebugResources UP-TO-DATE
+&gt; Task :ui:packageDebugResources UP-TO-DATE
+&gt; Task :app:mapDebugSourceSetPaths UP-TO-DATE
+&gt; Task :app:generateDebugResources UP-TO-DATE
+&gt; Task :app:mergeDebugResources UP-TO-DATE
+&gt; Task :app:packageDebugResources UP-TO-DATE
+&gt; Task :app:parseDebugLocalResources UP-TO-DATE
+&gt; Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+&gt; Task :app:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :core:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :core:processDebugManifest UP-TO-DATE
+&gt; Task :jarvis:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :jarvis:processDebugManifest UP-TO-DATE
+&gt; Task :transcriber:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :transcriber:processDebugManifest UP-TO-DATE
+&gt; Task :ui:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :ui:processDebugManifest UP-TO-DATE
+&gt; Task :app:processDebugMainManifest UP-TO-DATE
+&gt; Task :app:processDebugManifest UP-TO-DATE
+&gt; Task :app:processDebugManifestForPackage UP-TO-DATE
+&gt; Task :core:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :core:parseDebugLocalResources UP-TO-DATE
+&gt; Task :core:generateDebugRFile UP-TO-DATE
+&gt; Task :jarvis:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :jarvis:parseDebugLocalResources UP-TO-DATE
+&gt; Task :jarvis:generateDebugRFile UP-TO-DATE
+&gt; Task :transcriber:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :transcriber:parseDebugLocalResources UP-TO-DATE
+&gt; Task :transcriber:generateDebugRFile UP-TO-DATE
+&gt; Task :ui:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :ui:parseDebugLocalResources UP-TO-DATE
+&gt; Task :ui:generateDebugRFile UP-TO-DATE
+&gt; Task :app:processDebugResources UP-TO-DATE
+&gt; Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :core:kaptGenerateStubsDebugKotlin UP-TO-DATE
+&gt; Task :core:kaptDebugKotlin UP-TO-DATE
+&gt; Task :core:compileDebugKotlin UP-TO-DATE
+&gt; Task :core:javaPreCompileDebug UP-TO-DATE
+&gt; Task :core:compileDebugJavaWithJavac UP-TO-DATE
+&gt; Task :core:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :core:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :core:bundleLibRuntimeToJarDebug UP-TO-DATE
+&gt; Task :jarvis:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :jarvis:kaptGenerateStubsDebugKotlin UP-TO-DATE
+&gt; Task :jarvis:kaptDebugKotlin UP-TO-DATE
+&gt; Task :jarvis:compileDebugKotlin UP-TO-DATE
+&gt; Task :jarvis:javaPreCompileDebug UP-TO-DATE
+&gt; Task :jarvis:compileDebugJavaWithJavac UP-TO-DATE
+&gt; Task :jarvis:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :jarvis:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :transcriber:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :transcriber:kaptGenerateStubsDebugKotlin UP-TO-DATE
+&gt; Task :transcriber:kaptDebugKotlin UP-TO-DATE
+&gt; Task :transcriber:compileDebugKotlin UP-TO-DATE
+&gt; Task :transcriber:javaPreCompileDebug UP-TO-DATE
+&gt; Task :transcriber:compileDebugJavaWithJavac UP-TO-DATE
+&gt; Task :transcriber:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :transcriber:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :ui:compileDebugKotlin UP-TO-DATE
+&gt; Task :ui:javaPreCompileDebug UP-TO-DATE
+&gt; Task :ui:compileDebugJavaWithJavac NO-SOURCE
+&gt; Task :ui:bundleLibCompileToJarDebug UP-TO-DATE
+
+&gt; Task :app:kaptGenerateStubsDebugKotlin
+w: Kapt currently doesn&#39;t support language version 2.0+. Falling back to 1.9.
+
+&gt; Task :app:kaptDebugKotlin
+
+&gt; Task :app:compileDebugKotlin
+e: file:///Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/ui/theme/TypographyPreviews.kt:56:13 No value passed for parameter &#39;onRequestPermissions&#39;.
+
+&gt; Task :app:compileDebugKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task &#39;:app:compileDebugKotlin&#39;.
+&gt; A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   &gt; Compilation error. See log for more details
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use &#39;--warning-mode all&#39; to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+78 actionable tasks: 3 executed, 75 up-to-date
+
+
+* Try:
+&gt; Run with --stacktrace option to get the stack trace.
+&gt; Run with --info or --debug option to get more log output.
+&gt; Run with --scan to get full insights.
+&gt; Get more help at https://help.gradle.org.
+
+BUILD FAILED in 33s
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking parameter updates in preview calls**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '40,80p' app/src/main/java/com/example/frontieraudio/ui/theme/TypographyPreviews.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '40,80p' app/src/main/java/com/example/frontieraudio/ui/theme/TypographyPreviews.kt
+```
+
+```
+        ControlCenterStatus(
+            jarvisModule = JarvisModule(FrontierCore()),
+            transcriberModule = TranscriberModule(FrontierCore()),
+            isFirstLaunch = false,
+            isVoiceEnrolled = true,
+            permissionSnapshot = PermissionSnapshot(
+            recordAudioGranted = true,
+            internetGranted = true,
+            fineLocationGranted = true
+        ),
+            environmentConfig = EnvironmentConfig(
+                environment = Environment.DEVELOPMENT,
+                apiBaseUrl = &quot;https://dev.api.frontieraudio&quot;,
+                loggingEnabled = true
+            ),
+            onVoiceEnrollmentClick = {},
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Correcting missing onRequestPermissions update**</details></think>
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file">
+
+<details><summary>Tool use: **code_edit** • Edit file: /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio/app/src/main/java/com/example/frontieraudio/ui/theme/TypographyPreviews.kt</summary>
+
+**Chunk 1**
+Lines added: 4, lines removed: 4
+
+```diff
+@@ -44,8 +44,8 @@
+              isVoiceEnrolled = true,
+              permissionSnapshot = PermissionSnapshot(
+-             recordAudioGranted = true,
+-             internetGranted = true,
+-             fineLocationGranted = true
+-         ),
++                 recordAudioGranted = true,
++                 internetGranted = true,
++                 fineLocationGranted = true
++             ),
+              environmentConfig = EnvironmentConfig(
+                  environment = Environment.DEVELOPMENT,
+```
+
+**Chunk 2**
+Lines added: 1, lines removed: undefined
+
+```diff
+@@ -54,4 +54,5 @@
+              ),
+              onVoiceEnrollmentClick = {},
++             onRequestPermissions = {},
+              modifier = Modifier.padding(16.dp)
+          )
+```
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Running Gradle build again**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ./gradlew :app:compileDebugKotlin</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ./gradlew :app:compileDebugKotlin
+```
+
+```
+&gt; Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :app:preBuild UP-TO-DATE
+&gt; Task :app:preDebugBuild UP-TO-DATE
+&gt; Task :app:generateDebugBuildConfig UP-TO-DATE
+&gt; Task :core:preBuild UP-TO-DATE
+&gt; Task :core:preDebugBuild UP-TO-DATE
+&gt; Task :core:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :jarvis:preBuild UP-TO-DATE
+&gt; Task :jarvis:preDebugBuild UP-TO-DATE
+&gt; Task :jarvis:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :transcriber:preBuild UP-TO-DATE
+&gt; Task :transcriber:preDebugBuild UP-TO-DATE
+&gt; Task :transcriber:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :ui:preBuild UP-TO-DATE
+&gt; Task :ui:preDebugBuild UP-TO-DATE
+&gt; Task :ui:writeDebugAarMetadata UP-TO-DATE
+&gt; Task :app:checkDebugAarMetadata UP-TO-DATE
+&gt; Task :app:generateDebugResValues UP-TO-DATE
+&gt; Task :core:generateDebugResValues UP-TO-DATE
+&gt; Task :core:generateDebugResources UP-TO-DATE
+&gt; Task :core:packageDebugResources UP-TO-DATE
+&gt; Task :jarvis:generateDebugResValues UP-TO-DATE
+&gt; Task :jarvis:generateDebugResources UP-TO-DATE
+&gt; Task :jarvis:packageDebugResources UP-TO-DATE
+&gt; Task :transcriber:generateDebugResValues UP-TO-DATE
+&gt; Task :transcriber:generateDebugResources UP-TO-DATE
+&gt; Task :transcriber:packageDebugResources UP-TO-DATE
+&gt; Task :ui:generateDebugResValues UP-TO-DATE
+&gt; Task :ui:generateDebugResources UP-TO-DATE
+&gt; Task :ui:packageDebugResources UP-TO-DATE
+&gt; Task :app:mapDebugSourceSetPaths UP-TO-DATE
+&gt; Task :app:generateDebugResources UP-TO-DATE
+&gt; Task :app:mergeDebugResources UP-TO-DATE
+&gt; Task :app:packageDebugResources UP-TO-DATE
+&gt; Task :app:parseDebugLocalResources UP-TO-DATE
+&gt; Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+&gt; Task :app:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :core:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :core:processDebugManifest UP-TO-DATE
+&gt; Task :jarvis:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :jarvis:processDebugManifest UP-TO-DATE
+&gt; Task :transcriber:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :transcriber:processDebugManifest UP-TO-DATE
+&gt; Task :ui:extractDeepLinksDebug UP-TO-DATE
+&gt; Task :ui:processDebugManifest UP-TO-DATE
+&gt; Task :app:processDebugMainManifest UP-TO-DATE
+&gt; Task :app:processDebugManifest UP-TO-DATE
+&gt; Task :app:processDebugManifestForPackage UP-TO-DATE
+&gt; Task :core:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :core:parseDebugLocalResources UP-TO-DATE
+&gt; Task :core:generateDebugRFile UP-TO-DATE
+&gt; Task :jarvis:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :jarvis:parseDebugLocalResources UP-TO-DATE
+&gt; Task :jarvis:generateDebugRFile UP-TO-DATE
+&gt; Task :transcriber:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :transcriber:parseDebugLocalResources UP-TO-DATE
+&gt; Task :transcriber:generateDebugRFile UP-TO-DATE
+&gt; Task :ui:compileDebugLibraryResources UP-TO-DATE
+&gt; Task :ui:parseDebugLocalResources UP-TO-DATE
+&gt; Task :ui:generateDebugRFile UP-TO-DATE
+&gt; Task :app:processDebugResources UP-TO-DATE
+&gt; Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :core:kaptGenerateStubsDebugKotlin UP-TO-DATE
+&gt; Task :core:kaptDebugKotlin UP-TO-DATE
+&gt; Task :core:compileDebugKotlin UP-TO-DATE
+&gt; Task :core:javaPreCompileDebug UP-TO-DATE
+&gt; Task :core:compileDebugJavaWithJavac UP-TO-DATE
+&gt; Task :core:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :core:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :core:bundleLibRuntimeToJarDebug UP-TO-DATE
+&gt; Task :jarvis:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :jarvis:kaptGenerateStubsDebugKotlin UP-TO-DATE
+&gt; Task :jarvis:kaptDebugKotlin UP-TO-DATE
+&gt; Task :jarvis:compileDebugKotlin UP-TO-DATE
+&gt; Task :jarvis:javaPreCompileDebug UP-TO-DATE
+&gt; Task :jarvis:compileDebugJavaWithJavac UP-TO-DATE
+&gt; Task :jarvis:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :jarvis:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :transcriber:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :transcriber:kaptGenerateStubsDebugKotlin UP-TO-DATE
+&gt; Task :transcriber:kaptDebugKotlin UP-TO-DATE
+&gt; Task :transcriber:compileDebugKotlin UP-TO-DATE
+&gt; Task :transcriber:javaPreCompileDebug UP-TO-DATE
+&gt; Task :transcriber:compileDebugJavaWithJavac UP-TO-DATE
+&gt; Task :transcriber:transformDebugClassesWithAsm UP-TO-DATE
+&gt; Task :transcriber:bundleLibCompileToJarDebug UP-TO-DATE
+&gt; Task :ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+&gt; Task :ui:compileDebugKotlin UP-TO-DATE
+&gt; Task :ui:javaPreCompileDebug UP-TO-DATE
+&gt; Task :ui:compileDebugJavaWithJavac NO-SOURCE
+&gt; Task :ui:bundleLibCompileToJarDebug UP-TO-DATE
+
+&gt; Task :app:kaptGenerateStubsDebugKotlin
+w: Kapt currently doesn&#39;t support language version 2.0+. Falling back to 1.9.
+
+&gt; Task :app:kaptDebugKotlin UP-TO-DATE
+&gt; Task :app:compileDebugKotlin
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use &#39;--warning-mode all&#39; to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 13s
+78 actionable tasks: 2 executed, 76 up-to-date
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing final response and checking git status**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short
+```
+
+```
+ M .specstory/history/2025-11-10_17-01Z-android-application-development-overview.md
+ M app/src/main/java/com/example/frontieraudio/MainActivity.kt
+ M app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+ M app/src/main/java/com/example/frontieraudio/ui/theme/TypographyPreviews.kt
+ M transcriber/src/main/java/com/example/frontieraudio/transcriber/audio/AudioProcessingConfig.kt
+ M ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+?? app/src/main/java/com/example/frontierraudio/
+?? ui/src/main/java/com/example/frontierraudio/
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Identifying unintended duplicate directories**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ls app/src/main/java</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && ls app/src/main/java
+```
+
+```
+com
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Investigating similar directory names**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && find app/src/main/java -maxdepth 3 -type d</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && find app/src/main/java -maxdepth 3 -type d
+```
+
+```
+app/src/main/java
+app/src/main/java/com
+app/src/main/java/com/example
+app/src/main/java/com/example/frontieraudio
+app/src/main/java/com/example/frontierraudio
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Removing duplicate directories**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && rm -rf app/src/main/java/com/example/frontierraudio</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && rm -rf app/src/main/java/com/example/frontierraudio
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Removing ui path**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && rm -rf ui/src/main/java/com/example/frontierraudio</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && rm -rf ui/src/main/java/com/example/frontierraudio
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking status**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && git status --short
+```
+
+```
+ M .specstory/history/2025-11-10_17-01Z-android-application-development-overview.md
+ M app/src/main/java/com/example/frontieraudio/MainActivity.kt
+ M app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+ M app/src/main/java/com/example/frontieraudio/ui/theme/TypographyPreviews.kt
+ M transcriber/src/main/java/com/example/frontieraudio/transcriber/audio/AudioProcessingConfig.kt
+ M ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Considering running read_lints**</details></think>
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="read_lints">
+<details>
+          <summary>Tool use: **read_lints** • Read lints for 3 files</summary>
+      
+Lint paths:
+
+- `app/src/main/java/com/example/frontieraudio/MainActivity.kt`
+- `app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt`
+- `ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt`
+
+Lint results
+
+Lint errors for `app/src/main/java/com/example/frontieraudio/MainActivity.kt`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| Unresolved reference: enrollment | 33:34-33:44 | DIAGNOSTIC_SEVERITY_ERROR |
+| Unresolved reference: enrollment | 34:34-34:44 | DIAGNOSTIC_SEVERITY_ERROR |
+| Unresolved reference: isVoiceEnrolled | 98:41-98:56 | DIAGNOSTIC_SEVERITY_ERROR |
+| Type 'MutableState<Boolean>' has no method 'setValue(Nothing?, KProperty<*>, Boolean)' and thus it cannot serve as a delegate for var (read-write property) | 99:41-99:83 | DIAGNOSTIC_SEVERITY_ERROR |
+| Unresolved reference: VoiceEnrollmentController | 116:21-116:46 | DIAGNOSTIC_SEVERITY_ERROR |
+| Cannot find a parameter with this name: isVoiceEnrolled | 135:33-135:48 | DIAGNOSTIC_SEVERITY_ERROR |
+| Cannot find a parameter with this name: onVoiceEnrollmentClick | 138:33-138:55 | DIAGNOSTIC_SEVERITY_ERROR |
+| Unresolved reference: VoiceEnrollmentFlow | 144:25-144:44 | DIAGNOSTIC_SEVERITY_ERROR |
+
+
+Lint errors for `ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt`
+
+
+| Message | Range | Severity |
+|-------|-------|----------|
+| 'Divider(Modifier = ..., Dp = ..., Color = ...): Unit' is deprecated. Renamed to HorizontalDivider | 90:13-90:20 | DIAGNOSTIC_SEVERITY_WARNING |
+
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Summarizing permission prompt and lint status**
+
+I’m organizing a summary of the microphone permission prompt and fail-safe UI added across `ControlCenterStatus`, `VoiceEnrollmentFlow`, and `MainActivity`, including code references with precise line citations. I’ll also note that the lints may be stale despite successful compilation, mentioning the leftover deprecation warning about `Divider` and suggesting a future swap to `HorizontalDivider`. Next, I’ll prepare snippet blocks with line ranges to clearly point to the new code and recommend verifying the build with `./gradlew` and rerunning instrumentation tests.</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '70,150p' ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '70,150p' ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt
+```
+
+```
+sed: ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Correcting directory path case**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '70,150p' ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '70,150p' ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+```
+
+```
+                )
+            }
+
+            StatusRow(
+                    label = &quot;Jarvis Module&quot;,
+                    value = if (jarvisReady) &quot;Operational&quot; else &quot;Offline&quot;,
+                    highlight = statusColor(jarvisReady),
+                    badgeLabel = if (jarvisReady) &quot;Ready&quot; else &quot;Attention&quot;
+            )
+            StatusRow(
+                    label = &quot;Transcriber Module&quot;,
+                    value = if (transcriberReady) &quot;Listening&quot; else &quot;Idle&quot;,
+                    highlight = statusColor(transcriberReady),
+                    badgeLabel = if (transcriberReady) &quot;Ready&quot; else &quot;Attention&quot;
+            )
+            StatusRow(
+                    label = &quot;Permissions&quot;,
+                    value = if (permissionsReady) &quot;All Clear&quot; else &quot;Action Required&quot;,
+                    highlight = statusColor(permissionsReady),
+                    badgeLabel = if (permissionsReady) &quot;Ready&quot; else &quot;Attention&quot;
+            )
+
+            if (!permissionsReady) {
+                PermissionWarningCard(
+                        missingPermissions = permissionSnapshot.missingPermissions,
+                        onRequestPermissions = onRequestPermissions
+                )
+            }
+            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+
+            Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
+                Text(
+                        text = &quot;Environment&quot;,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                )
+                EnvironmentRow(
+                        environmentLabel = environmentLabel,
+                        config = environmentConfig,
+                        isVoiceEnrolled = isVoiceEnrolled,
+                        onVoiceEnrollmentClick = onVoiceEnrollmentClick
+                )
+                Text(
+                        text =
+                                if (isFirstLaunch) &quot;First-time deployment: enrollment recommended.&quot;
+                                else &quot;Returning operator: settings synced.&quot;,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusRow(label: String, value: String, highlight: Color, badgeLabel: String) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)
+        ) {
+            Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        StatusPill(color = highlight, label = badgeLabel)
+    }
+}
+
+@Composable
+private fun EnvironmentRow(
+        environmentLabel: String,
+        config: EnvironmentConfig,
+        isVoiceEnrolled: Boolean,
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Seeking PermissionWarningCard snippet**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '150,220p' ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '150,220p' ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+```
+
+```
+        isVoiceEnrolled: Boolean,
+        onVoiceEnrollmentClick: () -&gt; Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)) {
+        Text(
+                text = &quot;$environmentLabel mode&quot;,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+                text = config.apiBaseUrl,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+                text = &quot;Logging ${if (config.loggingEnabled) &quot;enabled&quot; else &quot;disabled&quot;}&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color =
+                        if (config.loggingEnabled) MaterialTheme.colorScheme.tertiary
+                        else MaterialTheme.colorScheme.error
+        )
+        Text(
+                text = if (isVoiceEnrolled) &quot;Voice profile verified&quot; else &quot;Voice profile pending&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color =
+                        if (isVoiceEnrolled) MaterialTheme.colorScheme.tertiary
+                        else MaterialTheme.colorScheme.error
+        )
+        TextButton(onClick = onVoiceEnrollmentClick) {
+            Text(
+                    text = &quot;Re-enroll Voice&quot;,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
+            )
+        }
+    }
+}
+
+@Composable
+private fun StatusPill(color: Color, label: String) {
+    Surface(
+            color = color.copy(alpha = 0.18f),
+            contentColor = color,
+            shape = MaterialTheme.shapes.small
+    ) {
+        Text(
+                text = label.uppercase(Locale.US),
+                modifier =
+                        Modifier.padding(
+                                horizontal = FrontierTheme.spacing.small,
+                                vertical = FrontierTheme.spacing.tiny
+                        ),
+                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
+        )
+    }
+}
+
+@Composable
+private fun PermissionWarningCard(
+        missingPermissions: List&lt;String&gt;,
+        onRequestPermissions: () -&gt; Unit
+) {
+    Surface(
+            color = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            shape = MaterialTheme.shapes.medium
+    ) {
+        Column(
+                modifier = Modifier.padding(FrontierTheme.spacing.medium),
+                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)
+        ) {
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Continuing exploration**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '220,300p' ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '220,300p' ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt
+```
+
+```
+sed: ui/src/main/java/com/example/frontierraudio/ui/ControlCenterStatus.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Investigating sed command path issue**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '220,300p' ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '220,300p' ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+```
+
+```
+        ) {
+            Text(
+                    text = &quot;Microphone access required&quot;,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+            )
+            val reasons = missingPermissions.joinToString(separator = &quot;\n&quot;) { manifestName -&gt;
+                when (manifestName) {
+                    android.Manifest.permission.RECORD_AUDIO -&gt; &quot;• Record Audio – enables voice capture&quot;
+                    android.Manifest.permission.ACCESS_FINE_LOCATION -&gt; &quot;• Fine Location – tags transcripts for safety reports&quot;
+                    android.Manifest.permission.INTERNET -&gt; &quot;• Internet – syncs transcripts to HQ&quot;
+                    else -&gt; &quot;• ${manifestName.substringAfterLast(&#39;.&#39;)}&quot;
+                }
+            }
+            if (reasons.isNotBlank()) {
+                Text(
+                        text = reasons,
+                        style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Button(onClick = onRequestPermissions) {
+                Text(&quot;Grant Permissions&quot;)
+            }
+        }
+    }
+}
+
+@Composable
+private fun statusColor(isReady: Boolean): Color {
+    return if (isReady) {
+        MaterialTheme.colorScheme.tertiary
+    } else {
+        MaterialTheme.colorScheme.error
+    }
+}
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing to add Button and permission gating**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '70,170p' app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '70,170p' app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+sed: app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Noticing a misspelled path**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '70,170p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '70,170p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+    userName: String = &quot;Operator&quot;,
+    onDismiss: () -&gt; Unit = {}
+) {
+    val prompts = remember(userName) {
+        listOf(
+            &quot;Frontier, start recording now.&quot;,
+            &quot;Safety first, always on time.&quot;,
+            &quot;My name is ${userName.trim()}.&quot;
+        )
+    }
+    var step by remember { mutableStateOf(EnrollmentStep.Entry) }
+    var promptIndex by remember { mutableStateOf(0) }
+    val recordedSamples = remember { mutableMapOf&lt;Int, ByteArray&gt;() }
+    val recordedSampleInfo = remember { mutableMapOf&lt;Int, RecordedSampleInfo&gt;() }
+    var isRecording by remember { mutableStateOf(false) }
+    var recordingError by remember { mutableStateOf&lt;String?&gt;(null) }
+    var infoMessage by remember { mutableStateOf&lt;String?&gt;(null) }
+    val currentAmplitude by controller.currentAmplitude.collectAsState(initial = 0f)
+
+    DisposableEffect(Unit) {
+        onDispose { controller.cancelRecording() }
+    }
+
+    LaunchedEffect(step) {
+        if (step == EnrollmentStep.Processing) {
+            recordingError = null
+            infoMessage = null
+            val orderedSamples = prompts.indices.map { recordedSamples[it] ?: ByteArray(0) }
+            val success = controller.finalizeEnrollment(orderedSamples)
+            delay(1_000)
+            step = if (success) EnrollmentStep.Success else EnrollmentStep.Failure
+        } else if (step == EnrollmentStep.Recording) {
+            infoMessage = null
+        }
+    }
+
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.96f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(FrontierTheme.spacing.section),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 12.dp,
+                shadowElevation = 24.dp,
+                shape = MaterialTheme.shapes.large
+            ) {
+                Column(
+                    modifier = Modifier.padding(FrontierTheme.spacing.extraLarge),
+                    verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)
+                ) {
+                    when (step) {
+                        EnrollmentStep.Entry -&gt; EnrollmentIntro(
+                            onBegin = { step = EnrollmentStep.Recording },
+                            onExplain = {
+                                infoMessage =
+                                    &quot;Frontier Audio uses on-device AI to recognize your voice and prevent unauthorized recording.&quot;
+                            }
+                        )
+
+                        EnrollmentStep.Recording -&gt; EnrollmentPrompt(
+                            index = promptIndex,
+                            total = prompts.size,
+                            prompt = prompts[promptIndex],
+                            hasMicPermission = hasMicPermission,
+                            isRecording = isRecording,
+                            hasRecording = recordedSamples.containsKey(promptIndex),
+                            sampleInfo = recordedSampleInfo[promptIndex],
+                            amplitude = currentAmplitude,
+                            errorMessage = recordingError,
+                            onRecord = {
+                                if (!hasMicPermission) {
+                                    recordingError = &quot;Microphone permission required before recording.&quot;
+                                    onRequestPermissions()
+                                    return@EnrollmentPrompt
+                                }
+                                recordingError = null
+                                val started = controller.startRecording()
+                                if (!started) {
+                                    recordingError = &quot;Unable to access microphone. Please try again.&quot;
+                                } else {
+                                    isRecording = true
+                                }
+                            },
+                            onStop = {
+                                val bytes = controller.stopRecording()
+                                isRecording = false
+                                if (bytes.isEmpty()) {
+                                    recordingError = &quot;We couldn’t hear anything. Try again.&quot;
+                                } else {
+                                    recordedSamples[promptIndex] = bytes
+                                    val durationSeconds = controller.estimateDurationSeconds(bytes)
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Locating mic permission check in EnrollmentPrompt**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '170,280p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '170,280p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+                                    val durationSeconds = controller.estimateDurationSeconds(bytes)
+                                    val rms = controller.estimateRms(bytes)
+                                    recordedSampleInfo[promptIndex] = RecordedSampleInfo(durationSeconds, rms)
+                                }
+                            },
+                            onContinue = {
+                                recordingError = null
+                                if (promptIndex + 1 &gt;= prompts.size) {
+                                    step = EnrollmentStep.Processing
+                                } else {
+                                    promptIndex += 1
+                                }
+                            },
+                            onRerecord = {
+                                controller.cancelRecording()
+                                isRecording = false
+                                recordedSamples.remove(promptIndex)
+                                recordedSampleInfo.remove(promptIndex)
+                            },
+                            onRequestPermissions = onRequestPermissions
+                        )
+
+                        EnrollmentStep.Processing -&gt; ProcessingView()
+
+                        EnrollmentStep.Success -&gt; ResultView(
+                            title = &quot;✅ Voice Enrolled Successfully&quot;,
+                            message = &quot;Frontier Audio will now recognize you automatically.&quot;,
+                            primaryLabel = &quot;Continue to App&quot;,
+                            onPrimary = {
+                                controller.cancelRecording()
+                                onDismiss()
+                            }
+                        )
+
+                        EnrollmentStep.Failure -&gt; ResultView(
+                            title = &quot;⚠️ We couldn’t get a clear sample&quot;,
+                            message = &quot;Try again in a quiet environment.&quot;,
+                            primaryLabel = &quot;Retry Enrollment&quot;,
+                            onPrimary = {
+                                controller.cancelRecording()
+                                recordedSamples.clear()
+                                recordedSampleInfo.clear()
+                                promptIndex = 0
+                                step = EnrollmentStep.Recording
+                            }
+                        )
+                    }
+
+                    if (recordingError != null &amp;&amp; step != EnrollmentStep.Success) {
+                        Text(
+                            text = recordingError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    if (infoMessage != null) {
+                        Text(
+                            text = infoMessage!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else if (step == EnrollmentStep.Entry) {
+                        Text(
+                            text = &quot;For your safety and privacy, Frontier Audio only listens to you.&quot;,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EnrollmentIntro(
+    onBegin: () -&gt; Unit,
+    onExplain: () -&gt; Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+        Text(
+            text = &quot;🎙️ Voice Enrollment Required&quot;,
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = &quot;For your safety and privacy, Frontier Audio only listens to you. Record a short sample to verify your voice.&quot;,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(
+            onClick = onBegin,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(&quot;Begin Enrollment&quot;)
+        }
+        OutlinedButton(
+            onClick = onExplain,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(&quot;What’s this?&quot;)
+        }
+    }
+}
+
+@Composable
+private fun EnrollmentPrompt(
+    index: Int,
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Checking missing permission message**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '280,380p' app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '280,380p' app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+sed: app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Rechecking file path**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '280,380p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '280,380p' app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+```
+
+```
+    index: Int,
+    total: Int,
+    prompt: String,
+    hasMicPermission: Boolean,
+    isRecording: Boolean,
+    hasRecording: Boolean,
+    sampleInfo: RecordedSampleInfo?,
+    amplitude: Float,
+    errorMessage: String?,
+    onRecord: () -&gt; Unit,
+    onStop: () -&gt; Unit,
+    onContinue: () -&gt; Unit,
+    onRerecord: () -&gt; Unit,
+    onRequestPermissions: () -&gt; Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = &quot;Enrollment • Step ${index + 1} of $total&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = &quot;${index + 1}/$total&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.medium)) {
+            val quotedPrompt = &quot;\&quot;$prompt\&quot;&quot;
+            Text(
+                text = quotedPrompt,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = &quot;Speak clearly, about 6 inches from your mic.&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        VoiceWaveform(isActive = isRecording, amplitude = amplitude)
+
+        if (!hasMicPermission) {
+            Text(
+                text = &quot;Microphone permission is required before recording.&quot;,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            Button(
+                onClick = onRequestPermissions,
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text(&quot;Grant Permission&quot;)
+            }
+        }
+
+        if (sampleInfo != null &amp;&amp; hasRecording) {
+            SampleSummary(info = sampleInfo)
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
+            when {
+                isRecording -&gt; {
+                    Button(
+                        onClick = onStop,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(&quot;Stop Recording&quot;)
+                    }
+                }
+                hasRecording -&gt; {
+                    Button(
+                        onClick = onContinue,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(if (index + 1 == total) &quot;Analyze Recording&quot; else &quot;Continue&quot;)
+                    }
+                    OutlinedButton(
+                        onClick = onRerecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(&quot;Re-record&quot;)
+                    }
+                }
+                else -&gt; {
+                    Button(
+                        onClick = onRecord,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        enabled = hasMicPermission
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Deciding on code snippet inclusion**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '120,220p' app/src/main/java/com/example/frontieraudio/MainActivity.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '120,220p' app/src/main/java/com/example/frontieraudio/MainActivity.kt
+```
+
+```
+
+                LaunchedEffect(Unit) { permissionStateHolder = permissionSnapshotState }
+                DisposableEffect(Unit) {
+                    onDispose {
+                        if (permissionStateHolder === permissionSnapshotState) {
+                            permissionStateHolder = null
+                        }
+                    }
+                }
+
+                val enrollmentController =
+                        remember(voiceProfileRepository, preferenceStore) {
+                            VoiceEnrollmentController(
+                                    serviceProvider = { audioCaptureService },
+                                    voiceProfileRepository = voiceProfileRepository,
+                                    preferenceStore = preferenceStore
+                            )
+                        }
+
+                val showEnrollment = !isVoiceEnrolled || manualEnrollment
+
+                Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                ) {
+                    Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            containerColor = MaterialTheme.colorScheme.background,
+                            contentColor = MaterialTheme.colorScheme.onBackground
+                    ) { innerPadding -&gt;
+                        ControlCenterStatus(
+                                jarvisModule = jarvisModule,
+                                transcriberModule = transcriberModule,
+                                isFirstLaunch = isFirstLaunch,
+                                isVoiceEnrolled = isVoiceEnrolled,
+                                permissionSnapshot = permissionSnapshotState.value,
+                                environmentConfig = environmentConfig,
+                                onVoiceEnrollmentClick = { manualEnrollment = true },
+                                onRequestPermissions = requestPermissions,
+                                modifier = Modifier.padding(innerPadding)
+                        )
+                    }
+
+                    if (showEnrollment) {
+                        VoiceEnrollmentFlow(
+                                controller = enrollmentController,
+                                hasMicPermission = permissionSnapshotState.value.recordAudioGranted,
+                                onRequestPermissions = requestPermissions,
+                                modifier = Modifier.fillMaxSize().align(Alignment.Center),
+                                userName = &quot;Operator&quot;,
+                                onDismiss = { manualEnrollment = false }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!permissionManager.shouldRequestCriticalPermissions()) {
+            startAndBindAudioService()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isServiceBound) {
+            unbindService(serviceConnection)
+            isServiceBound = false
+        }
+    }
+
+    private fun startAndBindAudioService() {
+        val intent = Intent(this, AudioCaptureService::class.java)
+        ContextCompat.startForegroundService(this, intent)
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+    }
+}
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Reviewing missing code snippet**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '90,140p' app/src/main/java/com/example/frontieraudio/MainActivity.kt</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && sed -n '90,140p' app/src/main/java/com/example/frontieraudio/MainActivity.kt
+```
+
+```
+        if (permissionManager.shouldRequestCriticalPermissions()) {
+            val permissions = permissionManager.missingCriticalPermissions().toTypedArray()
+            if (permissions.isNotEmpty()) {
+                permissionLauncher.launch(permissions)
+            }
+        } else {
+            startAndBindAudioService()
+        }
+
+        setContent {
+            FrontierAudioTheme {
+                val permissionSnapshotState = remember {
+                    mutableStateOf(permissionManager.snapshot())
+                }
+                val isFirstLaunch by preferenceStore.isFirstLaunch.collectAsState(initial = true)
+                val isVoiceEnrolled by
+                        preferenceStore.isVoiceEnrolled.collectAsState(initial = false)
+                var manualEnrollment by rememberSaveable { mutableStateOf(false) }
+                LaunchedEffect(isVoiceEnrolled) {
+                    if (isVoiceEnrolled) {
+                        manualEnrollment = false
+                    }
+                }
+
+                val requestPermissions: () -&gt; Unit = {
+                    val missing = permissionManager.missingCriticalPermissions().toTypedArray()
+                    if (missing.isNotEmpty()) {
+                        permissionLauncher.launch(missing)
+                    }
+                }
+
+                LaunchedEffect(Unit) { permissionStateHolder = permissionSnapshotState }
+                DisposableEffect(Unit) {
+                    onDispose {
+                        if (permissionStateHolder === permissionSnapshotState) {
+                            permissionStateHolder = null
+                        }
+                    }
+                }
+
+                val enrollmentController =
+                        remember(voiceProfileRepository, preferenceStore) {
+                            VoiceEnrollmentController(
+                                    serviceProvider = { audioCaptureService },
+                                    voiceProfileRepository = voiceProfileRepository,
+                                    preferenceStore = preferenceStore
+                            )
+                        }
+
+                val showEnrollment = !isVoiceEnrolled || manualEnrollment
+
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Preparing detailed summary for permission handling**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontierraudio/MainActivity.kt | sed -n '90,150p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontierraudio/MainActivity.kt | sed -n '90,150p'
+```
+
+```
+nl: app/src/main/java/com/example/frontierraudio/MainActivity.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Correcting spelling**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/MainActivity.kt | sed -n '90,150p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/MainActivity.kt | sed -n '90,150p'
+```
+
+```
+    90	        if (permissionManager.shouldRequestCriticalPermissions()) {
+    91	            val permissions = permissionManager.missingCriticalPermissions().toTypedArray()
+    92	            if (permissions.isNotEmpty()) {
+    93	                permissionLauncher.launch(permissions)
+    94	            }
+    95	        } else {
+    96	            startAndBindAudioService()
+    97	        }
+    98	
+    99	        setContent {
+   100	            FrontierAudioTheme {
+   101	                val permissionSnapshotState = remember {
+   102	                    mutableStateOf(permissionManager.snapshot())
+   103	                }
+   104	                val isFirstLaunch by preferenceStore.isFirstLaunch.collectAsState(initial = true)
+   105	                val isVoiceEnrolled by
+   106	                        preferenceStore.isVoiceEnrolled.collectAsState(initial = false)
+   107	                var manualEnrollment by rememberSaveable { mutableStateOf(false) }
+   108	                LaunchedEffect(isVoiceEnrolled) {
+   109	                    if (isVoiceEnrolled) {
+   110	                        manualEnrollment = false
+   111	                    }
+   112	                }
+   113	
+   114	                val requestPermissions: () -&gt; Unit = {
+   115	                    val missing = permissionManager.missingCriticalPermissions().toTypedArray()
+   116	                    if (missing.isNotEmpty()) {
+   117	                        permissionLauncher.launch(missing)
+   118	                    }
+   119	                }
+   120	
+   121	                LaunchedEffect(Unit) { permissionStateHolder = permissionSnapshotState }
+   122	                DisposableEffect(Unit) {
+   123	                    onDispose {
+   124	                        if (permissionStateHolder === permissionSnapshotState) {
+   125	                            permissionStateHolder = null
+   126	                        }
+   127	                    }
+   128	                }
+   129	
+   130	                val enrollmentController =
+   131	                        remember(voiceProfileRepository, preferenceStore) {
+   132	                            VoiceEnrollmentController(
+   133	                                    serviceProvider = { audioCaptureService },
+   134	                                    voiceProfileRepository = voiceProfileRepository,
+   135	                                    preferenceStore = preferenceStore
+   136	                            )
+   137	                        }
+   138	
+   139	                val showEnrollment = !isVoiceEnrolled || manualEnrollment
+   140	
+   141	                Box(
+   142	                        modifier = Modifier
+   143	                            .fillMaxSize()
+   144	                            .background(MaterialTheme.colorScheme.background)
+   145	                ) {
+   146	                    Scaffold(
+   147	                            modifier = Modifier.fillMaxSize(),
+   148	                            containerColor = MaterialTheme.colorScheme.background,
+   149	                            contentColor = MaterialTheme.colorScheme.onBackground
+   150	                    ) { innerPadding -&gt;
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Continuing `ControlCenterStatus` call**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontierraudio/MainActivity.kt | sed -n '150,210p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontierraudio/MainActivity.kt | sed -n '150,210p'
+```
+
+```
+nl: app/src/main/java/com/example/frontierraudio/MainActivity.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Correcting typo in package name**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/MainActivity.kt | sed -n '150,210p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/MainActivity.kt | sed -n '150,210p'
+```
+
+```
+   150	                    ) { innerPadding -&gt;
+   151	                        ControlCenterStatus(
+   152	                                jarvisModule = jarvisModule,
+   153	                                transcriberModule = transcriberModule,
+   154	                                isFirstLaunch = isFirstLaunch,
+   155	                                isVoiceEnrolled = isVoiceEnrolled,
+   156	                                permissionSnapshot = permissionSnapshotState.value,
+   157	                                environmentConfig = environmentConfig,
+   158	                                onVoiceEnrollmentClick = { manualEnrollment = true },
+   159	                                onRequestPermissions = requestPermissions,
+   160	                                modifier = Modifier.padding(innerPadding)
+   161	                        )
+   162	                    }
+   163	
+   164	                    if (showEnrollment) {
+   165	                        VoiceEnrollmentFlow(
+   166	                                controller = enrollmentController,
+   167	                                hasMicPermission = permissionSnapshotState.value.recordAudioGranted,
+   168	                                onRequestPermissions = requestPermissions,
+   169	                                modifier = Modifier.fillMaxSize().align(Alignment.Center),
+   170	                                userName = &quot;Operator&quot;,
+   171	                                onDismiss = { manualEnrollment = false }
+   172	                        )
+   173	                    }
+   174	                }
+   175	            }
+   176	        }
+   177	    }
+   178	
+   179	    override fun onStart() {
+   180	        super.onStart()
+   181	        if (!permissionManager.shouldRequestCriticalPermissions()) {
+   182	            startAndBindAudioService()
+   183	        }
+   184	    }
+   185	
+   186	    override fun onStop() {
+   187	        super.onStop()
+   188	        if (isServiceBound) {
+   189	            unbindService(serviceConnection)
+   190	            isServiceBound = false
+   191	        }
+   192	    }
+   193	
+   194	    private fun startAndBindAudioService() {
+   195	        val intent = Intent(this, AudioCaptureService::class.java)
+   196	        ContextCompat.startForegroundService(this, intent)
+   197	        bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+   198	    }
+   199	}
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Matching line numbers for VoiceEnrollmentFlow**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '60,180p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '60,180p'
+```
+
+```
+    60	    val durationSeconds: Float,
+    61	    val rms: Float
+    62	)
+    63	
+    64	@Composable
+    65	fun VoiceEnrollmentFlow(
+    66	    controller: VoiceEnrollmentController,
+    67	    hasMicPermission: Boolean,
+    68	    onRequestPermissions: () -&gt; Unit,
+    69	    modifier: Modifier = Modifier,
+    70	    userName: String = &quot;Operator&quot;,
+    71	    onDismiss: () -&gt; Unit = {}
+    72	) {
+    73	    val prompts = remember(userName) {
+    74	        listOf(
+    75	            &quot;Frontier, start recording now.&quot;,
+    76	            &quot;Safety first, always on time.&quot;,
+    77	            &quot;My name is ${userName.trim()}.&quot;
+    78	        )
+    79	    }
+    80	    var step by remember { mutableStateOf(EnrollmentStep.Entry) }
+    81	    var promptIndex by remember { mutableStateOf(0) }
+    82	    val recordedSamples = remember { mutableMapOf&lt;Int, ByteArray&gt;() }
+    83	    val recordedSampleInfo = remember { mutableMapOf&lt;Int, RecordedSampleInfo&gt;() }
+    84	    var isRecording by remember { mutableStateOf(false) }
+    85	    var recordingError by remember { mutableStateOf&lt;String?&gt;(null) }
+    86	    var infoMessage by remember { mutableStateOf&lt;String?&gt;(null) }
+    87	    val currentAmplitude by controller.currentAmplitude.collectAsState(initial = 0f)
+    88	
+    89	    DisposableEffect(Unit) {
+    90	        onDispose { controller.cancelRecording() }
+    91	    }
+    92	
+    93	    LaunchedEffect(step) {
+    94	        if (step == EnrollmentStep.Processing) {
+    95	            recordingError = null
+    96	            infoMessage = null
+    97	            val orderedSamples = prompts.indices.map { recordedSamples[it] ?: ByteArray(0) }
+    98	            val success = controller.finalizeEnrollment(orderedSamples)
+    99	            delay(1_000)
+   100	            step = if (success) EnrollmentStep.Success else EnrollmentStep.Failure
+   101	        } else if (step == EnrollmentStep.Recording) {
+   102	            infoMessage = null
+   103	        }
+   104	    }
+   105	
+   106	    AnimatedVisibility(
+   107	        visible = true,
+   108	        enter = fadeIn(),
+   109	        exit = fadeOut()
+   110	    ) {
+   111	        Box(
+   112	            modifier = modifier
+   113	                .fillMaxSize()
+   114	                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.96f)),
+   115	            contentAlignment = Alignment.Center
+   116	        ) {
+   117	            Surface(
+   118	                modifier = Modifier
+   119	                    .fillMaxWidth()
+   120	                    .padding(FrontierTheme.spacing.section),
+   121	                color = MaterialTheme.colorScheme.surface,
+   122	                tonalElevation = 12.dp,
+   123	                shadowElevation = 24.dp,
+   124	                shape = MaterialTheme.shapes.large
+   125	            ) {
+   126	                Column(
+   127	                    modifier = Modifier.padding(FrontierTheme.spacing.extraLarge),
+   128	                    verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)
+   129	                ) {
+   130	                    when (step) {
+   131	                        EnrollmentStep.Entry -&gt; EnrollmentIntro(
+   132	                            onBegin = { step = EnrollmentStep.Recording },
+   133	                            onExplain = {
+   134	                                infoMessage =
+   135	                                    &quot;Frontier Audio uses on-device AI to recognize your voice and prevent unauthorized recording.&quot;
+   136	                            }
+   137	                        )
+   138	
+   139	                        EnrollmentStep.Recording -&gt; EnrollmentPrompt(
+   140	                            index = promptIndex,
+   141	                            total = prompts.size,
+   142	                            prompt = prompts[promptIndex],
+   143	                            hasMicPermission = hasMicPermission,
+   144	                            isRecording = isRecording,
+   145	                            hasRecording = recordedSamples.containsKey(promptIndex),
+   146	                            sampleInfo = recordedSampleInfo[promptIndex],
+   147	                            amplitude = currentAmplitude,
+   148	                            errorMessage = recordingError,
+   149	                            onRecord = {
+   150	                                if (!hasMicPermission) {
+   151	                                    recordingError = &quot;Microphone permission required before recording.&quot;
+   152	                                    onRequestPermissions()
+   153	                                    return@EnrollmentPrompt
+   154	                                }
+   155	                                recordingError = null
+   156	                                val started = controller.startRecording()
+   157	                                if (!started) {
+   158	                                    recordingError = &quot;Unable to access microphone. Please try again.&quot;
+   159	                                } else {
+   160	                                    isRecording = true
+   161	                                }
+   162	                            },
+   163	                            onStop = {
+   164	                                val bytes = controller.stopRecording()
+   165	                                isRecording = false
+   166	                                if (bytes.isEmpty()) {
+   167	                                    recordingError = &quot;We couldn’t hear anything. Try again.&quot;
+   168	                                } else {
+   169	                                    recordedSamples[promptIndex] = bytes
+   170	                                    val durationSeconds = controller.estimateDurationSeconds(bytes)
+   171	                                    val rms = controller.estimateRms(bytes)
+   172	                                    recordedSampleInfo[promptIndex] = RecordedSampleInfo(durationSeconds, rms)
+   173	                                }
+   174	                            },
+   175	                            onContinue = {
+   176	                                recordingError = null
+   177	                                if (promptIndex + 1 &gt;= prompts.size) {
+   178	                                    step = EnrollmentStep.Processing
+   179	                                } else {
+   180	                                    promptIndex += 1
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Continuing EnrollmentPrompt section**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '180,320p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '180,320p'
+```
+
+```
+nl: app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Rechecking input spelling**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '180,320p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '180,320p'
+```
+
+```
+   180	                                    promptIndex += 1
+   181	                                }
+   182	                            },
+   183	                            onRerecord = {
+   184	                                controller.cancelRecording()
+   185	                                isRecording = false
+   186	                                recordedSamples.remove(promptIndex)
+   187	                                recordedSampleInfo.remove(promptIndex)
+   188	                            },
+   189	                            onRequestPermissions = onRequestPermissions
+   190	                        )
+   191	
+   192	                        EnrollmentStep.Processing -&gt; ProcessingView()
+   193	
+   194	                        EnrollmentStep.Success -&gt; ResultView(
+   195	                            title = &quot;✅ Voice Enrolled Successfully&quot;,
+   196	                            message = &quot;Frontier Audio will now recognize you automatically.&quot;,
+   197	                            primaryLabel = &quot;Continue to App&quot;,
+   198	                            onPrimary = {
+   199	                                controller.cancelRecording()
+   200	                                onDismiss()
+   201	                            }
+   202	                        )
+   203	
+   204	                        EnrollmentStep.Failure -&gt; ResultView(
+   205	                            title = &quot;⚠️ We couldn’t get a clear sample&quot;,
+   206	                            message = &quot;Try again in a quiet environment.&quot;,
+   207	                            primaryLabel = &quot;Retry Enrollment&quot;,
+   208	                            onPrimary = {
+   209	                                controller.cancelRecording()
+   210	                                recordedSamples.clear()
+   211	                                recordedSampleInfo.clear()
+   212	                                promptIndex = 0
+   213	                                step = EnrollmentStep.Recording
+   214	                            }
+   215	                        )
+   216	                    }
+   217	
+   218	                    if (recordingError != null &amp;&amp; step != EnrollmentStep.Success) {
+   219	                        Text(
+   220	                            text = recordingError!!,
+   221	                            color = MaterialTheme.colorScheme.error,
+   222	                            style = MaterialTheme.typography.bodySmall
+   223	                        )
+   224	                    }
+   225	
+   226	                    if (infoMessage != null) {
+   227	                        Text(
+   228	                            text = infoMessage!!,
+   229	                            style = MaterialTheme.typography.bodySmall,
+   230	                            color = MaterialTheme.colorScheme.onSurfaceVariant
+   231	                        )
+   232	                    } else if (step == EnrollmentStep.Entry) {
+   233	                        Text(
+   234	                            text = &quot;For your safety and privacy, Frontier Audio only listens to you.&quot;,
+   235	                            style = MaterialTheme.typography.bodySmall,
+   236	                            color = MaterialTheme.colorScheme.onSurfaceVariant
+   237	                        )
+   238	                    }
+   239	                }
+   240	            }
+   241	        }
+   242	    }
+   243	}
+   244	
+   245	@Composable
+   246	private fun EnrollmentIntro(
+   247	    onBegin: () -&gt; Unit,
+   248	    onExplain: () -&gt; Unit
+   249	) {
+   250	    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+   251	        Text(
+   252	            text = &quot;🎙️ Voice Enrollment Required&quot;,
+   253	            style = MaterialTheme.typography.headlineLarge,
+   254	            color = MaterialTheme.colorScheme.onSurface
+   255	        )
+   256	        Text(
+   257	            text = &quot;For your safety and privacy, Frontier Audio only listens to you. Record a short sample to verify your voice.&quot;,
+   258	            style = MaterialTheme.typography.bodyLarge,
+   259	            color = MaterialTheme.colorScheme.onSurfaceVariant
+   260	        )
+   261	        Button(
+   262	            onClick = onBegin,
+   263	            modifier = Modifier.fillMaxWidth(),
+   264	            shape = MaterialTheme.shapes.medium
+   265	        ) {
+   266	            Text(&quot;Begin Enrollment&quot;)
+   267	        }
+   268	        OutlinedButton(
+   269	            onClick = onExplain,
+   270	            modifier = Modifier.fillMaxWidth(),
+   271	            shape = MaterialTheme.shapes.medium
+   272	        ) {
+   273	            Text(&quot;What’s this?&quot;)
+   274	        }
+   275	    }
+   276	}
+   277	
+   278	@Composable
+   279	private fun EnrollmentPrompt(
+   280	    index: Int,
+   281	    total: Int,
+   282	    prompt: String,
+   283	    hasMicPermission: Boolean,
+   284	    isRecording: Boolean,
+   285	    hasRecording: Boolean,
+   286	    sampleInfo: RecordedSampleInfo?,
+   287	    amplitude: Float,
+   288	    errorMessage: String?,
+   289	    onRecord: () -&gt; Unit,
+   290	    onStop: () -&gt; Unit,
+   291	    onContinue: () -&gt; Unit,
+   292	    onRerecord: () -&gt; Unit,
+   293	    onRequestPermissions: () -&gt; Unit
+   294	) {
+   295	    Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
+   296	        Row(
+   297	            modifier = Modifier.fillMaxWidth(),
+   298	            horizontalArrangement = Arrangement.SpaceBetween,
+   299	            verticalAlignment = Alignment.CenterVertically
+   300	        ) {
+   301	            Text(
+   302	                text = &quot;Enrollment • Step ${index + 1} of $total&quot;,
+   303	                style = MaterialTheme.typography.bodySmall,
+   304	                color = MaterialTheme.colorScheme.onSurfaceVariant
+   305	            )
+   306	            Text(
+   307	                text = &quot;${index + 1}/$total&quot;,
+   308	                style = MaterialTheme.typography.bodySmall,
+   309	                color = MaterialTheme.colorScheme.onSurfaceVariant
+   310	            )
+   311	        }
+   312	
+   313	        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.medium)) {
+   314	            val quotedPrompt = &quot;\&quot;$prompt\&quot;&quot;
+   315	            Text(
+   316	                text = quotedPrompt,
+   317	                style = MaterialTheme.typography.headlineMedium,
+   318	                color = MaterialTheme.colorScheme.onSurface
+   319	            )
+   320	            Text(
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Noting need for permission message**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '320,380p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '320,380p'
+```
+
+```
+nl: app/src/main/java/com/example/frontierraudio/enrollment/VoiceEnrollmentFlow.kt: No such file or directory
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Optimizing path storage**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '320,380p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt | sed -n '320,380p'
+```
+
+```
+   320	            Text(
+   321	                text = &quot;Speak clearly, about 6 inches from your mic.&quot;,
+   322	                style = MaterialTheme.typography.bodySmall,
+   323	                color = MaterialTheme.colorScheme.onSurfaceVariant
+   324	            )
+   325	        }
+   326	
+   327	        VoiceWaveform(isActive = isRecording, amplitude = amplitude)
+   328	
+   329	        if (!hasMicPermission) {
+   330	            Text(
+   331	                text = &quot;Microphone permission is required before recording.&quot;,
+   332	                style = MaterialTheme.typography.bodySmall,
+   333	                color = MaterialTheme.colorScheme.error
+   334	            )
+   335	            Button(
+   336	                onClick = onRequestPermissions,
+   337	                modifier = Modifier.fillMaxWidth(),
+   338	                shape = MaterialTheme.shapes.medium
+   339	            ) {
+   340	                Text(&quot;Grant Permission&quot;)
+   341	            }
+   342	        }
+   343	
+   344	        if (sampleInfo != null &amp;&amp; hasRecording) {
+   345	            SampleSummary(info = sampleInfo)
+   346	        }
+   347	
+   348	        Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
+   349	            when {
+   350	                isRecording -&gt; {
+   351	                    Button(
+   352	                        onClick = onStop,
+   353	                        modifier = Modifier.fillMaxWidth(),
+   354	                        shape = MaterialTheme.shapes.medium
+   355	                    ) {
+   356	                        Text(&quot;Stop Recording&quot;)
+   357	                    }
+   358	                }
+   359	                hasRecording -&gt; {
+   360	                    Button(
+   361	                        onClick = onContinue,
+   362	                        modifier = Modifier.fillMaxWidth(),
+   363	                        shape = MaterialTheme.shapes.medium
+   364	                    ) {
+   365	                        Text(if (index + 1 == total) &quot;Analyze Recording&quot; else &quot;Continue&quot;)
+   366	                    }
+   367	                    OutlinedButton(
+   368	                        onClick = onRerecord,
+   369	                        modifier = Modifier.fillMaxWidth(),
+   370	                        shape = MaterialTheme.shapes.medium
+   371	                    ) {
+   372	                        Text(&quot;Re-record&quot;)
+   373	                    }
+   374	                }
+   375	                else -&gt; {
+   376	                    Button(
+   377	                        onClick = onRecord,
+   378	                        modifier = Modifier.fillMaxWidth(),
+   379	                        shape = MaterialTheme.shapes.medium,
+   380	                        enabled = hasMicPermission
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Adding ControlCenterStatus lines**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt | sed -n '60,140p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt | sed -n '60,140p'
+```
+
+```
+    60	            Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
+    61	                Text(
+    62	                        text = &quot;Frontier Control Center&quot;,
+    63	                        style = MaterialTheme.typography.headlineLarge,
+    64	                        color = MaterialTheme.colorScheme.onSurface
+    65	                )
+    66	                Text(
+    67	                        text = &quot;Mission-ready diagnostics at a glance.&quot;,
+    68	                        style = MaterialTheme.typography.bodySmall,
+    69	                        color = MaterialTheme.colorScheme.onSurfaceVariant
+    70	                )
+    71	            }
+    72	
+    73	            StatusRow(
+    74	                    label = &quot;Jarvis Module&quot;,
+    75	                    value = if (jarvisReady) &quot;Operational&quot; else &quot;Offline&quot;,
+    76	                    highlight = statusColor(jarvisReady),
+    77	                    badgeLabel = if (jarvisReady) &quot;Ready&quot; else &quot;Attention&quot;
+    78	            )
+    79	            StatusRow(
+    80	                    label = &quot;Transcriber Module&quot;,
+    81	                    value = if (transcriberReady) &quot;Listening&quot; else &quot;Idle&quot;,
+    82	                    highlight = statusColor(transcriberReady),
+    83	                    badgeLabel = if (transcriberReady) &quot;Ready&quot; else &quot;Attention&quot;
+    84	            )
+    85	            StatusRow(
+    86	                    label = &quot;Permissions&quot;,
+    87	                    value = if (permissionsReady) &quot;All Clear&quot; else &quot;Action Required&quot;,
+    88	                    highlight = statusColor(permissionsReady),
+    89	                    badgeLabel = if (permissionsReady) &quot;Ready&quot; else &quot;Attention&quot;
+    90	            )
+    91	
+    92	            if (!permissionsReady) {
+    93	                PermissionWarningCard(
+    94	                        missingPermissions = permissionSnapshot.missingPermissions,
+    95	                        onRequestPermissions = onRequestPermissions
+    96	                )
+    97	            }
+    98	            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+    99	
+   100	            Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)) {
+   101	                Text(
+   102	                        text = &quot;Environment&quot;,
+   103	                        style = MaterialTheme.typography.titleMedium,
+   104	                        color = MaterialTheme.colorScheme.onSurface
+   105	                )
+   106	                EnvironmentRow(
+   107	                        environmentLabel = environmentLabel,
+   108	                        config = environmentConfig,
+   109	                        isVoiceEnrolled = isVoiceEnrolled,
+   110	                        onVoiceEnrollmentClick = onVoiceEnrollmentClick
+   111	                )
+   112	                Text(
+   113	                        text =
+   114	                                if (isFirstLaunch) &quot;First-time deployment: enrollment recommended.&quot;
+   115	                                else &quot;Returning operator: settings synced.&quot;,
+   116	                        style = MaterialTheme.typography.bodySmall,
+   117	                        color = MaterialTheme.colorScheme.onSurfaceVariant
+   118	                )
+   119	            }
+   120	        }
+   121	    }
+   122	}
+   123	
+   124	@Composable
+   125	private fun StatusRow(label: String, value: String, highlight: Color, badgeLabel: String) {
+   126	    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+   127	        Column(
+   128	                modifier = Modifier.weight(1f),
+   129	                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.tiny)
+   130	        ) {
+   131	            Text(
+   132	                    text = label,
+   133	                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+   134	                    color = MaterialTheme.colorScheme.onSurfaceVariant
+   135	            )
+   136	            Text(
+   137	                    text = value,
+   138	                    style = MaterialTheme.typography.bodyLarge,
+   139	                    color = MaterialTheme.colorScheme.onSurface
+   140	            )
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Finding PermissionWarningCard details**</details></think>
+
+---
+
+<tool-use data-tool-type="bash" data-tool-name="run_terminal_cmd">
+<details><summary>Tool use: **command** • Run command: cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt | sed -n '200,260p'</summary>
+
+```bash
+cd /Users/rasheedlewis/AndroidStudioProjects/FrontierAudio && nl -ba ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt | sed -n '200,260p'
+```
+
+```
+   200	                                vertical = FrontierTheme.spacing.tiny
+   201	                        ),
+   202	                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
+   203	        )
+   204	    }
+   205	}
+   206	
+   207	@Composable
+   208	private fun PermissionWarningCard(
+   209	        missingPermissions: List&lt;String&gt;,
+   210	        onRequestPermissions: () -&gt; Unit
+   211	) {
+   212	    Surface(
+   213	            color = MaterialTheme.colorScheme.errorContainer,
+   214	            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+   215	            shape = MaterialTheme.shapes.medium
+   216	    ) {
+   217	        Column(
+   218	                modifier = Modifier.padding(FrontierTheme.spacing.medium),
+   219	                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.small)
+   220	        ) {
+   221	            Text(
+   222	                    text = &quot;Microphone access required&quot;,
+   223	                    style = MaterialTheme.typography.titleMedium,
+   224	                    fontWeight = FontWeight.SemiBold
+   225	            )
+   226	            val reasons = missingPermissions.joinToString(separator = &quot;\n&quot;) { manifestName -&gt;
+   227	                when (manifestName) {
+   228	                    android.Manifest.permission.RECORD_AUDIO -&gt; &quot;• Record Audio – enables voice capture&quot;
+   229	                    android.Manifest.permission.ACCESS_FINE_LOCATION -&gt; &quot;• Fine Location – tags transcripts for safety reports&quot;
+   230	                    android.Manifest.permission.INTERNET -&gt; &quot;• Internet – syncs transcripts to HQ&quot;
+   231	                    else -&gt; &quot;• ${manifestName.substringAfterLast(&#39;.&#39;)}&quot;
+   232	                }
+   233	            }
+   234	            if (reasons.isNotBlank()) {
+   235	                Text(
+   236	                        text = reasons,
+   237	                        style = MaterialTheme.typography.bodySmall
+   238	                )
+   239	            }
+   240	            Button(onClick = onRequestPermissions) {
+   241	                Text(&quot;Grant Permissions&quot;)
+   242	            }
+   243	        }
+   244	    }
+   245	}
+   246	
+   247	@Composable
+   248	private fun statusColor(isReady: Boolean): Color {
+   249	    return if (isReady) {
+   250	        MaterialTheme.colorScheme.tertiary
+   251	    } else {
+   252	        MaterialTheme.colorScheme.error
+   253	    }
+   254	}
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Summarizing code changes and next steps**
+
+I'll create a friendly, concise final message that outlines key code updates with precise file and line references in code blocks, including how permissions flow through `MainActivity`, `VoiceEnrollmentFlow`, and `ControlCenterStatus`. I'll also mention the build verification, lint note about `HorizontalDivider`, and suggest hooking up tests as the next step. This overview will help the user easily grasp the adjustments and follow-up actions.</details></think>
+
+---
+
+## Mic Permission Fail-Safes
+
+- Wired a reusable `requestPermissions` lambda in `MainActivity`, feeding it to both the status dashboard and enrollment overlay so any CTA can relaunch the mic prompt on demand.  
+```114:172:app/src/main/java/com/example/frontieraudio/MainActivity.kt
+val requestPermissions: () -> Unit = {
+    val missing = permissionManager.missingCriticalPermissions().toTypedArray()
+    if (missing.isNotEmpty()) {
+        permissionLauncher.launch(missing)
+    }
+}
+// ... existing code ...
+ControlCenterStatus(
+        jarvisModule = jarvisModule,
+        // ... existing code ...
+        onRequestPermissions = requestPermissions,
+        modifier = Modifier.padding(innerPadding)
+)
+if (showEnrollment) {
+    VoiceEnrollmentFlow(
+            controller = enrollmentController,
+            hasMicPermission = permissionSnapshotState.value.recordAudioGranted,
+            onRequestPermissions = requestPermissions,
+            // ... existing code ...
+    )
+}
+```
+
+- Updated the enrollment flow to block recording when the mic isn’t authorized, surface an inline error, and offer a one-tap permission retry inside the guided prompt.  
+```65:205:app/src/main/java/com/example/frontieraudio/enrollment/VoiceEnrollmentFlow.kt
+fun VoiceEnrollmentFlow(
+    controller: VoiceEnrollmentController,
+    hasMicPermission: Boolean,
+    onRequestPermissions: () -> Unit,
+    // ... existing code ...
+) {
+    // ... existing code ...
+    EnrollmentPrompt(
+        // ... existing code ...
+        onRecord = {
+            if (!hasMicPermission) {
+                recordingError = "Microphone permission required before recording."
+                onRequestPermissions()
+                return@EnrollmentPrompt
+            }
+            // ... existing code ...
+        },
+        // ... existing code ...
+    )
+    // ... existing code ...
+}
+// ... existing code ...
+if (!hasMicPermission) {
+    Text("Microphone permission is required before recording.", /* ... */)
+    Button(onClick = onRequestPermissions) { Text("Grant Permission") }
+}
+```
+
+- Added a `PermissionWarningCard` to the Control Center to flag missing runtime grants, explain what each permission does, and include a “Grant Permissions” action that reuses the same callback.  
+```92:246:ui/src/main/java/com/example/frontieraudio/ui/ControlCenterStatus.kt
+if (!permissionsReady) {
+    PermissionWarningCard(
+            missingPermissions = permissionSnapshot.missingPermissions,
+            onRequestPermissions = onRequestPermissions
+    )
+}
+// ... existing code ...
+@Composable
+private fun PermissionWarningCard(
+        missingPermissions: List<String>,
+        onRequestPermissions: () -> Unit
+) {
+    Surface(
+            color = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            shape = MaterialTheme.shapes.medium
+    ) {
+        // ... existing code ...
+        Button(onClick = onRequestPermissions) {
+            Text("Grant Permissions")
+        }
+    }
+}
+```
+
+- Verified the module compiles after the changes with `./gradlew :app:compileDebugKotlin`.
+
+Let me know if you’d like the Divider refactor (Studio now nudges toward `HorizontalDivider`) or any additional UX copy tweaks.
+
+---
+

@@ -64,6 +64,8 @@ data class RecordedSampleInfo(
 @Composable
 fun VoiceEnrollmentFlow(
     controller: VoiceEnrollmentController,
+    hasMicPermission: Boolean,
+    onRequestPermissions: () -> Unit,
     modifier: Modifier = Modifier,
     userName: String = "Operator",
     onDismiss: () -> Unit = {}
@@ -138,12 +140,18 @@ fun VoiceEnrollmentFlow(
                             index = promptIndex,
                             total = prompts.size,
                             prompt = prompts[promptIndex],
+                            hasMicPermission = hasMicPermission,
                             isRecording = isRecording,
                             hasRecording = recordedSamples.containsKey(promptIndex),
                             sampleInfo = recordedSampleInfo[promptIndex],
                             amplitude = currentAmplitude,
                             errorMessage = recordingError,
                             onRecord = {
+                                if (!hasMicPermission) {
+                                    recordingError = "Microphone permission required before recording."
+                                    onRequestPermissions()
+                                    return@EnrollmentPrompt
+                                }
                                 recordingError = null
                                 val started = controller.startRecording()
                                 if (!started) {
@@ -177,7 +185,8 @@ fun VoiceEnrollmentFlow(
                                 isRecording = false
                                 recordedSamples.remove(promptIndex)
                                 recordedSampleInfo.remove(promptIndex)
-                            }
+                            },
+                            onRequestPermissions = onRequestPermissions
                         )
 
                         EnrollmentStep.Processing -> ProcessingView()
@@ -271,6 +280,7 @@ private fun EnrollmentPrompt(
     index: Int,
     total: Int,
     prompt: String,
+    hasMicPermission: Boolean,
     isRecording: Boolean,
     hasRecording: Boolean,
     sampleInfo: RecordedSampleInfo?,
@@ -279,7 +289,8 @@ private fun EnrollmentPrompt(
     onRecord: () -> Unit,
     onStop: () -> Unit,
     onContinue: () -> Unit,
-    onRerecord: () -> Unit
+    onRerecord: () -> Unit,
+    onRequestPermissions: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.large)) {
         Row(
@@ -314,6 +325,21 @@ private fun EnrollmentPrompt(
         }
 
         VoiceWaveform(isActive = isRecording, amplitude = amplitude)
+
+        if (!hasMicPermission) {
+            Text(
+                text = "Microphone permission is required before recording.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            Button(
+                onClick = onRequestPermissions,
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text("Grant Permission")
+            }
+        }
 
         if (sampleInfo != null && hasRecording) {
             SampleSummary(info = sampleInfo)
@@ -350,7 +376,8 @@ private fun EnrollmentPrompt(
                     Button(
                         onClick = onRecord,
                         modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.medium
+                        shape = MaterialTheme.shapes.medium,
+                        enabled = hasMicPermission
                     ) {
                         Text("Record Sample")
                     }

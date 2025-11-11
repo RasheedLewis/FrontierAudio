@@ -111,6 +111,13 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                val requestPermissions: () -> Unit = {
+                    val missing = permissionManager.missingCriticalPermissions().toTypedArray()
+                    if (missing.isNotEmpty()) {
+                        permissionLauncher.launch(missing)
+                    }
+                }
+
                 LaunchedEffect(Unit) { permissionStateHolder = permissionSnapshotState }
                 DisposableEffect(Unit) {
                     onDispose {
@@ -149,6 +156,7 @@ class MainActivity : ComponentActivity() {
                                 permissionSnapshot = permissionSnapshotState.value,
                                 environmentConfig = environmentConfig,
                                 onVoiceEnrollmentClick = { manualEnrollment = true },
+                                onRequestPermissions = requestPermissions,
                                 modifier = Modifier.padding(innerPadding)
                         )
                     }
@@ -156,8 +164,10 @@ class MainActivity : ComponentActivity() {
                     if (showEnrollment) {
                         VoiceEnrollmentFlow(
                                 controller = enrollmentController,
-                                userName = "Operator",
+                                hasMicPermission = permissionSnapshotState.value.recordAudioGranted,
+                                onRequestPermissions = requestPermissions,
                                 modifier = Modifier.fillMaxSize().align(Alignment.Center),
+                                userName = "Operator",
                                 onDismiss = { manualEnrollment = false }
                         )
                     }

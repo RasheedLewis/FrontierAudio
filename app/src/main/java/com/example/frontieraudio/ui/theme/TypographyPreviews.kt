@@ -43,16 +43,17 @@ private fun ControlCenterStatusPreview() {
             isFirstLaunch = false,
             isVoiceEnrolled = true,
             permissionSnapshot = PermissionSnapshot(
-            recordAudioGranted = true,
-            internetGranted = true,
-            fineLocationGranted = true
-        ),
+                recordAudioGranted = true,
+                internetGranted = true,
+                fineLocationGranted = true
+            ),
             environmentConfig = EnvironmentConfig(
                 environment = Environment.DEVELOPMENT,
                 apiBaseUrl = "https://dev.api.frontieraudio",
                 loggingEnabled = true
             ),
             onVoiceEnrollmentClick = {},
+            onRequestPermissions = {},
             modifier = Modifier.padding(16.dp)
         )
     }
