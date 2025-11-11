@@ -14,16 +14,24 @@ import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
+import com.example.frontieraudio.core.logging.FrontierLogger
 import com.example.frontieraudio.transcriber.R
+import com.example.frontieraudio.transcriber.verification.SpeakerVerificationState
+import com.example.frontieraudio.transcriber.verification.SpeakerVerifier
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.CopyOnWriteArraySet
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-
+ 
+@AndroidEntryPoint
 class AudioCaptureService : Service() {
 
     private val binder = AudioCaptureBinder()
@@ -31,8 +39,12 @@ class AudioCaptureService : Service() {
     private val windowListeners = CopyOnWriteArraySet<AudioWindowListener>()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    @Inject lateinit var speakerVerifier: SpeakerVerifier
+    @Inject lateinit var logger: FrontierLogger
+
     private var audioRecord: AudioRecord? = null
     private var captureJob: Job? = null
+    private var verificationJob: Job? = null
     private var currentConfig: AudioCaptureConfig = AudioCaptureConfig()
     private var streamingPipeline: AudioStreamingPipeline? = null
 
@@ -66,10 +78,12 @@ class AudioCaptureService : Service() {
 
     fun registerWindowListener(listener: AudioWindowListener) {
         windowListeners += listener
+        streamingPipeline?.registerWindowListener(listener)
     }
 
     fun unregisterWindowListener(listener: AudioWindowListener) {
         windowListeners -= listener
+        streamingPipeline?.unregisterWindowListener(listener)
     }
 
     fun isCapturing(): Boolean = captureJob?.isActive == true
@@ -96,11 +110,26 @@ class AudioCaptureService : Service() {
         audioRecord.startRecording()
         this.audioRecord = audioRecord
         this.currentConfig = resolvedConfig
+        speakerVerifier.reset()
+        verificationJob?.cancel()
+        verificationJob = serviceScope.launch {
+            speakerVerifier.state.collectLatest { state ->
+                if (state.timestampMillis > 0L) {
+                    logger.i(
+                        "Speaker verification status=%s confidence=%.2f at %d",
+                        state.status,
+                        state.confidence,
+                        state.timestampMillis
+                    )
+                }
+            }
+        }
         val pipeline = AudioStreamingPipeline(
             windowSizeBytes = resolvedConfig.bufferSizeInBytes
         ) { bytes, timestamp ->
-            windowListeners.forEach { it.onWindow(bytes, timestamp) }
+            speakerVerifier.acceptWindow(bytes, timestamp)
         }
+        windowListeners.forEach { pipeline.registerWindowListener(it) }
         streamingPipeline = pipeline
         updateNotification(getString(R.string.audio_capture_notification_active))
 
@@ -125,6 +154,8 @@ class AudioCaptureService : Service() {
     fun stopCapture() {
         captureJob?.cancel()
         captureJob = null
+        verificationJob?.cancel()
+        verificationJob = null
 
         audioRecord?.let { record ->
             try {
@@ -138,6 +169,7 @@ class AudioCaptureService : Service() {
         audioRecord = null
         streamingPipeline?.flush()
         streamingPipeline = null
+        speakerVerifier.reset()
 
         updateNotification(getString(R.string.audio_capture_notification_idle))
     }
@@ -145,6 +177,8 @@ class AudioCaptureService : Service() {
     inner class AudioCaptureBinder : Binder() {
         val service: AudioCaptureService
             get() = this@AudioCaptureService
+        val verificationState: StateFlow<SpeakerVerificationState>
+            get() = speakerVerifier.state
     }
 
     private fun createNotificationChannel() {

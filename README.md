@@ -154,6 +154,20 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ---
 
+## 🔊 Speaker Verification Model
+
+The transcriber module expects a TensorFlow Lite **speaker embedding / verification** model at runtime.  
+We recommend the **FRILL** variant from Google’s [Non-Semantic Speech Benchmark](https://www.kaggle.com/models/google/nonsemantic-speech-benchmark/tfLite).
+
+1. Download the `frill.tflite` model from Kaggle (requires a Google account and acceptance of the model license).  
+2. Rename the file to `speaker_verification.tflite`.  
+3. Place it at `transcriber/src/main/assets/models/speaker_verification.tflite`.  
+
+> Note: Large model binaries are intentionally excluded from version control (see `.gitignore`).  
+> When the file is absent, the app falls back to an “unknown speaker” mode so that audio capture continues.
+
+---
+
 ## 🧡 Contributing
 
 Frontier Audio is built for those who thrive where **precision matters** — EMTs, engineers, construction leads, and developers alike.

@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.tensorflow.lite)
     kapt(libs.hilt.compiler)
 }
 
