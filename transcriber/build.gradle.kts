@@ -34,5 +34,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.tensorflow.lite)
     kapt(libs.hilt.compiler)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
 }
 
