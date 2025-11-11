@@ -14,7 +14,6 @@ import com.example.frontieraudio.core.environment.Environment
 import com.example.frontieraudio.core.environment.EnvironmentConfig
 import com.example.frontieraudio.core.permissions.PermissionSnapshot
 import com.example.frontieraudio.jarvis.JarvisModule
-import com.example.frontieraudio.transcriber.TranscriberModule
 import com.example.frontieraudio.ui.ControlCenterStatus
 
 @Preview(showBackground = true, name = "Typography Styles")
@@ -39,7 +38,8 @@ private fun ControlCenterStatusPreview() {
     FrontierAudioTheme {
         ControlCenterStatus(
             jarvisModule = JarvisModule(FrontierCore()),
-            transcriberModule = TranscriberModule(FrontierCore()),
+            isTranscriberStreaming = true,
+            isTranscriberSupported = true,
             isFirstLaunch = false,
             isVoiceEnrolled = true,
             permissionSnapshot = PermissionSnapshot(

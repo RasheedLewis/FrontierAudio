@@ -152,6 +152,22 @@ cp .env.example .env
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
 
+### AWS Transcribe credentials for local testing
+
+1. Open `local.properties` (never committed) at the project root.
+2. Add your temporary credentials (recommended: use `aws-vault` or `aws sts assume-role` against the Terraform-created role):
+
+   ```
+   frontier.aws.transcribeAccessKeyId=AKIA***
+   frontier.aws.transcribeSecretAccessKey=****
+   frontier.aws.transcribeSessionToken=****
+   frontier.aws.region=us-west-2
+   frontier.aws.transcribeEnabled=true
+   ```
+
+   Leave `frontier.aws.transcribeSessionToken` empty if you are using long-lived keys (not recommended).
+3. Rebuild the project. The values are injected into `BuildConfig` and consumed by the `DefaultChainTranscribeCredentialsProvider`, falling back to the standard AWS credential chain if all three fields are blank.
+
 ---
 
 ## 🔊 Speaker Verification Model

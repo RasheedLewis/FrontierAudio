@@ -13,6 +13,7 @@ datastore = "1.1.1"
 coroutines = "1.8.1"
 tensorflowLite = "2.14.0"
 timber = "5.0.1"
+awsSdkJava = "2.25.65"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,8 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 tensorflow-lite = { group = "org.tensorflow", name = "tensorflow-lite", version.ref = "tensorflowLite" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+aws-sdk-java-transcribestreaming = { group = "software.amazon.awssdk", name = "transcribestreaming", version.ref = "awsSdkJava" }
+kotlinx-coroutines-reactive = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactive", version.ref = "coroutines" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

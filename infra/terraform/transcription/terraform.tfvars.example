@@ -1,6 +1,6 @@
 # Copy this file to terraform.tfvars and customize the values.
 
-aws_region         = "us-west-2"
+aws_region         = "us-east-2"
 aws_account_id     = "123456789012"
 resource_prefix    = "frontier-audio-dev"
 s3_bucket_name     = "frontier-audio-dev-transcripts"

@@ -16,6 +16,8 @@ import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import com.example.frontieraudio.core.logging.FrontierLogger
 import com.example.frontieraudio.transcriber.R
+import com.example.frontieraudio.transcriber.cloud.TranscribeStreamingConfig
+import com.example.frontieraudio.transcriber.cloud.TranscribeStreamingCoordinator
 import com.example.frontieraudio.transcriber.verification.SpeakerVerificationState
 import com.example.frontieraudio.transcriber.verification.SpeakerVerifier
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,6 +44,8 @@ class AudioCaptureService : Service() {
 
     @Inject lateinit var speakerVerifier: SpeakerVerifier
     @Inject lateinit var logger: FrontierLogger
+    @Inject lateinit var transcribeStreamingConfig: TranscribeStreamingConfig
+    @Inject lateinit var transcribeCoordinator: TranscribeStreamingCoordinator
 
     private var audioRecord: AudioRecord? = null
     private var captureJob: Job? = null
@@ -54,6 +58,13 @@ class AudioCaptureService : Service() {
         createNotificationChannel()
         val initialNotification = buildNotification(getString(R.string.audio_capture_notification_idle))
         startForeground(NOTIFICATION_ID, initialNotification)
+        if (transcribeStreamingConfig.enabled) {
+            transcribeCoordinator.start()
+            registerWindowListener(transcribeCoordinator)
+            logger.i("AWS Transcribe streaming enabled; coordinator started.")
+        } else {
+            logger.i("AWS Transcribe streaming disabled. Coordinator not started.")
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder = binder
@@ -67,6 +78,10 @@ class AudioCaptureService : Service() {
         stopCapture()
         serviceScope.cancel()
         stopForeground(STOP_FOREGROUND_REMOVE)
+        if (transcribeStreamingConfig.enabled) {
+            unregisterWindowListener(transcribeCoordinator)
+            transcribeCoordinator.close()
+        }
     }
 
     fun registerListener(listener: AudioChunkListener) {
@@ -96,6 +111,8 @@ class AudioCaptureService : Service() {
         streamToVerifier: Boolean = true
     ) {
         if (isCapturing()) return
+
+        logger.i("Starting audio capture (streamToVerifier=%s)", streamToVerifier)
 
         val resolvedConfig = config
         val audioRecord = AudioRecord(
@@ -170,6 +187,8 @@ class AudioCaptureService : Service() {
         captureJob = null
         verificationJob?.cancel()
         verificationJob = null
+
+        logger.i("Stopping audio capture")
 
         audioRecord?.let { record ->
             try {

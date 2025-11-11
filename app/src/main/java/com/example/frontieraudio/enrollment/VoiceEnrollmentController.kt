@@ -1,5 +1,6 @@
 package com.example.frontieraudio.enrollment
 
+import androidx.annotation.RequiresPermission
 import com.example.frontieraudio.core.storage.datastore.FrontierPreferenceStore
 import com.example.frontieraudio.transcriber.audio.AudioCaptureService
 import com.example.frontieraudio.transcriber.audio.AudioChunkListener
@@ -24,6 +25,7 @@ class VoiceEnrollmentController(
     private val _currentAmplitude = MutableStateFlow(0f)
     val currentAmplitude: StateFlow<Float> = _currentAmplitude.asStateFlow()
 
+    @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
     fun startRecording(): Boolean {
         if (isRecording.get()) return false
         val service = serviceProvider() ?: return false

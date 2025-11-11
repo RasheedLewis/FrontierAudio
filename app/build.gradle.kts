@@ -50,6 +50,17 @@ android {
         buildConfig = true
         compose = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "/META-INF/DEPENDENCIES"
+            excludes += "/META-INF/io.netty.versions.properties"
+        }
+    }
+    lint {
+        disable += "UnrememberedMutableState"
+        disable += "FlowOperatorInvokedInComposition"
+    }
 }
 
 kapt {

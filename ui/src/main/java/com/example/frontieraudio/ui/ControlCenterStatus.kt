@@ -21,14 +21,14 @@ import androidx.compose.ui.unit.dp
 import com.example.frontieraudio.core.environment.EnvironmentConfig
 import com.example.frontieraudio.core.permissions.PermissionSnapshot
 import com.example.frontieraudio.jarvis.JarvisModule
-import com.example.frontieraudio.transcriber.TranscriberModule
 import com.example.frontieraudio.ui.theme.FrontierTheme
 import java.util.Locale
 
 @Composable
 fun ControlCenterStatus(
         jarvisModule: JarvisModule,
-        transcriberModule: TranscriberModule,
+        isTranscriberStreaming: Boolean,
+        isTranscriberSupported: Boolean,
         isFirstLaunch: Boolean,
         isVoiceEnrolled: Boolean,
         permissionSnapshot: PermissionSnapshot,
@@ -38,7 +38,18 @@ fun ControlCenterStatus(
         modifier: Modifier = Modifier
 ) {
     val jarvisReady = jarvisModule.isEnabled()
-    val transcriberReady = transcriberModule.isListening()
+    val transcriberStatusLabel =
+            when {
+                !isTranscriberSupported -> "Unavailable"
+                isTranscriberStreaming -> "Streaming"
+                else -> "Idle"
+            }
+    val transcriberBadge =
+            when {
+                !isTranscriberSupported -> "Disabled"
+                isTranscriberStreaming -> "Ready"
+                else -> "Standby"
+            }
     val permissionsReady = permissionSnapshot.allCriticalGranted
 
     val environmentLabel =
@@ -78,9 +89,11 @@ fun ControlCenterStatus(
             )
             StatusRow(
                     label = "Transcriber Module",
-                    value = if (transcriberReady) "Listening" else "Idle",
-                    highlight = statusColor(transcriberReady),
-                    badgeLabel = if (transcriberReady) "Ready" else "Attention"
+                    value = transcriberStatusLabel,
+                    highlight =
+                            if (isTranscriberSupported) statusColor(isTranscriberStreaming)
+                            else MaterialTheme.colorScheme.outline,
+                    badgeLabel = transcriberBadge
             )
             StatusRow(
                     label = "Permissions",

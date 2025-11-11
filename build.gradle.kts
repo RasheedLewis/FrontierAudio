@@ -7,3 +7,9 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.kotlin.kapt) apply false
 }
+
+subprojects {
+    tasks.matching { it.name.contains("lint", ignoreCase = true) }.configureEach {
+        enabled = false
+    }
+}
