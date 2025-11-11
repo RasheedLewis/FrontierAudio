@@ -38,6 +38,7 @@ class AudioCaptureService : Service() {
     private val listeners = CopyOnWriteArraySet<AudioChunkListener>()
     private val windowListeners = CopyOnWriteArraySet<AudioWindowListener>()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var noiseProcessor: NoiseFilteringProcessor? = null
 
     @Inject lateinit var speakerVerifier: SpeakerVerifier
     @Inject lateinit var logger: FrontierLogger
@@ -113,6 +114,9 @@ class AudioCaptureService : Service() {
         audioRecord.startRecording()
         this.audioRecord = audioRecord
         this.currentConfig = resolvedConfig
+        this.noiseProcessor = NoiseFilteringProcessor(
+            AudioProcessingConfig(sampleRateHz = resolvedConfig.sampleRateInHz)
+        )
         speakerVerifier.reset()
         verificationJob?.cancel()
         if (streamToVerifier) {
@@ -148,11 +152,12 @@ class AudioCaptureService : Service() {
                 val read = audioRecord.read(buffer, 0, buffer.size, AudioRecord.READ_BLOCKING)
                 if (read > 0) {
                     val chunk = buffer.copyOf(read)
+                    val processedChunk = noiseProcessor?.process(chunk, read) ?: chunk
                     val timestamp = System.currentTimeMillis()
                     listeners.forEach { listener ->
-                        listener.onAudioChunk(chunk, read, timestamp)
+                        listener.onAudioChunk(processedChunk, read, timestamp)
                     }
-                    pipeline.appendChunk(chunk, read, timestamp)
+                    pipeline.appendChunk(processedChunk, read, timestamp)
                 }
             }
             pipeline.flush()
@@ -179,6 +184,7 @@ class AudioCaptureService : Service() {
         streamingPipeline?.flush()
         streamingPipeline = null
         speakerVerifier.reset()
+        noiseProcessor = null
 
         updateNotification(getString(R.string.audio_capture_notification_idle))
     }
