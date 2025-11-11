@@ -71,6 +71,12 @@ val FrontierTypography = Typography(
         fontSize = 14.sp,
         lineHeight = 22.sp
     ),
+    labelLarge = TextStyle(
+        fontFamily = SpaceGroteskFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        lineHeight = 20.sp
+    ),
     labelMedium = TextStyle(
         fontFamily = JetBrainsMonoFamily,
         fontWeight = FontWeight.Normal,

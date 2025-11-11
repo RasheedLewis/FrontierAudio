@@ -18,7 +18,7 @@ class FrontierPreferenceStore @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
 
-    val isFirstLaunch: Flow<Boolean> = dataStore.data
+    private val dataFlow: Flow<Preferences> = dataStore.data
         .catch { throwable ->
             if (throwable is IOException) {
                 emit(emptyPreferences())
@@ -26,9 +26,17 @@ class FrontierPreferenceStore @Inject constructor(
                 throw throwable
             }
         }
+
+    val isFirstLaunch: Flow<Boolean> = dataFlow
         .map { preferences ->
             val hasCompletedFirstLaunch = preferences[Keys.HAS_COMPLETED_FIRST_LAUNCH] ?: false
             !hasCompletedFirstLaunch
+        }
+        .distinctUntilChanged()
+
+    val isVoiceEnrolled: Flow<Boolean> = dataFlow
+        .map { preferences ->
+            preferences[Keys.VOICE_ENROLLED] ?: false
         }
         .distinctUntilChanged()
 
@@ -38,8 +46,15 @@ class FrontierPreferenceStore @Inject constructor(
         }
     }
 
+    suspend fun setVoiceEnrolled(enrolled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[Keys.VOICE_ENROLLED] = enrolled
+        }
+    }
+
     private object Keys {
         val HAS_COMPLETED_FIRST_LAUNCH = booleanPreferencesKey("has_completed_first_launch")
+        val VOICE_ENROLLED = booleanPreferencesKey("voice_enrolled")
     }
 }
 

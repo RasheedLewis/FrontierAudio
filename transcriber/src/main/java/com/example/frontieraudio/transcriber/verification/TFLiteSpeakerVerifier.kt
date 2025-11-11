@@ -60,19 +60,30 @@ class TFLiteSpeakerVerifier @Inject constructor(
             return updateFallbackState(data, timestampMillis)
         }
 
-        val inputSize = localInputShape.fold(1) { acc, i -> acc * i }
+        if (localInputShape.any { it <= 0 } || localOutputShape.any { it <= 0 }) {
+            logger.w(
+                "SpeakerVerifier tensor shapes unresolved (${localInputShape.contentToString()} -> ${localOutputShape.contentToString()}); using fallback."
+            )
+            return updateFallbackState(data, timestampMillis)
+        }
+
         val samples = byteArrayToShortArray(data)
-        val floatInput = FloatArray(inputSize) { index ->
+
+        val expectedSampleCount =
+            localInputShape.takeIf { it.isNotEmpty() }?.last()?.takeIf { it > 0 } ?: samples.size
+        val normalizedSamples = FloatArray(expectedSampleCount) { index ->
             val sample = if (index < samples.size) samples[index] else 0
             sample / Short.MAX_VALUE.toFloat()
         }
+        val inputTensor = arrayOf(normalizedSamples)
 
-        val outputSize = localOutputShape.fold(1) { acc, i -> acc * i }
-        val outputBuffer = FloatArray(outputSize)
+        val outputVectorLength =
+            localOutputShape.takeIf { it.isNotEmpty() }?.last()?.coerceAtLeast(1) ?: 1
+        val outputTensor = Array(1) { FloatArray(outputVectorLength) }
 
         try {
-            interpreter.run(floatInput, outputBuffer)
-            val confidence = outputBuffer.firstOrNull()?.coerceIn(0f, 1f) ?: 0f
+            interpreter.run(inputTensor, outputTensor)
+            val confidence = outputTensor.firstOrNull()?.firstOrNull()?.coerceIn(0f, 1f) ?: 0f
             val status = if (confidence >= config.matchThreshold) {
                 VerificationStatus.MATCH
             } else {

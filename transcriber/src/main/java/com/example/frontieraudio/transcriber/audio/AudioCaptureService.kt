@@ -90,7 +90,10 @@ class AudioCaptureService : Service() {
 
     @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
     @Synchronized
-    fun startCapture(config: AudioCaptureConfig = AudioCaptureConfig()) {
+    fun startCapture(
+        config: AudioCaptureConfig = AudioCaptureConfig(),
+        streamToVerifier: Boolean = true
+    ) {
         if (isCapturing()) return
 
         val resolvedConfig = config
@@ -112,22 +115,28 @@ class AudioCaptureService : Service() {
         this.currentConfig = resolvedConfig
         speakerVerifier.reset()
         verificationJob?.cancel()
-        verificationJob = serviceScope.launch {
-            speakerVerifier.state.collectLatest { state ->
-                if (state.timestampMillis > 0L) {
-                    logger.i(
-                        "Speaker verification status=%s confidence=%.2f at %d",
-                        state.status,
-                        state.confidence,
-                        state.timestampMillis
-                    )
+        if (streamToVerifier) {
+            verificationJob = serviceScope.launch {
+                speakerVerifier.state.collectLatest { state ->
+                    if (state.timestampMillis > 0L) {
+                        logger.i(
+                            "Speaker verification status=%s confidence=%.2f at %d",
+                            state.status,
+                            state.confidence,
+                            state.timestampMillis
+                        )
+                    }
                 }
             }
+        } else {
+            verificationJob = null
         }
         val pipeline = AudioStreamingPipeline(
             windowSizeBytes = resolvedConfig.bufferSizeInBytes
         ) { bytes, timestamp ->
-            speakerVerifier.acceptWindow(bytes, timestamp)
+            if (streamToVerifier) {
+                speakerVerifier.acceptWindow(bytes, timestamp)
+            }
         }
         windowListeners.forEach { pipeline.registerWindowListener(it) }
         streamingPipeline = pipeline
