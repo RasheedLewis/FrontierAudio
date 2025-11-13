@@ -50,12 +50,17 @@ import com.example.frontieraudio.enrollment.VoiceEnrollmentController
 import com.example.frontieraudio.enrollment.VoiceEnrollmentFlow
 import com.example.frontieraudio.enrollment.VoiceProfileRepository
 import com.example.frontieraudio.jarvis.JarvisModule
+import com.example.frontieraudio.jarvis.session.JarvisSessionManager
 import com.example.frontieraudio.transcriber.TranscriberModule
 import com.example.frontieraudio.transcriber.audio.AudioCaptureService
+import com.example.frontieraudio.transcriber.audio.AudioCaptureConfig
+import com.example.frontieraudio.transcriber.audio.AudioWindowListener
 import com.example.frontieraudio.ui.ControlCenterStatus
 import com.example.frontieraudio.ui.theme.FrontierAudioTheme
+import com.example.frontieraudio.ui.jarvis.JarvisControlPanel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import android.media.AudioFormat
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -66,6 +71,22 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var preferenceStore: FrontierPreferenceStore
     @Inject lateinit var environmentConfig: EnvironmentConfig
     @Inject lateinit var voiceProfileRepository: VoiceProfileRepository
+    @Inject lateinit var jarvisSessionManager: JarvisSessionManager
+
+    private val jarvisCaptureConfig = AudioCaptureConfig()
+    private val jarvisChannelCount: Int
+        get() = when (jarvisCaptureConfig.channelConfig) {
+            AudioFormat.CHANNEL_IN_STEREO -> 2
+            else -> 1
+        }
+    private val jarvisAudioListener = AudioWindowListener { data, timestamp ->
+        jarvisSessionManager.onAudioFrame(
+            data,
+            jarvisCaptureConfig.sampleRateInHz,
+            jarvisChannelCount,
+            timestamp
+        )
+    }
 
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private var permissionStateHolder: androidx.compose.runtime.MutableState<PermissionSnapshot>? =
@@ -79,10 +100,19 @@ class MainActivity : ComponentActivity() {
                 override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                     val binder = service as? AudioCaptureService.AudioCaptureBinder ?: return
                     audioCaptureService = binder.service
+                    audioCaptureService?.registerWindowListener(jarvisAudioListener)
+                    if (jarvisSessionManager.uiState.value.isEnabled && audioCaptureService?.isCapturing() == false) {
+                        try {
+                            audioCaptureService?.startCapture(streamToVerifier = true)
+                        } catch (_: Exception) {
+                            // capture may fail if permissions are missing; handled via UI prompts
+                        }
+                    }
                     isServiceBound = true
                 }
 
                 override fun onServiceDisconnected(name: ComponentName?) {
+                    audioCaptureService?.unregisterWindowListener(jarvisAudioListener)
                     audioCaptureService = null
                     isServiceBound = false
                 }
@@ -155,6 +185,7 @@ class MainActivity : ComponentActivity() {
                 val isStreamingEnabled by
                         streamingStateFlow.collectAsState(initial = transcriberModule.isListening())
                 val isStreamingSupported = remember { transcriberModule.isStreamingSupported() }
+                val jarvisUiState by jarvisSessionManager.uiState.collectAsState()
                 val transcriptLines = remember { mutableStateListOf<TranscriptEntry>() }
                 var partialTranscript by remember { mutableStateOf<String?>(null) }
                 var transcriptCounter by remember { mutableStateOf(0L) }
@@ -216,6 +247,37 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.fillMaxWidth()
                             )
 
+                            JarvisControlPanel(
+                                    state = jarvisUiState,
+                                    onToggle = { enable ->
+                                        if (enable) {
+                                            if (!permissionSnapshotState.value.recordAudioGranted) {
+                                                requestPermissions()
+                                                return@JarvisControlPanel
+                                            }
+                                            startAndBindAudioService()
+                                            audioCaptureService?.let { service ->
+                                                if (!service.isCapturing()) {
+                                                    try {
+                                                        service.startCapture(streamToVerifier = true)
+                                                    } catch (_: Exception) {
+                                                        // Permission issues trigger UI prompt; no-op here
+                                                    }
+                                                }
+                                                service.registerWindowListener(jarvisAudioListener)
+                                            }
+                                            jarvisSessionManager.startSession(
+                                                    jarvisCaptureConfig.sampleRateInHz,
+                                                    jarvisChannelCount
+                                            )
+                                        } else {
+                                            jarvisSessionManager.stopSession("operator_toggle")
+                                        }
+                                    },
+                                    onStopSession = { jarvisSessionManager.stopSession("manual_stop") },
+                                    modifier = Modifier.fillMaxWidth()
+                            )
+
                             StreamingControlCard(
                                     isStreamingSupported = isStreamingSupported,
                                     isStreamingEnabled = isStreamingEnabled,
@@ -272,6 +334,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         if (isServiceBound) {
+            audioCaptureService?.unregisterWindowListener(jarvisAudioListener)
             unbindService(serviceConnection)
             isServiceBound = false
         }

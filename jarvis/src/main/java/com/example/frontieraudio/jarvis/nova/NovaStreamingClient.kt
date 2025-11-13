@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package com.example.frontieraudio.jarvis.nova
 
 import android.util.Base64
@@ -21,8 +22,10 @@ import org.reactivestreams.Subscription
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.core.async.SdkPublisher
-import software.amazon.awssdk.http.Protocol
-import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
+import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration
+import software.amazon.awssdk.core.retry.RetryPolicy
+import software.amazon.awssdk.http.async.SdkAsyncHttpClient
+import software.amazon.awssdk.http.crt.AwsCrtAsyncHttpClient
 import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeAsyncClient
 import software.amazon.awssdk.services.bedrockruntime.model.BidirectionalOutputPayloadPart
 import software.amazon.awssdk.services.bedrockruntime.model.InvokeModelWithBidirectionalStreamInput
@@ -38,11 +41,10 @@ class NovaStreamingClient @Inject constructor(
     private val credentialsProvider: AwsCredentialsProvider
 ) : Closeable {
 
-    private val httpClient by lazy {
-        NettyNioAsyncHttpClient.builder()
+    private val httpClient: SdkAsyncHttpClient by lazy {
+        AwsCrtAsyncHttpClient.builder()
             .maxConcurrency(32)
-            .readTimeout(Duration.ofSeconds(180))
-            .protocol(Protocol.HTTP2)
+            .connectionTimeout(Duration.ofSeconds(30))
             .build()
     }
 
@@ -51,6 +53,13 @@ class NovaStreamingClient @Inject constructor(
             .credentialsProvider(credentialsProvider)
             .region(config.region)
             .httpClient(httpClient)
+            .overrideConfiguration(
+                ClientOverrideConfiguration.builder()
+                    .apply {
+                        retryPolicy(RetryPolicy.none())
+                    }
+                    .build()
+            )
             .build()
     }
 

@@ -42,6 +42,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
         jvmTarget = "11"
@@ -52,9 +53,9 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/INDEX.LIST"
-            excludes += "/META-INF/DEPENDENCIES"
-            excludes += "/META-INF/io.netty.versions.properties"
+            excludes += "META-INF/INDEX.LIST"
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/io.netty.versions.properties"
         }
     }
     lint {
@@ -82,6 +83,7 @@ dependencies {
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.material3)
     implementation(libs.kotlinx.coroutines.android)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

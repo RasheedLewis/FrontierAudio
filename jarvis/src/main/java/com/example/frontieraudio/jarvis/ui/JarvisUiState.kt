@@ -1,8 +1,5 @@
-package com.example.frontieraudio.ui.jarvis
+package com.example.frontieraudio.jarvis.ui
 
-import androidx.compose.runtime.Immutable
-
-@Immutable
 data class JarvisUiState(
     val isEnabled: Boolean = false,
     val linkStatus: JarvisLinkStatus = JarvisLinkStatus.DISCONNECTED,
@@ -20,5 +17,3 @@ enum class JarvisLinkStatus(val label: String) {
     CONNECTED("Connected"),
     DEGRADED("Degraded")
 }
-
-

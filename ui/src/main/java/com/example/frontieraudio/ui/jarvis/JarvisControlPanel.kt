@@ -49,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.frontieraudio.ui.theme.FrontierTheme
 import kotlin.math.roundToInt
+import com.example.frontieraudio.jarvis.ui.JarvisLinkStatus
+import com.example.frontieraudio.jarvis.ui.JarvisUiState
 
 private val JarvisBackground = Color(0xFF0C0D0F)
 private val JarvisSurface = Color(0xFF16181C)
@@ -108,8 +110,7 @@ private fun JarvisHeader(state: JarvisUiState) {
             ),
             color = Color.White
         )
-        val subtitle = when {
-            state.statusMessage != null -> state.statusMessage
+        val subtitle = state.statusMessage ?: when {
             state.isEnabled && state.linkStatus == JarvisLinkStatus.CONNECTED ->
                 "Standing by for field commands."
             state.isEnabled && state.linkStatus == JarvisLinkStatus.CONNECTING ->
