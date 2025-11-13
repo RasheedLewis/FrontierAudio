@@ -153,7 +153,7 @@ class AudioCaptureService : Service() {
             verificationJob = null
         }
         val pipeline = AudioStreamingPipeline(
-            windowSizeBytes = resolvedConfig.bufferSizeInBytes
+            windowSizeBytes = STREAMING_WINDOW_SAMPLES * Short.SIZE_BYTES
         ) { bytes, timestamp ->
             if (streamToVerifier) {
                 speakerVerifier.acceptWindow(bytes, timestamp)
@@ -257,6 +257,7 @@ class AudioCaptureService : Service() {
     companion object {
         private const val NOTIFICATION_CHANNEL_ID = "frontier_audio_capture"
         private const val NOTIFICATION_ID = 9001
+        private const val STREAMING_WINDOW_SAMPLES = 15_600 // ~0.96s at 16 kHz
     }
 }
 

@@ -15,7 +15,9 @@ object SpeakerVerificationModule {
 
     @Provides
     @Singleton
-    fun provideSpeakerVerificationConfig(): SpeakerVerificationConfig = SpeakerVerificationConfig()
+    fun provideSpeakerVerificationConfig(): SpeakerVerificationConfig = SpeakerVerificationConfig(
+        matchThreshold = 0.3f
+    )
 
     @Provides
     @Singleton

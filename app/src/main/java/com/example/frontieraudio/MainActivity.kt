@@ -227,7 +227,7 @@ class MainActivity : ComponentActivity() {
                                             }
                                             val captureService = audioCaptureService
                                             if (enabled) {
-                                                captureService?.startCapture(streamToVerifier = false)
+                                                captureService?.startCapture(streamToVerifier = true)
                                             } else {
                                                 captureService?.stopCapture()
                                             }
