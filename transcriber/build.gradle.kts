@@ -42,7 +42,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 26
         buildConfigField("String", "TRANSCRIBE_ACCESS_KEY", transcribeAccessKey.toBuildConfigString())
         buildConfigField("String", "TRANSCRIBE_SECRET_KEY", transcribeSecretKey.toBuildConfigString())
         buildConfigField("String", "TRANSCRIBE_SESSION_TOKEN", transcribeSessionToken.toBuildConfigString())

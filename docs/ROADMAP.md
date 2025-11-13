@@ -66,19 +66,17 @@ This roadmap defines the detailed development plan for the Frontier Audio ecosys
 
 ### **PR-04: Jarvis Core Integration**
 
-**Objective:** Build the real-time AI assistant interface powered by LLM APIs.
+**Objective:** Stand up the Jarvis speech-to-speech assistant using Amazon Nova bidirectional streaming.
 
 **Subtasks:**
 
-1. Integrate LLM API (OpenAI or Anthropic Claude) with FastAPI gateway.
-2. Implement low-latency WebSocket pipeline for query/response.
-3. Create context memory manager for session persistence.
-4. Add text-to-speech (TTS) and speech-to-text (STT) integration.
-5. Develop interruptibility feature for user control mid-response.
-6. Test response accuracy, latency, and fallback logic.
-7. Create mock endpoints for offline testing.
-8. Trigger Lambda on new S3 transcripts to index metadata into DynamoDB/OpenSearch for Jarvis recall queries.
-9. Expose transcript search (“What did I say at…”) through the Jarvis context interface.
+1. Implement the Amazon Nova bidirectional streaming client in the Jarvis module using the AWS SDK for Kotlin, including session start, keep-alive, and teardown flows.
+2. Stream verified microphone audio into Nova in real time (PCM framing, backpressure, error handling) and surface Nova `audioOutput` events to the playback layer.
+3. Parse Nova `textOutput` events to drive Jarvis STT updates, live captions, and conversation memory persistence.
+4. Design and apply a Jarvis system prompt aligned with Frontier PRD requirements (safety, compliance, modular context).
+5. Manage conversation state (session IDs, latency metrics, fallback triggers) and support user barge-in/interrupt handling.
+6. Expose Nova session controls and status to the Control Center UI via shared core services.
+7. Provide a lightweight offline/mock mode for local development when Nova streaming is unavailable.
 
 ---
 
