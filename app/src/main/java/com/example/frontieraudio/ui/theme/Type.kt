@@ -2,36 +2,24 @@ package com.example.frontieraudio.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.text.googlefonts.GoogleFont
-import androidx.compose.ui.text.googlefonts.GoogleFont.Provider
 import androidx.compose.ui.unit.sp
 import com.example.frontieraudio.R
 
-private val googleFontProvider = Provider(
-    providerAuthority = "com.google.android.gms.fonts",
-    providerPackage = "com.google.android.gms",
-    certificates = R.array.com_google_android_gms_fonts_certs
-)
-
-private val spaceGrotesk = GoogleFont("Space Grotesk")
-private val inter = GoogleFont("Inter")
-private val jetBrainsMono = GoogleFont("JetBrains Mono")
-
 private val SpaceGroteskFamily = FontFamily(
-    Font(googleFont = spaceGrotesk, fontProvider = googleFontProvider, weight = FontWeight.SemiBold),
-    Font(googleFont = spaceGrotesk, fontProvider = googleFontProvider, weight = FontWeight.Bold)
+    Font(R.font.space_grotesk_semibold, weight = FontWeight.SemiBold),
+    Font(R.font.space_grotesk_bold, weight = FontWeight.Bold)
 )
 
 private val InterFamily = FontFamily(
-    Font(googleFont = inter, fontProvider = googleFontProvider, weight = FontWeight.Normal),
-    Font(googleFont = inter, fontProvider = googleFontProvider, weight = FontWeight.Medium)
+    Font(R.font.inter_regular, weight = FontWeight.Normal),
+    Font(R.font.inter_medium, weight = FontWeight.Medium)
 )
 
 private val JetBrainsMonoFamily = FontFamily(
-    Font(googleFont = jetBrainsMono, fontProvider = googleFontProvider, weight = FontWeight.Normal)
+    Font(R.font.jetbrains_mono_regular, weight = FontWeight.Normal)
 )
 
 val FrontierTypography = Typography(

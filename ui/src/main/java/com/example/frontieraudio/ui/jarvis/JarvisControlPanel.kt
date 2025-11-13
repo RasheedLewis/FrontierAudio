@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -140,10 +141,9 @@ private fun JarvisSessionSummary(state: JarvisUiState) {
                 .padding(FrontierTheme.spacing.large),
             verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.medium)
         ) {
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.spacedBy(FrontierTheme.spacing.extraSmall)
             ) {
                 StatusPill(
                     label = state.linkStatus.label.uppercase(),
@@ -395,8 +395,10 @@ private fun JarvisActions(state: JarvisUiState, onStopSession: () -> Unit) {
             enabled = state.isEnabled
         ) {
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = "Stop Session",
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                textAlign = TextAlign.Center
             )
         }
         Spacer(modifier = Modifier.width(FrontierTheme.spacing.small))
